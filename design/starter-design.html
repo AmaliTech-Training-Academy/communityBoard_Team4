@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CommunityBoard - Starter Design Reference</title>
+  <style>
+    /* ============================================================
+       DESIGN SYSTEM - VARIABLES
+       ============================================================ */
+    :root {
+      --primary: #0066CC;
+      --primary-dark: #003366;
+      --primary-light: #e6f0fa;
+      --success: #28a745;
+      --warning: #fd7e14;
+      --danger: #dc3545;
+      --gray-50: #f8f9fa;
+      --gray-100: #f1f3f5;
+      --gray-200: #e9ecef;
+      --gray-300: #dee2e6;
+      --gray-400: #ced4da;
+      --gray-500: #adb5bd;
+      --gray-600: #868e96;
+      --gray-700: #495057;
+      --gray-800: #343a40;
+      --gray-900: #212529;
+      --white: #ffffff;
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --card-shadow-hover: 0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-full: 9999px;
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+    }
+
+    /* ============================================================
+       RESET & BASE
+       ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--gray-800);
+      background-color: var(--gray-100);
+    }
+
+    h1 { font-size: 24px; font-weight: 700; line-height: 1.3; }
+    h2 { font-size: 20px; font-weight: 600; line-height: 1.3; }
+    h3 { font-size: 16px; font-weight: 600; line-height: 1.4; }
+    small, .text-sm { font-size: 12px; }
+
+    a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* ============================================================
+       PAGE WRAPPER
+       ============================================================ */
+    .page-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--space-lg);
+    }
+
+    /* ============================================================
+       DESIGN HEADER
+       ============================================================ */
+    .design-header {
+      text-align: center;
+      padding: var(--space-2xl) var(--space-lg);
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: var(--white);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-2xl);
+    }
+    .design-header h1 {
+      font-size: 32px;
+      margin-bottom: var(--space-sm);
+    }
+    .design-header p {
+      opacity: 0.85;
+      font-size: 16px;
+    }
+
+    /* ============================================================
+       SCREEN SECTION WRAPPER
+       ============================================================ */
+    .screen-section {
+      margin-bottom: var(--space-2xl);
+    }
+    .screen-label {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      background: var(--gray-700);
+      color: var(--white);
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .screen-label .label-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+    .screen-content {
+      background: var(--gray-200);
+      border: 1px solid var(--gray-300);
+      border-top: none;
+      border-radius: 0 0 var(--radius-md) var(--radius-md);
+      padding: var(--space-xl);
+      overflow: hidden;
+    }
+
+    /* ============================================================
+       BUTTONS
+       ============================================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s;
+      line-height: 1.4;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: var(--white);
+    }
+    .btn-primary:hover {
+      background: #0055aa;
+    }
+    .btn-success {
+      background: var(--success);
+      color: var(--white);
+    }
+    .btn-outline {
+      background: var(--white);
+      color: var(--gray-700);
+      border: 1px solid var(--gray-300);
+    }
+    .btn-outline:hover {
+      background: var(--gray-50);
+    }
+    .btn-sm {
+      padding: 6px 14px;
+      font-size: 13px;
+    }
+    .btn-lg {
+      padding: 12px 28px;
+      font-size: 16px;
+    }
+    .btn-block {
+      width: 100%;
+    }
+
+    /* ============================================================
+       FORM ELEMENTS
+       ============================================================ */
+    .form-group {
+      margin-bottom: var(--space-md);
+    }
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gray-700);
+      margin-bottom: var(--space-xs);
+    }
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 1px solid var(--gray-300);
+      border-radius: var(--radius-sm);
+      background: var(--white);
+      color: var(--gray-800);
+      transition: border-color 0.15s, box-shadow 0.15s;
+      font-family: inherit;
+    }
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15);
+    }
+    .form-textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    /* ============================================================
+       CARD
+       ============================================================ */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+    }
+    .card-body {
+      padding: var(--space-lg);
+    }
+
+    /* ============================================================
+       CATEGORY BADGES
+       ============================================================ */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .badge-events       { background: #e6f0fa; color: #0066CC; }
+    .badge-lost         { background: #fff3e6; color: #d46b08; }
+    .badge-recommend    { background: #e6f9ed; color: #1a7f37; }
+    .badge-help         { background: #fde8e8; color: #c53030; }
+
+    /* ============================================================
+       SCREEN 1 & 2: AUTH PAGES
+       ============================================================ */
+    .auth-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 500px;
+      background: linear-gradient(135deg, var(--gray-50), var(--gray-200));
+      border-radius: var(--radius-md);
+    }
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--card-shadow);
+      padding: var(--space-xl);
+    }
+    .auth-logo {
+      text-align: center;
+      margin-bottom: var(--space-lg);
+    }
+    .auth-logo .logo-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      background: var(--primary);
+      color: var(--white);
+      border-radius: var(--radius-md);
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: var(--space-sm);
+    }
+    .auth-logo h2 {
+      font-size: 22px;
+      color: var(--gray-900);
+    }
+    .auth-logo p {
+      color: var(--gray-600);
+      font-size: 14px;
+      margin-top: 2px;
+    }
+    .auth-footer {
+      text-align: center;
+      margin-top: var(--space-md);
+      font-size: 13px;
+      color: var(--gray-600);
+    }
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      margin: var(--space-lg) 0;
+      color: var(--gray-500);
+      font-size: 12px;
+    }
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--gray-300);
+    }
+    .auth-divider::before { margin-right: var(--space-sm); }
+    .auth-divider::after  { margin-left: var(--space-sm);  }
+
+    /* ============================================================
+       SCREEN 3: HOME PAGE - NAV BAR
+       ============================================================ */
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      background: var(--white);
+      padding: 12px var(--space-lg);
+      border-radius: var(--radius-md);
+      box-shadow: var(--card-shadow);
+      margin-bottom: var(--space-md);
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--primary-dark);
+      white-space: nowrap;
+    }
+    .nav-brand .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--primary);
+      color: var(--white);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .nav-search {
+      flex: 1;
+      max-width: 420px;
+      position: relative;
+    }
+    .nav-search input {
+      width: 100%;
+      padding: 8px 12px 8px 36px;
+      border: 1px solid var(--gray-300);
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      background: var(--gray-50);
+    }
+    .nav-search input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: var(--white);
+    }
+    .nav-search .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray-500);
+      font-size: 13px;
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-left: auto;
+    }
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* FILTER BAR */
+    .filter-bar {
+      display: flex;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-lg);
+      flex-wrap: wrap;
+    }
+    .filter-pill {
+      padding: 7px 18px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--gray-300);
+      background: var(--white);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--gray-700);
+      transition: all 0.15s;
+    }
+    .filter-pill:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .filter-pill.active {
+      background: var(--primary);
+      color: var(--white);
+      border-color: var(--primary);
+    }
+
+    /* POST CARDS GRID */
+    .post-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: var(--space-md);
+    }
+    .post-card {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--card-shadow);
+      padding: var(--space-lg);
+      transition: box-shadow 0.2s, transform 0.2s;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+    }
+    .post-card:hover {
+      box-shadow: var(--card-shadow-hover);
+      transform: translateY(-1px);
+    }
+    .post-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-sm);
+    }
+    .post-card h3 {
+      margin-bottom: var(--space-xs);
+      color: var(--gray-900);
+    }
+    .post-card p {
+      color: var(--gray-600);
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: var(--space-md);
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .post-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--gray-100);
+      font-size: 12px;
+      color: var(--gray-500);
+    }
+    .post-card-footer .author {
+      font-weight: 500;
+      color: var(--gray-700);
+    }
+    .post-card-footer .meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+    .comment-count {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .comment-count svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ============================================================
+       SCREEN 4: POST DETAIL
+       ============================================================ */
+    .detail-wrapper {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--gray-600);
+      font-size: 13px;
+      margin-bottom: var(--space-md);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .back-link:hover {
+      color: var(--primary);
+    }
+    .detail-card {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--card-shadow);
+      padding: var(--space-xl);
+      margin-bottom: var(--space-lg);
+    }
+    .detail-card .detail-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-top: var(--space-md);
+      font-size: 13px;
+      color: var(--gray-500);
+    }
+    .detail-card .detail-meta .author-name {
+      font-weight: 500;
+      color: var(--gray-700);
+    }
+    .detail-card .detail-body {
+      margin-top: var(--space-lg);
+      color: var(--gray-700);
+      line-height: 1.75;
+    }
+
+    /* COMMENTS */
+    .comments-section h3 {
+      margin-bottom: var(--space-md);
+    }
+    .comment-input-group {
+      display: flex;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-lg);
+    }
+    .comment-input-group .form-textarea {
+      min-height: 60px;
+      flex: 1;
+    }
+    .comment-item {
+      display: flex;
+      gap: var(--space-md);
+      padding: var(--space-md) 0;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .comment-item:last-child {
+      border-bottom: none;
+    }
+    .comment-item .avatar {
+      flex-shrink: 0;
+    }
+    .comment-content {
+      flex: 1;
+    }
+    .comment-content .comment-author {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--gray-800);
+    }
+    .comment-content .comment-date {
+      font-size: 12px;
+      color: var(--gray-500);
+      margin-left: var(--space-sm);
+    }
+    .comment-content .comment-text {
+      margin-top: var(--space-xs);
+      color: var(--gray-600);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ============================================================
+       SCREEN 5: CREATE POST
+       ============================================================ */
+    .create-wrapper {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .create-card {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--card-shadow);
+      padding: var(--space-xl);
+    }
+    .create-card h2 {
+      margin-bottom: var(--space-lg);
+    }
+    .create-actions {
+      display: flex;
+      gap: var(--space-sm);
+      justify-content: flex-end;
+      margin-top: var(--space-lg);
+    }
+
+    /* Toolbar mock */
+    .toolbar {
+      display: flex;
+      gap: 2px;
+      padding: var(--space-sm);
+      border: 1px solid var(--gray-300);
+      border-bottom: none;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      background: var(--gray-50);
+    }
+    .toolbar-btn {
+      width: 32px;
+      height: 28px;
+      border: none;
+      background: none;
+      border-radius: 3px;
+      font-size: 13px;
+      color: var(--gray-600);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+    .toolbar-btn:hover {
+      background: var(--gray-200);
+    }
+    .toolbar + .form-textarea {
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    }
+
+    /* ============================================================
+       SCREEN 6: ANALYTICS DASHBOARD
+       ============================================================ */
+    .dashboard-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-lg);
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+    .metric-card {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--card-shadow);
+      padding: var(--space-lg);
+    }
+    .metric-card .metric-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .metric-card .metric-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-top: var(--space-xs);
+    }
+    .metric-card .metric-change {
+      font-size: 12px;
+      margin-top: var(--space-xs);
+    }
+    .metric-card .metric-change.up   { color: var(--success); }
+    .metric-card .metric-change.down { color: var(--danger);  }
+    .metric-card .metric-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      margin-bottom: var(--space-sm);
+    }
+    .metric-icon.blue   { background: var(--primary-light); color: var(--primary); }
+    .metric-icon.green  { background: #e6f9ed; color: var(--success); }
+    .metric-icon.orange { background: #fff3e6; color: var(--warning); }
+    .metric-icon.red    { background: #fde8e8; color: var(--danger);  }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+    .chart-card {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--card-shadow);
+      padding: var(--space-lg);
+    }
+    .chart-card h3 {
+      margin-bottom: var(--space-lg);
+    }
+
+    /* CSS Bar Chart */
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: var(--space-lg);
+      height: 180px;
+      padding-top: var(--space-md);
+    }
+    .bar-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-xs);
+      height: 100%;
+      justify-content: flex-end;
+    }
+    .bar-item .bar {
+      width: 100%;
+      max-width: 56px;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      transition: height 0.3s;
+    }
+    .bar-item .bar-label {
+      font-size: 11px;
+      color: var(--gray-600);
+      font-weight: 500;
+      text-align: center;
+    }
+    .bar-item .bar-value {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+
+    /* CSS Line Chart */
+    .line-chart-placeholder {
+      height: 180px;
+      position: relative;
+      padding-top: var(--space-md);
+    }
+    .line-chart-placeholder svg {
+      width: 100%;
+      height: 100%;
+    }
+    .line-chart-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--gray-500);
+      margin-top: var(--space-sm);
+    }
+
+    /* Leaderboard */
+    .leaderboard-card {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--card-shadow);
+      padding: var(--space-lg);
+    }
+    .leaderboard-card h3 {
+      margin-bottom: var(--space-md);
+    }
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .leaderboard-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: 2px solid var(--gray-200);
+    }
+    .leaderboard-table td {
+      padding: 10px var(--space-md);
+      font-size: 14px;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .leaderboard-table tr:last-child td {
+      border-bottom: none;
+    }
+    .leaderboard-table .rank {
+      font-weight: 700;
+      color: var(--primary);
+      width: 40px;
+    }
+    .leaderboard-table .contributor-name {
+      font-weight: 500;
+      color: var(--gray-800);
+    }
+    .leaderboard-table .post-count {
+      font-weight: 600;
+      color: var(--gray-700);
+      text-align: right;
+    }
+    .progress-bar-bg {
+      width: 120px;
+      height: 6px;
+      background: var(--gray-100);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: var(--radius-full);
+      background: var(--primary);
+    }
+
+    /* ============================================================
+       DESIGN NOTES SECTION
+       ============================================================ */
+    .design-notes {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--card-shadow);
+      padding: var(--space-xl);
+      margin-top: var(--space-2xl);
+    }
+    .design-notes h2 {
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-sm);
+      border-bottom: 2px solid var(--gray-200);
+    }
+    .notes-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-xl);
+    }
+    .note-block {
+      margin-bottom: var(--space-lg);
+    }
+    .note-block h3 {
+      margin-bottom: var(--space-sm);
+      color: var(--gray-700);
+    }
+    .color-swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+    }
+    .swatch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .swatch .swatch-color {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--gray-200);
+    }
+    .swatch .swatch-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--gray-600);
+    }
+    .swatch .swatch-hex {
+      font-size: 10px;
+      color: var(--gray-500);
+      font-family: monospace;
+    }
+    .note-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .note-table td {
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .note-table td:first-child {
+      font-weight: 500;
+      color: var(--gray-700);
+      width: 160px;
+    }
+    .note-table td:last-child {
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--gray-600);
+    }
+    .component-list {
+      list-style: none;
+      padding: 0;
+    }
+    .component-list li {
+      padding: 6px 0;
+      border-bottom: 1px solid var(--gray-100);
+      font-size: 13px;
+    }
+    .component-list li:last-child {
+      border-bottom: none;
+    }
+    .component-list code {
+      background: var(--gray-50);
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      color: var(--primary);
+      border: 1px solid var(--gray-200);
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+  <!-- ============================================================
+       DESIGN FILE HEADER
+       ============================================================ -->
+  <div class="design-header">
+    <h1>CommunityBoard - Starter Design</h1>
+    <p>Reference screens for frontend React implementation (Teams 1-5)</p>
+  </div>
+
+
+  <!-- ============================================================
+       SCREEN 1: LOGIN PAGE
+       ============================================================ -->
+  <div class="screen-section">
+    <div class="screen-label"><span class="label-dot"></span> Screen 1: Login Page</div>
+    <div class="screen-content">
+      <div class="auth-wrapper">
+        <div class="auth-card">
+          <div class="auth-logo">
+            <div class="logo-icon">CB</div>
+            <h2>CommunityBoard</h2>
+            <p>Sign in to your account</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email address</label>
+            <input type="email" class="form-input" placeholder="you@example.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" placeholder="Enter your password" />
+          </div>
+          <button class="btn btn-primary btn-block btn-lg" style="margin-top: 8px;">Sign In</button>
+          <div class="auth-footer">
+            Don't have an account? <a href="#">Register</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================
+       SCREEN 2: REGISTER PAGE
+       ============================================================ -->
+  <div class="screen-section">
+    <div class="screen-label"><span class="label-dot"></span> Screen 2: Register Page</div>
+    <div class="screen-content">
+      <div class="auth-wrapper">
+        <div class="auth-card">
+          <div class="auth-logo">
+            <div class="logo-icon">CB</div>
+            <h2>Create Account</h2>
+            <p>Join the CommunityBoard</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-input" placeholder="John Doe" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email address</label>
+            <input type="email" class="form-input" placeholder="you@example.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" placeholder="Create a password" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" class="form-input" placeholder="Confirm your password" />
+          </div>
+          <button class="btn btn-primary btn-block btn-lg" style="margin-top: 8px;">Create Account</button>
+          <div class="auth-footer">
+            Already have an account? <a href="#">Sign In</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================
+       SCREEN 3: HOME PAGE (POST FEED)
+       ============================================================ -->
+  <div class="screen-section">
+    <div class="screen-label"><span class="label-dot"></span> Screen 3: Home Page (Post Feed)</div>
+    <div class="screen-content">
+
+      <!-- Nav Bar -->
+      <div class="nav-bar">
+        <div class="nav-brand">
+          <div class="brand-icon">CB</div>
+          CommunityBoard
+        </div>
+        <div class="nav-search">
+          <span class="search-icon">&#128269;</span>
+          <input type="text" placeholder="Search posts..." />
+        </div>
+        <div class="nav-actions">
+          <button class="btn btn-primary btn-sm">+ New Post</button>
+          <div class="avatar">JD</div>
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <span class="filter-pill active">All</span>
+        <span class="filter-pill" style="border-color: #b3d4ff; color: #0066CC;">Events</span>
+        <span class="filter-pill" style="border-color: #ffd8a8; color: #d46b08;">Lost &amp; Found</span>
+        <span class="filter-pill" style="border-color: #b2e8c8; color: #1a7f37;">Recommendations</span>
+        <span class="filter-pill" style="border-color: #f8b4b4; color: #c53030;">Help Requests</span>
+      </div>
+
+      <!-- Post Cards Grid -->
+      <div class="post-grid">
+
+        <!-- Post 1 -->
+        <div class="post-card">
+          <div class="post-card-header">
+            <span class="badge badge-events">Events</span>
+          </div>
+          <h3>Community Clean-Up Day this Saturday</h3>
+          <p>Join us for our monthly community clean-up this Saturday at Central Park. Gloves and bags will be provided. Refreshments afterward at the community hall. Everyone is welcome to participate!</p>
+          <div class="post-card-footer">
+            <span><span class="author">Sarah K.</span> &middot; Feb 5, 2026</span>
+            <span class="meta">
+              <span class="comment-count">
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2.5 3A1.5 1.5 0 001 4.5v5A1.5 1.5 0 002.5 11h1v2.5l3.5-2.5h4a1.5 1.5 0 001.5-1.5v-5A1.5 1.5 0 0011 3H2.5z"/></svg>
+                12
+              </span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Post 2 -->
+        <div class="post-card">
+          <div class="post-card-header">
+            <span class="badge badge-lost">Lost &amp; Found</span>
+          </div>
+          <h3>Found: Set of Keys near Elm Street</h3>
+          <p>Found a set of keys with a red keychain near the corner of Elm and Oak streets this morning. Includes three house keys and a small flashlight. Please message me if they belong to you.</p>
+          <div class="post-card-footer">
+            <span><span class="author">Mike R.</span> &middot; Feb 4, 2026</span>
+            <span class="meta">
+              <span class="comment-count">
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2.5 3A1.5 1.5 0 001 4.5v5A1.5 1.5 0 002.5 11h1v2.5l3.5-2.5h4a1.5 1.5 0 001.5-1.5v-5A1.5 1.5 0 0011 3H2.5z"/></svg>
+                5
+              </span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Post 3 -->
+        <div class="post-card">
+          <div class="post-card-header">
+            <span class="badge badge-recommend">Recommendations</span>
+          </div>
+          <h3>Best Coffee Shops for Remote Work</h3>
+          <p>I have been trying out different coffee shops around the neighborhood for remote work. Here are my top picks with great Wi-Fi, outlets, and a quiet atmosphere for getting things done.</p>
+          <div class="post-card-footer">
+            <span><span class="author">Ama B.</span> &middot; Feb 3, 2026</span>
+            <span class="meta">
+              <span class="comment-count">
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2.5 3A1.5 1.5 0 001 4.5v5A1.5 1.5 0 002.5 11h1v2.5l3.5-2.5h4a1.5 1.5 0 001.5-1.5v-5A1.5 1.5 0 0011 3H2.5z"/></svg>
+                18
+              </span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Post 4 -->
+        <div class="post-card">
+          <div class="post-card-header">
+            <span class="badge badge-help">Help Requests</span>
+          </div>
+          <h3>Need Help Moving Furniture This Weekend</h3>
+          <p>Moving to a new apartment two blocks away and could use a hand with some heavy furniture items. I have a small truck. Happy to return the favor anytime or buy lunch as thanks!</p>
+          <div class="post-card-footer">
+            <span><span class="author">David L.</span> &middot; Feb 3, 2026</span>
+            <span class="meta">
+              <span class="comment-count">
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2.5 3A1.5 1.5 0 001 4.5v5A1.5 1.5 0 002.5 11h1v2.5l3.5-2.5h4a1.5 1.5 0 001.5-1.5v-5A1.5 1.5 0 0011 3H2.5z"/></svg>
+                7
+              </span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Post 5 -->
+        <div class="post-card">
+          <div class="post-card-header">
+            <span class="badge badge-events">Events</span>
+          </div>
+          <h3>Free Yoga in the Park - Every Wednesday</h3>
+          <p>Certified instructor offering free yoga sessions every Wednesday at 7 AM in Riverside Park. All levels welcome. Bring your own mat. Sessions last about 45 minutes.</p>
+          <div class="post-card-footer">
+            <span><span class="author">Lisa T.</span> &middot; Feb 2, 2026</span>
+            <span class="meta">
+              <span class="comment-count">
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2.5 3A1.5 1.5 0 001 4.5v5A1.5 1.5 0 002.5 11h1v2.5l3.5-2.5h4a1.5 1.5 0 001.5-1.5v-5A1.5 1.5 0 0011 3H2.5z"/></svg>
+                23
+              </span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Post 6 -->
+        <div class="post-card">
+          <div class="post-card-header">
+            <span class="badge badge-lost">Lost &amp; Found</span>
+          </div>
+          <h3>Lost Cat - Gray Tabby, Answers to "Milo"</h3>
+          <p>Our gray tabby cat Milo has been missing since Monday evening. Last seen near Pine Avenue. He is wearing a blue collar with a tag. Please contact us if you spot him anywhere nearby.</p>
+          <div class="post-card-footer">
+            <span><span class="author">Kwame A.</span> &middot; Feb 1, 2026</span>
+            <span class="meta">
+              <span class="comment-count">
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2.5 3A1.5 1.5 0 001 4.5v5A1.5 1.5 0 002.5 11h1v2.5l3.5-2.5h4a1.5 1.5 0 001.5-1.5v-5A1.5 1.5 0 0011 3H2.5z"/></svg>
+                31
+              </span>
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================
+       SCREEN 4: POST DETAIL PAGE
+       ============================================================ -->
+  <div class="screen-section">
+    <div class="screen-label"><span class="label-dot"></span> Screen 4: Post Detail Page</div>
+    <div class="screen-content">
+      <div class="detail-wrapper">
+
+        <a href="#" class="back-link">&larr; Back to Feed</a>
+
+        <div class="detail-card">
+          <span class="badge badge-events">Events</span>
+          <h1 style="margin-top: 12px;">Community Clean-Up Day this Saturday</h1>
+          <div class="detail-meta">
+            <div class="avatar" style="width:28px; height:28px; font-size:11px;">SK</div>
+            <span class="author-name">Sarah K.</span>
+            <span>February 5, 2026</span>
+          </div>
+          <div class="detail-body">
+            <p>Join us for our monthly community clean-up this Saturday at Central Park! This is a great opportunity to give back to the community and meet your neighbors.</p>
+            <br/>
+            <p><strong>Details:</strong></p>
+            <ul style="margin-left: 20px; margin-top: 8px; color: var(--gray-700);">
+              <li>Date: Saturday, February 8, 2026</li>
+              <li>Time: 9:00 AM - 12:00 PM</li>
+              <li>Meeting Point: Central Park Main Entrance</li>
+              <li>What to bring: Comfortable shoes, water bottle, sunscreen</li>
+            </ul>
+            <br/>
+            <p>Gloves, trash bags, and all other supplies will be provided. After the clean-up, we will have refreshments and snacks at the community hall. Everyone is welcome to participate, including families with children. Let's make our neighborhood shine!</p>
+          </div>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="comments-section">
+          <h3>Comments (3)</h3>
+
+          <div class="comment-input-group">
+            <textarea class="form-textarea" placeholder="Write a comment..."></textarea>
+            <button class="btn btn-primary btn-sm" style="align-self: flex-end;">Post Comment</button>
+          </div>
+
+          <div class="comment-item">
+            <div class="avatar">MR</div>
+            <div class="comment-content">
+              <span class="comment-author">Mike R.</span>
+              <span class="comment-date">Feb 5, 2026 at 10:30 AM</span>
+              <p class="comment-text">Count me in! I'll bring some extra water bottles for everyone. Is there a sign-up sheet or should we just show up?</p>
+            </div>
+          </div>
+
+          <div class="comment-item">
+            <div class="avatar">AB</div>
+            <div class="comment-content">
+              <span class="comment-author">Ama B.</span>
+              <span class="comment-date">Feb 5, 2026 at 11:15 AM</span>
+              <p class="comment-text">This is wonderful! My kids would love to participate. Are there any age restrictions or specific areas designated for families?</p>
+            </div>
+          </div>
+
+          <div class="comment-item">
+            <div class="avatar">SK</div>
+            <div class="comment-content">
+              <span class="comment-author">Sarah K.</span>
+              <span class="comment-date">Feb 5, 2026 at 12:00 PM</span>
+              <p class="comment-text">Thanks everyone! Just show up at the main entrance. No sign-up needed. Families with children are absolutely welcome. We will have a separate area near the playground that is perfect for younger volunteers.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================
+       SCREEN 5: CREATE POST PAGE
+       ============================================================ -->
+  <div class="screen-section">
+    <div class="screen-label"><span class="label-dot"></span> Screen 5: Create Post Page</div>
+    <div class="screen-content">
+      <div class="create-wrapper">
+
+        <a href="#" class="back-link">&larr; Back to Feed</a>
+
+        <div class="create-card">
+          <h2>Create New Post</h2>
+
+          <div class="form-group">
+            <label class="form-label">Title</label>
+            <input type="text" class="form-input" placeholder="Give your post a descriptive title" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select class="form-select">
+              <option value="" disabled selected>Select a category</option>
+              <option>Events</option>
+              <option>Lost &amp; Found</option>
+              <option>Recommendations</option>
+              <option>Help Requests</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Content</label>
+            <div class="toolbar">
+              <button class="toolbar-btn" title="Bold"><strong>B</strong></button>
+              <button class="toolbar-btn" title="Italic"><em>I</em></button>
+              <button class="toolbar-btn" title="Underline"><u>U</u></button>
+              <button class="toolbar-btn" title="Bullet List">&#8226;</button>
+              <button class="toolbar-btn" title="Link">&#128279;</button>
+            </div>
+            <textarea class="form-textarea" placeholder="Write your post content here..."></textarea>
+          </div>
+
+          <div class="create-actions">
+            <button class="btn btn-outline">Cancel</button>
+            <button class="btn btn-primary">Submit Post</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================
+       SCREEN 6: ANALYTICS DASHBOARD
+       ============================================================ -->
+  <div class="screen-section">
+    <div class="screen-label"><span class="label-dot"></span> Screen 6: Analytics Dashboard</div>
+    <div class="screen-content">
+
+      <div class="dashboard-header">
+        <h1>Community Dashboard</h1>
+        <select class="form-select" style="width: auto;">
+          <option>Last 7 Days</option>
+          <option>Last 30 Days</option>
+          <option>All Time</option>
+        </select>
+      </div>
+
+      <!-- Metric Cards -->
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-icon blue">&#128196;</div>
+          <div class="metric-label">Total Posts</div>
+          <div class="metric-value">248</div>
+          <div class="metric-change up">+12% from last week</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon green">&#128100;</div>
+          <div class="metric-label">Active Users</div>
+          <div class="metric-value">87</div>
+          <div class="metric-change up">+5% from last week</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon orange">&#128172;</div>
+          <div class="metric-label">Comments Today</div>
+          <div class="metric-value">34</div>
+          <div class="metric-change down">-3% from yesterday</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon red">&#127942;</div>
+          <div class="metric-label">Most Active Category</div>
+          <div class="metric-value" style="font-size: 20px;">Events</div>
+          <div class="metric-change">92 posts this week</div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-grid">
+
+        <!-- Bar Chart: Posts by Category -->
+        <div class="chart-card">
+          <h3>Posts by Category</h3>
+          <div class="bar-chart">
+            <div class="bar-item">
+              <div class="bar-value">92</div>
+              <div class="bar" style="height: 85%; background: var(--primary);"></div>
+              <div class="bar-label">Events</div>
+            </div>
+            <div class="bar-item">
+              <div class="bar-value">64</div>
+              <div class="bar" style="height: 58%; background: var(--warning);"></div>
+              <div class="bar-label">Lost &amp; Found</div>
+            </div>
+            <div class="bar-item">
+              <div class="bar-value">51</div>
+              <div class="bar" style="height: 46%; background: var(--success);"></div>
+              <div class="bar-label">Recommend</div>
+            </div>
+            <div class="bar-item">
+              <div class="bar-value">41</div>
+              <div class="bar" style="height: 37%; background: var(--danger);"></div>
+              <div class="bar-label">Help</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Line Chart: Activity This Week -->
+        <div class="chart-card">
+          <h3>Activity This Week</h3>
+          <div class="line-chart-placeholder">
+            <svg viewBox="0 0 500 180" preserveAspectRatio="none">
+              <!-- Grid lines -->
+              <line x1="0" y1="36" x2="500" y2="36" stroke="#f1f3f5" stroke-width="1"/>
+              <line x1="0" y1="72" x2="500" y2="72" stroke="#f1f3f5" stroke-width="1"/>
+              <line x1="0" y1="108" x2="500" y2="108" stroke="#f1f3f5" stroke-width="1"/>
+              <line x1="0" y1="144" x2="500" y2="144" stroke="#f1f3f5" stroke-width="1"/>
+              <!-- Area fill -->
+              <path d="M0,130 L83,100 L166,115 L250,70 L333,50 L416,65 L500,35 L500,180 L0,180 Z" fill="rgba(0,102,204,0.08)"/>
+              <!-- Line -->
+              <polyline points="0,130 83,100 166,115 250,70 333,50 416,65 500,35" fill="none" stroke="#0066CC" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- Dots -->
+              <circle cx="0" cy="130" r="4" fill="#0066CC"/>
+              <circle cx="83" cy="100" r="4" fill="#0066CC"/>
+              <circle cx="166" cy="115" r="4" fill="#0066CC"/>
+              <circle cx="250" cy="70" r="4" fill="#0066CC"/>
+              <circle cx="333" cy="50" r="4" fill="#0066CC"/>
+              <circle cx="416" cy="65" r="4" fill="#0066CC"/>
+              <circle cx="500" cy="35" r="4" fill="#0066CC"/>
+            </svg>
+          </div>
+          <div class="line-chart-labels">
+            <span>Mon</span>
+            <span>Tue</span>
+            <span>Wed</span>
+            <span>Thu</span>
+            <span>Fri</span>
+            <span>Sat</span>
+            <span>Sun</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Leaderboard -->
+      <div class="leaderboard-card">
+        <h3>Top 5 Contributors</h3>
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Contributor</th>
+              <th style="width:140px;">Activity</th>
+              <th style="text-align:right;">Posts</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="rank">1</td>
+              <td class="contributor-name">Sarah K.</td>
+              <td><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:100%;"></div></div></td>
+              <td class="post-count">32</td>
+            </tr>
+            <tr>
+              <td class="rank">2</td>
+              <td class="contributor-name">Kwame A.</td>
+              <td><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:81%;"></div></div></td>
+              <td class="post-count">26</td>
+            </tr>
+            <tr>
+              <td class="rank">3</td>
+              <td class="contributor-name">Ama B.</td>
+              <td><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:66%;"></div></div></td>
+              <td class="post-count">21</td>
+            </tr>
+            <tr>
+              <td class="rank">4</td>
+              <td class="contributor-name">Mike R.</td>
+              <td><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:50%;"></div></div></td>
+              <td class="post-count">16</td>
+            </tr>
+            <tr>
+              <td class="rank">5</td>
+              <td class="contributor-name">Lisa T.</td>
+              <td><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:38%;"></div></div></td>
+              <td class="post-count">12</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ============================================================
+       DESIGN NOTES
+       ============================================================ -->
+  <div class="design-notes" id="design-notes">
+    <h2>Design System Reference Notes</h2>
+    <div class="notes-grid">
+
+      <!-- Color Palette -->
+      <div class="note-block">
+        <h3>Color Palette</h3>
+        <div class="color-swatches" style="margin-top: 12px;">
+          <div class="swatch">
+            <div class="swatch-color" style="background: #0066CC;"></div>
+            <span class="swatch-label">Primary</span>
+            <span class="swatch-hex">#0066CC</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background: #003366;"></div>
+            <span class="swatch-label">Dark</span>
+            <span class="swatch-hex">#003366</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background: #28a745;"></div>
+            <span class="swatch-label">Success</span>
+            <span class="swatch-hex">#28a745</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background: #fd7e14;"></div>
+            <span class="swatch-label">Warning</span>
+            <span class="swatch-hex">#fd7e14</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background: #dc3545;"></div>
+            <span class="swatch-label">Danger</span>
+            <span class="swatch-hex">#dc3545</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background: #f8f9fa;"></div>
+            <span class="swatch-label">Gray BG</span>
+            <span class="swatch-hex">#f8f9fa</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background: #ffffff; border: 1px solid #dee2e6;"></div>
+            <span class="swatch-label">White</span>
+            <span class="swatch-hex">#ffffff</span>
+          </div>
+        </div>
+
+        <h3 style="margin-top: 24px;">Category Badge Colors</h3>
+        <table class="note-table" style="margin-top: 8px;">
+          <tr><td>Events</td><td>bg: #e6f0fa, text: #0066CC</td></tr>
+          <tr><td>Lost &amp; Found</td><td>bg: #fff3e6, text: #d46b08</td></tr>
+          <tr><td>Recommendations</td><td>bg: #e6f9ed, text: #1a7f37</td></tr>
+          <tr><td>Help Requests</td><td>bg: #fde8e8, text: #c53030</td></tr>
+        </table>
+      </div>
+
+      <!-- Typography & Spacing -->
+      <div class="note-block">
+        <h3>Typography</h3>
+        <table class="note-table" style="margin-top: 8px;">
+          <tr><td>Font Family</td><td>Inter, -apple-system, sans-serif</td></tr>
+          <tr><td>h1 (Page title)</td><td>24px, weight: 700</td></tr>
+          <tr><td>h2 (Section title)</td><td>20px, weight: 600</td></tr>
+          <tr><td>h3 (Card title)</td><td>16px, weight: 600</td></tr>
+          <tr><td>Body text</td><td>14px, weight: 400</td></tr>
+          <tr><td>Small / Caption</td><td>12px, weight: 400</td></tr>
+          <tr><td>Badge text</td><td>11px, weight: 600, uppercase</td></tr>
+        </table>
+
+        <h3 style="margin-top: 24px;">Spacing Guidelines</h3>
+        <table class="note-table" style="margin-top: 8px;">
+          <tr><td>Card padding</td><td>24px (var(--space-lg))</td></tr>
+          <tr><td>Card gap / margin</td><td>16px (var(--space-md))</td></tr>
+          <tr><td>Section spacing</td><td>48px (var(--space-2xl))</td></tr>
+          <tr><td>Form field gap</td><td>16px (var(--space-md))</td></tr>
+          <tr><td>Inner element gap</td><td>8px (var(--space-sm))</td></tr>
+        </table>
+
+        <h3 style="margin-top: 24px;">Border &amp; Shadow</h3>
+        <table class="note-table" style="margin-top: 8px;">
+          <tr><td>Card radius</td><td>8px (var(--radius-md))</td></tr>
+          <tr><td>Button radius</td><td>4px (var(--radius-sm))</td></tr>
+          <tr><td>Badge / Pill radius</td><td>9999px (var(--radius-full))</td></tr>
+          <tr><td>Card shadow</td><td>0 1px 3px rgba(0,0,0,0.08)</td></tr>
+          <tr><td>Card shadow (hover)</td><td>0 4px 12px rgba(0,0,0,0.10)</td></tr>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Component List -->
+    <div class="note-block" style="margin-top: 24px;">
+      <h3>React Component Mapping</h3>
+      <p style="color: var(--gray-600); margin-top: 4px; margin-bottom: 12px; font-size: 13px;">
+        Suggested component names and what they correspond to in this design.
+      </p>
+      <table class="note-table">
+        <tr><td><code>&lt;NavBar /&gt;</code></td><td>Top navigation bar with logo, search, new post button, and user avatar</td></tr>
+        <tr><td><code>&lt;FilterBar /&gt;</code></td><td>Horizontal pill-style category filter tabs</td></tr>
+        <tr><td><code>&lt;PostCard /&gt;</code></td><td>Individual post preview card in the feed grid</td></tr>
+        <tr><td><code>&lt;PostDetail /&gt;</code></td><td>Full post view with complete content and metadata</td></tr>
+        <tr><td><code>&lt;CommentSection /&gt;</code></td><td>Comment list with input box and individual comment items</td></tr>
+        <tr><td><code>&lt;CommentItem /&gt;</code></td><td>Single comment with avatar, author, date, and text</td></tr>
+        <tr><td><code>&lt;CreatePostForm /&gt;</code></td><td>Post creation form with title, category, and rich text content</td></tr>
+        <tr><td><code>&lt;DashboardCard /&gt;</code></td><td>Single metric card showing label, value, and trend</td></tr>
+        <tr><td><code>&lt;BarChart /&gt;</code></td><td>Category distribution bar chart visualization</td></tr>
+        <tr><td><code>&lt;LineChart /&gt;</code></td><td>Weekly activity trend line chart visualization</td></tr>
+        <tr><td><code>&lt;Leaderboard /&gt;</code></td><td>Top contributors table with rank, name, activity bar, count</td></tr>
+        <tr><td><code>&lt;Badge /&gt;</code></td><td>Color-coded category badge (Events, Lost &amp; Found, etc.)</td></tr>
+        <tr><td><code>&lt;AuthCard /&gt;</code></td><td>Centered authentication card used for Login and Register pages</td></tr>
+        <tr><td><code>&lt;Button /&gt;</code></td><td>Reusable button with variants: primary, outline, success, sizes: sm, md, lg</td></tr>
+        <tr><td><code>&lt;FormInput /&gt;</code></td><td>Styled input with label, supports text, email, password, select, textarea</td></tr>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>
