@@ -24,7 +24,41 @@ docker-compose up --build
 - `bugfix/[issue-number]-[description]` - Bug fixes
 - `hotfix/[issue-number]-[description]` - Critical fixes
 
-### 2. Commit Guidelines
+### 2. Create a Feature Branch Safely
+
+Developers should always branch from `develop` to ensure they have the latest integration changes:
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/AmaliTech-Training-Academy/communityBoard_Team4.git
+
+# 2. Navigate inside the repo
+cd communityBoard_Team4/
+
+# 3. Switch to develop branch
+git checkout develop
+
+# 4. Pull latest changes
+git pull origin develop
+
+# 5. Create and switch to new feature branch
+git checkout -b feature/[issue-number]-[description]
+
+# Example:
+git checkout -b feature/24-payment-endpoint
+```
+
+### 3. Commit with Issue References
+
+You can optionally reference the issue in the commit message:
+
+```bash
+git commit -m "Add payment endpoint (#24)"
+```
+
+This step is optional but helps with tracking and automatically links commits to issues.
+
+### 4. Commit Guidelines
 Follow [Conventional Commits](https://www.conventionalcommits.org/):
 ```
 type(scope): description
@@ -36,6 +70,8 @@ style(frontend): fix linting issues
 refactor(backend): optimize database queries
 test(api): add integration tests for posts
 ```
+
+
 
 ## Coding Standards
 
