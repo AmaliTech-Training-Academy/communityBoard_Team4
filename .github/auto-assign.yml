@@ -6,26 +6,17 @@ numberOfReviewers: 1
 
 # Default reviewer pool (fallback)
 reviewers:
+- Ayamigah16
 - JoelAlumasa
-
-# All team members for reference
-# - Bruce-the-dev (Backend)
-# - mmanueljoe (Frontend)
-# - JoelAlumasa (DevOps)
-# - DivineBAYINGANA (QA)
-# - ResearcherErnest (Data Engineering)
-# - Ayamigah16 (DevOps)
 
 # Assign reviewers based on file patterns
 filePathAssignments:
   # Backend files
   'backend/**':
   - Bruce-the-dev
-
   # Frontend files
   'frontend/**':
   - mmanueljoe
-
   # DevOps files
   'devops/**':
   - JoelAlumasa
@@ -35,7 +26,6 @@ filePathAssignments:
   - JoelAlumasa
   '**/Dockerfile':
   - JoelAlumasa
-  
   # QA files
   'qa/**':
   - DivineBAYINGANA
