@@ -6,9 +6,6 @@ import { AuthInput } from '../components/ui/AuthInput';
 import { AuthButton } from '../components/ui/AuthButton';
 import './Login.css';
 
-import iconMail from '../assets/icon-mail.svg';
-import iconLock from '../assets/icon-lock.svg';
-
 export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -64,7 +61,7 @@ export function Login() {
               setEmail(e.target.value);
               if (errors.email) setErrors(prev => ({ ...prev, email: '' }));
             }}
-            iconSrc={iconMail}
+            iconSrc="/assets/mail.svg"
             error={errors.email}
             dataTestId="email-input"
           />
@@ -78,7 +75,7 @@ export function Login() {
               setPassword(e.target.value);
               if (errors.password) setErrors(prev => ({ ...prev, password: '' }));
             }}
-            iconSrc={iconLock}
+            iconSrc="/assets/icon-lock.svg"
             error={errors.password}
             dataTestId="password-input"
           />
