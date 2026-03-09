@@ -1,12 +1,16 @@
 package com.amalitech.communityboard.service;
 
 import com.amalitech.communityboard.dto.*;
+import com.amalitech.communityboard.exception.ResourceNotFoundException;
+import com.amalitech.communityboard.exception.UnauthorizedException;
 import com.amalitech.communityboard.model.*;
+import com.amalitech.communityboard.model.enums.Role;
 import com.amalitech.communityboard.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -15,16 +19,47 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
 
-    public List<CommentResponse> getCommentsByPost(Long postId) {
-        return commentRepository.findByPostIdOrderByCreatedAtAsc(postId).stream()
-                .map(this::toResponse).toList();
+    /**
+     * Returns a paginated list of comments for the given post, oldest-first.
+     * Page and size default to 0 and 20 respectively if not supplied by the caller.
+     */
+    public Page<CommentResponse> getCommentsByPost(Long postId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return commentRepository.findByPostIdOrderByCreatedAtAsc(postId, pageable)
+                .map(this::toResponse);
     }
 
-    // TODO: Implement createComment
-    // public CommentResponse createComment(Long postId, CommentRequest request, User author) { ... }
+    /**
+     * Creates a comment on the given post.
+     * Throws ResourceNotFoundException (404) if the post does not exist.
+     */
+    public CommentResponse createComment(Long postId, CommentRequest request, User author) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + postId));
+        Comment comment = Comment.builder()
+                .content(request.getContent())
+                .post(post)
+                .author(author)
+                .build();
+        return toResponse(commentRepository.save(comment));
+    }
 
-    // TODO: Implement deleteComment
-    // public void deleteComment(Long commentId, User author) { ... }
+    /**
+     * Deletes a comment.
+     * ADMIN may delete any comment.
+     * A USER may only delete their own comment.
+     * Throws ResourceNotFoundException (404) if comment does not exist.
+     * Throws UnauthorizedException (403) if user is not the author and not ADMIN.
+     */
+    public void deleteComment(Long commentId, User currentUser) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id: " + commentId));
+        boolean isAdmin = currentUser.getRole() == Role.ADMIN;
+        if (!isAdmin && !comment.getAuthor().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedException("Not authorized to delete this comment");
+        }
+        commentRepository.delete(comment);
+    }
 
     private CommentResponse toResponse(Comment comment) {
         return CommentResponse.builder()
@@ -35,3 +70,4 @@ public class CommentService {
                 .build();
     }
 }
+
