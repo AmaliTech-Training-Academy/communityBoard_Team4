@@ -130,7 +130,7 @@ jobs:
 
     - name: Run tests with coverage
       working-directory: ./frontend
-      run: npm test -- --coverage --watchAll=false
+      run: npm run test:ci
 
     - name: Check coverage threshold
       working-directory: ./frontend
