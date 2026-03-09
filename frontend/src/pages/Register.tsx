@@ -44,7 +44,7 @@ export function Register() {
 
   return (
     <AuthLayout heading={<>Join the<br />Community</>} subtitle="Create an account to get started">
-      <form onSubmit={handleSubmit} className="auth-form-container">
+      <form onSubmit={handleSubmit} className="auth-form-container" noValidate>
         <div className="auth-inputs-group">
           {errors.root && <p className="auth-helper-text error-text">{errors.root}</p>}
           <AuthInput

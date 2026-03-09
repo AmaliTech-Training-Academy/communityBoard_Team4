@@ -49,7 +49,7 @@ export function Login() {
 
   return (
     <AuthLayout heading="Welcome back" subtitle="Sign in to your neighborhood community">
-      <form onSubmit={handleSubmit} className="auth-form-container">
+      <form onSubmit={handleSubmit} className="auth-form-container" noValidate>
         <div className="auth-inputs-group">
           <AuthInput
             id="email"

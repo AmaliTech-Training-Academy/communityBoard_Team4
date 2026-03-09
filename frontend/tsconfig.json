@@ -9,7 +9,7 @@
     // See also https://aka.ms/tsconfig/module
     "module": "ESNext",
     "target": "ESNext",
-    "types": ["node", "vite/client"],
+    "types": ["node", "vite/client", "vitest/globals"],
 
     // Other Outputs
     "sourceMap": true,
