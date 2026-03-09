@@ -12,3 +12,7 @@ __pycache__/
 *.pyc
 .DS_Store
 venv/
+
+# Custom Ignores
+Frontend-Execution-Plan.md
+MCP-figma-setup-by-RoboNuggets.md

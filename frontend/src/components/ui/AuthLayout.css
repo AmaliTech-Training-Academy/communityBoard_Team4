@@ -1,0 +1,27 @@
+.auth-page-container {
+  background-color: var(--background-light); min-height: 100vh;
+  display: flex; align-items: center; justify-content: center; position: relative; width: 100%;
+}
+.auth-card {
+  width: 100%; max-width: 393px; display: flex; flex-direction: column; align-items: center; padding: 24px;
+}
+@media (min-width: 768px) {
+  .auth-card { border: 1px solid var(--input-border-light); border-radius: 24px; padding: 32px; width: 428px; max-width: 100%; }
+}
+.auth-content { display: flex; flex-direction: column; gap: 48px; width: 100%; max-width: 364px; align-items: center; }
+.auth-header { display: flex; flex-direction: column; gap: 32px; align-items: center; width: 100%; }
+
+/* Logo specific styles from Figma */
+.auth-logo-container { display: flex; align-items: center; justify-content: center; height: 40px; }
+.logo-text-p, .logo-text-ng {
+  font-family: 'Nico Moji', sans-serif; font-size: 36.92px; color: var(--body-text-primary); line-height: 1; white-space: nowrap;
+}
+.logo-bell-wrapper { position: relative; display: flex; align-items: center; justify-content: center; width: 18px; height: 32px; margin: 0 4px; }
+.logo-bell { position: relative; z-index: 2; width: 16.41px; height: 16.41px; transform: rotate(-30.22deg); }
+.logo-rect { position: absolute; bottom: 0; width: 11.28px; height: 19.33px; z-index: 1; }
+
+.auth-title-container { display: flex; flex-direction: column; align-items: center; text-align: center; line-height: 1.5; width: 100%; }
+.auth-heading { font-family: 'Poppins', sans-serif; font-weight: 600; color: var(--header-text-primary); font-size: 32px; margin: 0; width: 100%; }
+.auth-subtitle { font-family: 'Inter', sans-serif; font-weight: 500; color: var(--body-text-secondary); font-size: 16px; margin: 0; width: 100%; }
+
+.auth-body { display: flex; flex-direction: column; gap: 30px; align-items: center; width: 100%; }

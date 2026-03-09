@@ -3,17 +3,26 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+<<<<<<< HEAD
     "axios": "^1.6.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.20.0",
     "react-scripts": "5.0.1"
+=======
+    "axios": "^1.13.6",
+    "lucide-react": "^0.577.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^6.30.3"
+>>>>>>> 0e62a5c (feat(auth): add login and registration UI)
   },
   "devDependencies": {
     "eslint": "^8.56.0",
     "eslint-config-react-app": "^7.0.1"
   },
   "scripts": {
+<<<<<<< HEAD
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -36,6 +45,11 @@
         "statements": 70
       }
     }
+=======
+    "start": "vite",
+    "build": "tsc && vite build",
+    "test": "vitest --run",
+    "preview": "vite preview"
   },
   "proxy": "http://localhost:8080",
   "browserslist": {
@@ -47,5 +61,16 @@
     "development": [
       "last 1 chrome version"
     ]
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.5",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@types/react-router-dom": "^5.3.3",
+    "@vitejs/plugin-react": "^5.1.4",
+    "eslint": "^8.56.0",
+    "eslint-config-react-app": "^7.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
   }
 }
