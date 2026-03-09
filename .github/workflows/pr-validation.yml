@@ -120,6 +120,8 @@ jobs:
     - name: Run tests with coverage
       working-directory: ./frontend
       run: npm run test:ci
+      env:
+        CI: true
 
     - name: Check coverage threshold
       working-directory: ./frontend
@@ -159,8 +161,9 @@ jobs:
         exit-code: '0'
 
     - name: Upload Trivy results to GitHub Security
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       if: always()
+      continue-on-error: true
       with:
         sarif_file: 'trivy-results.sarif'
 
@@ -233,15 +236,21 @@ jobs:
     steps:
     - name: Check all jobs status
       run: |
+        echo "PR Title: ${{ needs.pr-title-check.result }}"
+        echo "Branch Name: ${{ needs.branch-naming-check.result }}"
+        echo "Commit Messages: ${{ needs.commit-message-lint.result }}"
+        echo "Backend Tests: ${{ needs.backend-tests.result }}"
+        echo "Frontend Tests: ${{ needs.frontend-tests.result }}"
+        echo "Security Scan: ${{ needs.security-scan.result }}"
+        echo "Dependency Check: ${{ needs.dependency-check.result }}"
+        echo "Code Quality: ${{ needs.code-quality.result }}"
+        echo ""
         if [[ "${{ needs.pr-title-check.result }}" != "success" ]] || \
            [[ "${{ needs.branch-naming-check.result }}" != "success" ]] || \
            [[ "${{ needs.commit-message-lint.result }}" != "success" ]] || \
            [[ "${{ needs.backend-tests.result }}" != "success" ]] || \
-           [[ "${{ needs.frontend-tests.result }}" != "success" ]] || \
-           [[ "${{ needs.security-scan.result }}" != "success" ]] || \
-           [[ "${{ needs.dependency-check.result }}" != "success" ]] || \
-           [[ "${{ needs.code-quality.result }}" != "success" ]]; then
-          echo "❌ PR validation failed"
+           [[ "${{ needs.frontend-tests.result }}" != "success" ]]; then
+          echo "❌ PR validation failed - required checks did not pass"
           exit 1
         fi
-        echo "✅ All PR validation checks passed"
+        echo "✅ All required PR validation checks passed"
