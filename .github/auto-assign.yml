@@ -2,11 +2,11 @@
 
 addReviewers: true
 addAssignees: false
-numberOfReviewers: 2
+numberOfReviewers: 1
 
 reviewers:
 - Bruce-the-dev
-- kwadjo-wusu-ansah
+- mmanueljoe
 - JoelAlumasa
 - DivineBAYINGANA
 - ResearcherErnest
@@ -18,7 +18,7 @@ filePathAssignments:
   - Bruce-the-dev
   # Frontend files
   'frontend/**':
-  - kwadjo-wusu-ansah
+  - mmanueljoe
   # DevOps files
   'devops/**':
   - JoelAlumasa
