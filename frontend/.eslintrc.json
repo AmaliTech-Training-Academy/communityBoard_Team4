@@ -1,0 +1,8 @@
+{
+  "extends": ["react-app"],
+  "rules": {
+    "no-console": "warn",
+    "no-debugger": "error",
+    "no-unused-vars": "warn"
+  }
+}
