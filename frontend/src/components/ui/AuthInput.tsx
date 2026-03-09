@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import './AuthInput.css';
-import eyeOffIcon from '../../assets/icon-eye-off.svg';
 
 interface AuthInputProps {
   label: string;
@@ -51,7 +50,7 @@ export function AuthInput({
               className="password-toggle-btn"
               onClick={() => setShowPassword(!showPassword)}
             >
-              <img src={eyeOffIcon} alt="Toggle password visibility" />
+              <img src="/assets/icon-eye-off.svg" alt="Toggle password visibility" />
             </button>
           )}
         </div>

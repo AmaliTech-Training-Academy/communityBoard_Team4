@@ -6,9 +6,6 @@ import { AuthInput } from '../components/ui/AuthInput';
 import { AuthButton } from '../components/ui/AuthButton';
 import './Login.css'; // Reuse Login styles
 
-import iconMail from '../assets/icon-mail.svg';
-import iconLock from '../assets/icon-lock.svg';
-
 export function Register() {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -52,23 +49,23 @@ export function Register() {
           {errors.root && <p className="auth-helper-text error-text">{errors.root}</p>}
           <AuthInput
             name="name" label="Full Name" placeholder="e.g., John Doe"
-            value={formData.name} onChange={handleChange} error={errors.name} iconSrc={iconMail}
+            value={formData.name} onChange={handleChange} error={errors.name} iconSrc="/assets/mail.svg"
             dataTestId="name-input"
           />
           <AuthInput
             name="email" label="Email" type="email" placeholder="your@example.com"
-            value={formData.email} onChange={handleChange} error={errors.email} iconSrc={iconMail}
+            value={formData.email} onChange={handleChange} error={errors.email} iconSrc="/assets/mail.svg"
             dataTestId="email-input"
           />
           <AuthInput
             name="password" label="Password" type="password" placeholder="Enter password"
             value={formData.password} onChange={handleChange} error={errors.password}
-            helperText="Minimum of 6 characters including special characters" iconSrc={iconLock}
+            helperText="Minimum of 6 characters including special characters" iconSrc="/assets/icon-lock.svg"
             dataTestId="password-input"
           />
           <AuthInput
             name="confirmPassword" label="Confirm Password" type="password" placeholder="Enter password"
-            value={formData.confirmPassword} onChange={handleChange} error={errors.confirmPassword} iconSrc={iconLock}
+            value={formData.confirmPassword} onChange={handleChange} error={errors.confirmPassword} iconSrc="/assets/icon-lock.svg"
             dataTestId="confirm-password-input"
           />
         </div>
