@@ -1,0 +1,43 @@
+# CODEOWNERS file for CommunityBoard Team 4
+
+## This file defines who owns what code and who should review changes
+
+### Global fallback - team leads review everything by default
+
+* @Ayamigah16 @nksarps
+
+#### Root configuration files
+
+/.gitignore @Ayamigah16
+/docker-compose.yml @Ayamigah16
+/README.md @team-lead @Ayamigah16
+/CONTRIBUTING.md @Ayamigah16
+/.env.example @Ayamigah16
+
+### Backend - Java Spring Boot
+
+/backend/ @AndyDebrah
+
+### Frontend - React
+
+/frontend/ @illonaaddae
+
+### Data Engineering - Python ETL
+
+/data-engineering/ @PercyAyimbilaNsolemna
+
+### QA - Testing
+
+/qa/ @nksarps
+
+### DevOps - Infrastructure and CI/CD
+
+/devops/ @Ayamigah16
+
+### Design - UI/UX Assets
+
+/design/ @illonaaddae
+
+### GitHub Configuration
+
+/.github/ @Ayamigah16
