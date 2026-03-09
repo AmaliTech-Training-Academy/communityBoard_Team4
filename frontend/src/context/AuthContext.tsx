@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from "react";
+import { authService } from "../services/authService";
 
 interface User {
   id?: string;
@@ -29,23 +30,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [token]);
 
   const login = async (email?: string, password?: string) => {
-    // Mock login simulating API request
-    await new Promise(res => setTimeout(res, 800));
-    if (email === 'admin@amalitech.com' && password === 'password123') {
-      const mockUser = { id: '1', name: 'Admin User', email };
-      setUser(mockUser);
-      setToken('mock-auth-token');
-      localStorage.setItem("token", 'mock-auth-token');
-      localStorage.setItem("user", JSON.stringify(mockUser));
-    } else {
-      throw new Error("Invalid credentials");
+    try {
+      const response = await authService.login(email, password);
+      setToken(response.token);
+      localStorage.setItem("token", response.token);
+      
+      // If user data is returned, store it. Otherwise store basic identifying info for UI
+      const userData: User = response.user || { email: email || "" }; 
+      setUser(userData);
+      localStorage.setItem("user", JSON.stringify(userData));
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw error;
     }
   };
 
   const register = async (name: string, email: string, password: string) => {
-    // Mock registration API call
-    await new Promise(res => setTimeout(res, 800));
-    // For now, assume successful
+    try {
+      const response = await authService.register(name, email, password);
+      setToken(response.token);
+      localStorage.setItem("token", response.token);
+      
+      const userData = response.user || { name, email };
+      setUser(userData);
+      localStorage.setItem("user", JSON.stringify(userData));
+    } catch (error) {
+      console.error("Registration failed:", error);
+      throw error;
+    }
   };
 
   const logout = () => {
