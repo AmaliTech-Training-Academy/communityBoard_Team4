@@ -1,0 +1,32 @@
+{
+  // Visit https://aka.ms/tsconfig to read more about this file
+  "compilerOptions": {
+    // File Layout
+    // "rootDir": "./src",
+    // "outDir": "./dist",
+
+    // Environment Settings
+    // See also https://aka.ms/tsconfig/module
+    "module": "ESNext",
+    "target": "ESNext",
+    "types": ["node", "vite/client"],
+
+    // Other Outputs
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    // Stricter Typechecking Options
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+
+    // Recommended Options
+    "strict": true,
+    "jsx": "react-jsx",
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "esModuleInterop": true
+  },
+  "include": ["src"]
+}

@@ -11,3 +11,7 @@ build/
 __pycache__/
 *.pyc
 .DS_Store
+
+# Custom Ignores
+Frontend-Execution-Plan.md
+MCP-figma-setup-by-RoboNuggets.md
