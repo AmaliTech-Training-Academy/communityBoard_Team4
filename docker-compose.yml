@@ -10,6 +10,11 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d communityboard"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   backend:
     build: ./backend
@@ -20,8 +25,10 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       JWT_SECRET: communityboard-secret-key-amalitech-2024
+      SPRING_SQL_INIT_MODE: never
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   frontend:
     build: ./frontend
