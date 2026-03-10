@@ -39,7 +39,7 @@ describe('Login Component', () => {
   it('shows validation errors when submitting empty form', async () => {
     renderLogin();
     fireEvent.click(screen.getByTestId('submit-button'));
-    
+
     expect(await screen.findByText('Email is required')).toBeInTheDocument();
     expect(await screen.findByText('Password is required')).toBeInTheDocument();
   });
@@ -47,21 +47,21 @@ describe('Login Component', () => {
   it('shows error for incorrectly formatted email', async () => {
     const user = userEvent.setup();
     renderLogin();
-    
+
     await user.type(screen.getByTestId('email-input'), 'invalid-email');
     await user.click(screen.getByTestId('submit-button'));
-    
+
     expect(await screen.findByText('Incorrect email')).toBeInTheDocument();
   });
 
   it('calls login function with correct credentials', async () => {
     const user = userEvent.setup();
     renderLogin();
-    
+
     await user.type(screen.getByTestId('email-input'), 'test@example.com');
     await user.type(screen.getByTestId('password-input'), 'password123');
     await user.click(screen.getByTestId('submit-button'));
-    
+
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123');
     });

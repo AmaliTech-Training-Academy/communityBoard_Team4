@@ -8,7 +8,7 @@ interface AuthButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
 
 export function AuthButton({ children, isLoading, className = '', ...props }: AuthButtonProps) {
   return (
-    <button 
+    <button
       className={`auth-btn-primary ${className} ${isLoading ? 'loading' : ''}`}
       disabled={isLoading || props.disabled}
       {...props}

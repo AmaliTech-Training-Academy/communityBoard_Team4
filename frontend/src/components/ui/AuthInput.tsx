@@ -27,13 +27,13 @@ export function AuthInput({
   return (
     <div className="auth-field-wrapper">
       <label className="auth-label" htmlFor={id}>{label}</label>
-      
+
       <div className={`auth-input-container ${error ? 'has-error' : ''}`}>
         <div className="auth-input-content">
           {iconSrc && (
             <img src={iconSrc} alt={`${label} icon`} className="auth-input-icon" />
           )}
-          
+
           <input
             id={id}
             name={name}
@@ -45,7 +45,7 @@ export function AuthInput({
             onChange={onChange}
             onKeyDown={onKeyDown}
           />
-          
+
           {isPassword && (
             <button
               type="button"
@@ -57,7 +57,7 @@ export function AuthInput({
           )}
         </div>
       </div>
-      
+
       {(error || helperText) && (
         <p className={`auth-helper-text ${error ? 'error-text' : ''}`}>
           {error || helperText}

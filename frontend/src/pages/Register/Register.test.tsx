@@ -30,7 +30,7 @@ describe('Register Component', () => {
     renderRegister();
     expect(screen.getByText(/Join the/i)).toBeInTheDocument();
     expect(screen.getByText(/Community/i)).toBeInTheDocument();
-    
+
     expect(screen.getByTestId('name-input')).toBeInTheDocument();
     expect(screen.getByTestId('email-input')).toBeInTheDocument();
     expect(screen.getByTestId('password-input')).toBeInTheDocument();
@@ -41,7 +41,7 @@ describe('Register Component', () => {
   it('shows validation errors for empty fields', async () => {
     renderRegister();
     fireEvent.click(screen.getByTestId('submit-button'));
-    
+
     await waitFor(() => {
       expect(screen.getByText('Name is required')).toBeInTheDocument();
       expect(screen.getByText('Email is required')).toBeInTheDocument();
@@ -78,14 +78,14 @@ describe('Register Component', () => {
 
   it('validates password length and matching correctly', async () => {
     renderRegister();
-    
+
     // Fill out valid name/email but invalid passwords
     fireEvent.change(screen.getByTestId('name-input'), { target: { value: 'Test User' } });
     fireEvent.change(screen.getByTestId('email-input'), { target: { value: 'test@example.com' } });
     fireEvent.change(screen.getByTestId('password-input'), { target: { value: '123' } }); // Too short
     fireEvent.change(screen.getByTestId('confirm-password-input'), { target: { value: '1234' } }); // Mismatch
     fireEvent.click(screen.getByTestId('submit-button'));
-    
+
     await waitFor(() => {
       expect(screen.getByText('Minimum of 6 characters required')).toBeInTheDocument();
       expect(screen.getByText('Passwords do not match')).toBeInTheDocument();
@@ -94,14 +94,14 @@ describe('Register Component', () => {
 
   it('calls register function with valid data', async () => {
     renderRegister();
-    
+
     fireEvent.change(screen.getByTestId('name-input'), { target: { value: 'Test User' } });
     fireEvent.change(screen.getByTestId('email-input'), { target: { value: 'test@example.com' } });
     fireEvent.change(screen.getByTestId('password-input'), { target: { value: 'password123' } });
     fireEvent.change(screen.getByTestId('confirm-password-input'), { target: { value: 'password123' } });
-    
+
     fireEvent.click(screen.getByTestId('submit-button'));
-    
+
     await waitFor(() => {
       expect(mockRegister).toHaveBeenCalledWith('Test User', 'test@example.com', 'password123');
     });

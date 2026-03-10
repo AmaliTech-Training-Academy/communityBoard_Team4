@@ -29,8 +29,8 @@ export function Register() {
     } else if (!emailRegex.test(formData.email)) {
       newErrors.email = 'Invalid email format';
     }
-    if (formData.password.length < 6) newErrors.password = 'Minimum of 6 characters required';
-    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+    if (formData.password.length < 6) newErrors.password = 'Minimum of 6 characters required'; // pragma: allowlist secret
+    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match'; // pragma: allowlist secret
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

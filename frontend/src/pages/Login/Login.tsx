@@ -11,24 +11,24 @@ export function Login() {
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrors({});
-    
+
     const newErrors: Record<string, string> = {};
-    
+
     if (!email) {
       newErrors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       newErrors.email = 'Incorrect email';
     }
-    
+
     if (!password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = 'Password is required'; // pragma: allowlist secret
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -94,7 +94,7 @@ export function Login() {
 
         <div className="auth-actions-group">
           <AuthButton type="submit" isLoading={isLoading} data-testid="submit-button">Log In</AuthButton>
-          
+
           <div className="auth-footer-text">
             <span>Don't have an account? </span>
             <Link to="/register" className="auth-link">Create one now</Link>

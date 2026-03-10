@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (email?: string, password?: string) => {
     // Mock login simulating API request
     await new Promise(res => setTimeout(res, 800));
-    if (email === 'admin@amalitech.com' && password === 'password123') {
+    if (email === 'admin@amalitech.com' && password === 'password123') { // pragma: allowlist secret
       const mockUser = { id: '1', name: 'Admin User', email };
       setUser(mockUser);
       setToken('mock-auth-token');

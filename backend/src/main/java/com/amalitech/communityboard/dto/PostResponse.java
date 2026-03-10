@@ -7,12 +7,13 @@ import java.time.LocalDateTime;
 public class PostResponse {
     private Long id;
     private String title;
-    private String content;
-    private String categoryName;
-    private Long categoryId;
+    /** Main post body (maps to the `body` column). */
+    private String body;
+    /** Category name (NEWS / EVENT / DISCUSSION / ALERT). */
+    private String category;
     private String authorName;
     private String authorEmail;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private int commentCount;
+    private long commentCount;
 }

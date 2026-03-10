@@ -15,9 +15,9 @@ Closes #TICKET_NUMBER
 
 ## Changes Made
 <!-- List key changes -->
-- 
-- 
-- 
+-
+-
+-
 
 ## Testing
 <!-- Describe testing performed -->
