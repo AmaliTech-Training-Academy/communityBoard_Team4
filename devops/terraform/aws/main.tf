@@ -123,12 +123,12 @@ module "key_pair" {
 module "compute" {
   source = "./modules/compute"
 
-  project_name  = local.project
-  environment   = local.environment
-  ami_id        = data.aws_ami.amazon_linux_2.id
+  project_name     = local.project
+  environment      = local.environment
+  ami_id           = data.aws_ami.amazon_linux_2.id
   public_subnet_id = module.network.public_subnet_ids[0]
   app_subnet_ids   = module.network.public_subnet_ids
-  key_name               = module.key_pair.key_name
+  key_name         = module.key_pair.key_name
 
   frontend_security_group_id   = module.security.frontend_security_group_id
   backend_security_group_id    = module.security.backend_security_group_id
@@ -148,12 +148,12 @@ module "compute" {
   db_credentials_secret_arn     = module.secrets.db_credentials_secret_arn
   jwt_secret_arn                = module.secrets.jwt_secret_arn
 
-  frontend_cpu           = var.frontend_cpu
-  frontend_memory        = var.frontend_memory
-  backend_cpu            = var.backend_cpu
-  backend_memory         = var.backend_memory
-  frontend_desired_count = var.frontend_desired_count
-  backend_desired_count  = var.backend_desired_count
+  frontend_cpu             = var.frontend_cpu
+  frontend_memory          = var.frontend_memory
+  backend_cpu              = var.backend_cpu
+  backend_memory           = var.backend_memory
+  frontend_desired_count   = var.frontend_desired_count
+  backend_desired_count    = var.backend_desired_count
   monitoring_instance_type = var.monitoring_instance_type
 
   tags = local.common_tags
