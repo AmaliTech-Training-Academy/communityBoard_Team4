@@ -1,0 +1,133 @@
+##############################################################################
+# ci.yml — Main CI Pipeline
+#
+# Triggers : push to main/develop; pull requests targeting main/develop
+# Jobs     : backend-test  — Maven build + JaCoCo coverage
+#            frontend-test — Vite build + Vitest coverage
+#            terraform-validate — fmt check + init + validate
+#
+# Downstream: docker.yml runs on push to main/develop after this succeeds.
+##############################################################################
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true # cancel stale CI runs on force-push
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Backend — Spring Boot (Java 17, Maven, JaCoCo)
+  # ─────────────────────────────────────────────────────────────────────────
+  backend-test:
+    name: Backend — Test & Coverage
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: communityboard
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres # pragma: allowlist secret
+        ports: [ "5432:5432" ]
+        options: >-
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: "17"
+        distribution: temurin
+        cache: maven
+
+    - name: Build & test with coverage
+      working-directory: ./backend
+      run: mvn clean verify
+      env:
+        SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/communityboard
+        SPRING_DATASOURCE_USERNAME: postgres
+        SPRING_DATASOURCE_PASSWORD: postgres # pragma: allowlist secret
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./backend/target/site/jacoco/jacoco.xml
+        flags: backend
+        fail_ci_if_error: false # informational; threshold enforced by jacoco:check
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Frontend — React / Vite (Node 20, Vitest)
+  # ─────────────────────────────────────────────────────────────────────────
+  frontend-test:
+    name: Frontend — Test & Build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js 20
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+        cache: npm
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: Lint
+      working-directory: ./frontend
+      run: npm run lint
+      continue-on-error: true # surface lint issues in PR without blocking merge
+
+    - name: Test with coverage
+      working-directory: ./frontend
+      run: npm run test:ci
+
+    - name: Production build
+      working-directory: ./frontend
+      run: npm run build
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./frontend/coverage/lcov.info
+        flags: frontend
+        fail_ci_if_error: false
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Terraform — format, init (no backend), validate
+  # ─────────────────────────────────────────────────────────────────────────
+  terraform-validate:
+    name: Terraform — Format & Validate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: devops/terraform/aws
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "~> 1.6"
+
+    - name: Format check
+      run: terraform fmt -check -recursive
+
+    - name: Init (no backend)
+      run: terraform init -backend=false
+
+    - name: Validate
+      run: terraform validate

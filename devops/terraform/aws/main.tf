@@ -103,6 +103,7 @@ module "iam" {
   source       = "./modules/iam"
   project_name = local.project
   environment  = local.environment
+  github_repo  = var.github_repo
   tags         = local.common_tags
 }
 
