@@ -169,3 +169,5 @@
 | Adding new columns in future requires a new migration (V3+) | This is correct Flyway discipline — never edit existing migration files |
 | `Comment.content` not renamed | Deliberate (spec only says `body` for Posts). Verify acceptance criteria with PO if needed |
 | Seed data IDs (1, 2, 3) conflict with BIGSERIAL sequences | PostgreSQL sequences start at 1; manually inserted rows with specific IDs may clash. Consider using `SELECT setval('posts_id_seq', 10)` in V2 to move the sequence past the seeded IDs |
+
+Modified phase 1
