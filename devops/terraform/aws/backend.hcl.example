@@ -1,0 +1,5 @@
+bucket         = "community-board-tf-state"
+key            = "community-board/aws/terraform.tfstate"
+region         = "eu-west-1"
+dynamodb_table = "community-board-tf-locks"
+encrypt        = true

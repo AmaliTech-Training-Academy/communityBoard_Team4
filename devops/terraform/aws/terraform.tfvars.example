@@ -1,0 +1,38 @@
+##############################################################################
+# terraform.tfvars.example — copy to terraform.tfvars and fill in real values
+# NEVER commit real credentials. Set db_password via TF_VAR_db_password.
+##############################################################################
+
+aws_region   = "eu-west-1"
+project_name = "community-board"
+environment  = "prod"       # prod | staging | dev
+
+# ── Networking ────────────────────────────────────────────────────────────────
+vpc_cidr             = "10.30.0.0/16"
+public_subnet_cidrs  = ["10.30.0.0/24", "10.30.1.0/24"]
+private_subnet_cidrs = ["10.30.10.0/24", "10.30.11.0/24"]
+db_subnet_cidrs      = ["10.30.20.0/24", "10.30.21.0/24"]
+
+admin_cidrs = ["<YOUR_OFFICE_OR_VPN_IP>/32"]
+
+# ── SSH ───────────────────────────────────────────────────────────────────────
+key_pair_name = "community-board-key"
+
+# ── Compute ───────────────────────────────────────────────────────────────────
+frontend_instance_type   = "t3.small"
+backend_instance_type    = "t3.small"
+monitoring_instance_type = "t3.medium"   # Prometheus + Grafana + Alertmanager
+
+
+
+# ── RDS PostgreSQL ────────────────────────────────────────────────────────────
+db_username              = "cbadmin"
+# db_password            — export TF_VAR_db_password="<strong-random-password>"
+db_instance_class        = "db.t3.micro"
+db_allocated_storage     = 20
+db_multi_az              = false
+db_backup_retention_days = 7
+
+# ── ECR ───────────────────────────────────────────────────────────────────────
+ecr_repository_name = "community-board"
+
