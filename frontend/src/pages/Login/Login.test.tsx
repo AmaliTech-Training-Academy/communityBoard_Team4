@@ -1,14 +1,14 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from '../context/AuthContext';
+import { AuthProvider } from '../../context/AuthContext';
 import { Login } from './Login';
 import { describe, it, expect, vi } from 'vitest';
 
 // Mock the AuthContext login function
 const mockLogin = vi.fn();
-vi.mock('../context/AuthContext', async () => {
-  const actual = await vi.importActual('../context/AuthContext');
+vi.mock('../../context/AuthContext', async () => {
+  const actual = await vi.importActual('../../context/AuthContext');
   return {
     ...actual as any,
     useAuth: () => ({

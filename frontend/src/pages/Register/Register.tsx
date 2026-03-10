@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { AuthLayout } from '../components/ui/AuthLayout';
-import { AuthInput } from '../components/ui/AuthInput';
-import { AuthButton } from '../components/ui/AuthButton';
-import './Login.css'; // Reuse Login styles
+import { useAuth } from '../../context/AuthContext';
+import { AuthLayout } from '../../components/ui/AuthLayout';
+import { AuthInput } from '../../components/ui/AuthInput';
+import { AuthButton } from '../../components/ui/AuthButton';
+import '../Login/Login.css'; // Reuse Login styles
 
 export function Register() {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
@@ -15,8 +15,20 @@ export function Register() {
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.name) newErrors.name = 'Name is required';
-    if (!formData.email) newErrors.email = 'Email is required';
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const nameRegex = /^[A-Za-z\s]+$/;
+    
+    if (!formData.name) {
+      newErrors.name = 'Name is required';
+    } else if (!nameRegex.test(formData.name)) {
+      newErrors.name = 'Name can only contain letters and spaces';
+    }
+
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = 'Invalid email format';
+    }
     if (formData.password.length < 6) newErrors.password = 'Minimum of 6 characters required'; // pragma: allowlist secret
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match'; // pragma: allowlist secret
     setErrors(newErrors);
