@@ -18,18 +18,6 @@ variable "alb_security_group_id" {
   type        = string
 }
 
-variable "frontend_instance_id" {
-  description = "EC2 instance ID of the Frontend host to register in the Frontend TG"
-  type        = string
-}
-
-variable "backend_instance_id" {
-  description = "EC2 instance ID of the Backend host to register in the Backend TG"
-  type        = string
-}
-
-
-
 variable "enable_deletion_protection" {
   description = "Prevent accidental deletion of the ALB"
   type        = bool

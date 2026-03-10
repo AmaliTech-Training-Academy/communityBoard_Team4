@@ -18,15 +18,20 @@ output "alb_zone_id" {
   value       = module.alb.alb_zone_id
 }
 
-# ── Compute ───────────────────────────────────────────────────────────────────
-output "frontend_private_ip" {
-  description = "Private IP of the Frontend (Nginx) EC2 instance"
-  value       = module.compute.frontend_private_ip
+# ── ECS ──────────────────────────────────────────────────────────────────────
+output "ecs_cluster_name" {
+  description = "ECS cluster name"
+  value       = module.compute.ecs_cluster_name
 }
 
-output "backend_private_ip" {
-  description = "Private IP of the Backend (Spring Boot) EC2 instance"
-  value       = module.compute.backend_private_ip
+output "frontend_service_name" {
+  description = "Name of the Frontend ECS service"
+  value       = module.compute.frontend_service_name
+}
+
+output "backend_service_name" {
+  description = "Name of the Backend ECS service"
+  value       = module.compute.backend_service_name
 }
 
 output "monitoring_public_ip" {

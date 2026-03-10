@@ -37,7 +37,7 @@ resource "aws_lb_target_group" "frontend" {
   port        = 80
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
-  target_type = "instance"
+  target_type = "ip"   # Required for Fargate (tasks register by ENI IP)
 
   health_check {
     path                = "/"
@@ -61,7 +61,7 @@ resource "aws_lb_target_group" "backend" {
   port        = 8080
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
-  target_type = "instance"
+  target_type = "ip"   # Required for Fargate (tasks register by ENI IP)
 
   health_check {
     path                = "/actuator/health"
@@ -81,23 +81,8 @@ resource "aws_lb_target_group" "backend" {
 }
 
 ##############################################################################
-# Target Group Attachments
-##############################################################################
-
-resource "aws_lb_target_group_attachment" "frontend" {
-  target_group_arn = aws_lb_target_group.frontend.arn
-  target_id        = var.frontend_instance_id
-  port             = 80
-}
-
-resource "aws_lb_target_group_attachment" "backend" {
-  target_group_arn = aws_lb_target_group.backend.arn
-  target_id        = var.backend_instance_id
-  port             = 8080
-}
-
-##############################################################################
-# HTTP Listener — forwards to Frontend TG by default
+# HTTP Listener
+# ECS Fargate registers its own tasks — no static target group attachments needed — forwards to Frontend TG by default
 ##############################################################################
 
 resource "aws_lb_listener" "http" {

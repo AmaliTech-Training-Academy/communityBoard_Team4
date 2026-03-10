@@ -62,36 +62,58 @@ variable "admin_cidrs" {
 }
 
 # ---------------------------------------------------------------------------
-# SSH Key Pair
+# Monitoring EC2
 # ---------------------------------------------------------------------------
-variable "key_pair_name" {
-  description = "Name of the EC2 key pair to create"
-  type        = string
-  default     = "community-board-key"
-}
-
-# ---------------------------------------------------------------------------
-# EC2 instance types
-# ---------------------------------------------------------------------------
-variable "frontend_instance_type" {
-  description = "Instance type for Frontend (Nginx) hosts"
-  type        = string
-  default     = "t3.small"
-}
-
-variable "backend_instance_type" {
-  description = "Instance type for Backend (Spring Boot) hosts"
-  type        = string
-  default     = "t3.small"
-}
-
 variable "monitoring_instance_type" {
   description = "Instance type for Monitoring host (Prometheus + Grafana + Alertmanager)"
   type        = string
   default     = "t3.medium"
 }
 
+# ---------------------------------------------------------------------------
+# ECS Fargate — task sizing and desired counts
+# ---------------------------------------------------------------------------
+variable "frontend_cpu" {
+  description = "Fargate CPU units for Frontend task (256 = 0.25 vCPU)"
+  type        = number
+  default     = 256
+}
 
+variable "frontend_memory" {
+  description = "Fargate memory (MB) for Frontend task"
+  type        = number
+  default     = 512
+}
+
+variable "backend_cpu" {
+  description = "Fargate CPU units for Backend task (512 = 0.5 vCPU)"
+  type        = number
+  default     = 512
+}
+
+variable "backend_memory" {
+  description = "Fargate memory (MB) for Backend task"
+  type        = number
+  default     = 1024
+}
+
+variable "frontend_desired_count" {
+  description = "Desired number of Frontend Fargate tasks"
+  type        = number
+  default     = 1
+}
+
+variable "backend_desired_count" {
+  description = "Desired number of Backend Fargate tasks"
+  type        = number
+  default     = 1
+}
+
+variable "image_tag" {
+  description = "Container image tag to deploy (CI/CD overrides this per build)"
+  type        = string
+  default     = "latest"
+}
 
 # ---------------------------------------------------------------------------
 # RDS PostgreSQL
