@@ -2,7 +2,6 @@ spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/communityboard}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
-<<<<<<< HEAD
     password: ${SPRING_DATASOURCE_PASSWORD:postgres}  # pragma: allowlist secret
   jpa:
     hibernate:
