@@ -220,4 +220,3 @@ resource "aws_security_group" "monitoring" {
     Tier = "ops"
   })
 }
-

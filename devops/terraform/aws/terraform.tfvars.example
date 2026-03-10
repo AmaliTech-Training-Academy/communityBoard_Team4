@@ -35,4 +35,3 @@ db_backup_retention_days = 7
 
 # ── ECR ───────────────────────────────────────────────────────────────────────
 ecr_repository_name = "community-board"
-

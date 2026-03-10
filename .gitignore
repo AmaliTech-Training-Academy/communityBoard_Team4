@@ -92,3 +92,10 @@ logs/
 *~
 .DS_Store
 Thumbs.db
+
+# Custom Ignores
+Frontend-Execution-Plan.md
+MCP-figma-setup-by-RoboNuggets.md
+
+# Coverage reports (generated, not to be committed)
+frontend/coverage/

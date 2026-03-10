@@ -235,4 +235,3 @@ module "secrets" {
 
   tags = local.common_tags
 }
-

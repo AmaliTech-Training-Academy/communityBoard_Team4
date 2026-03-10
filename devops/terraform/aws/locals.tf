@@ -54,4 +54,3 @@ locals {
   rds_identifier = "${local.name_prefix}-postgres"
   db_name        = "communityboard"
 }
-

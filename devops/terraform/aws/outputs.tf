@@ -114,4 +114,3 @@ output "ssm_grafana_password" {
   description = "SSM parameter name for the Grafana admin password"
   value       = module.secrets.ssm_grafana_password_name
 }
-
