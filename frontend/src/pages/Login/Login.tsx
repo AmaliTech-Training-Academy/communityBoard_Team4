@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { AuthLayout } from '../components/ui/AuthLayout';
-import { AuthInput } from '../components/ui/AuthInput';
-import { AuthButton } from '../components/ui/AuthButton';
+import { useAuth } from '../../context/AuthContext';
+import { AuthLayout } from '../../components/ui/AuthLayout';
+import { AuthInput } from '../../components/ui/AuthInput';
+import { AuthButton } from '../../components/ui/AuthButton';
 import './Login.css';
 
 export function Login() {
@@ -46,6 +46,15 @@ export function Login() {
       setIsLoading(false);
     }
   };
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      // To mimic form submit event without extensive mocking, simply dispatch an event
+      // However the simplest way in React is to just construct a synthetic event or extract the logic
+      const syntheticEvent = { preventDefault: () => {} } as React.FormEvent<HTMLFormElement>;
+      handleSubmit(syntheticEvent);
+    }
+  };
 
   return (
     <AuthLayout heading="Welcome back" subtitle="Sign in to your neighborhood community">
@@ -61,6 +70,7 @@ export function Login() {
               setEmail(e.target.value);
               if (errors.email) setErrors(prev => ({ ...prev, email: '' }));
             }}
+            onKeyDown={handleKeyDown}
             iconSrc="/assets/mail.svg"
             error={errors.email}
             dataTestId="email-input"
@@ -75,6 +85,7 @@ export function Login() {
               setPassword(e.target.value);
               if (errors.password) setErrors(prev => ({ ...prev, password: '' }));
             }}
+            onKeyDown={handleKeyDown}
             iconSrc="/assets/icon-lock.svg"
             error={errors.password}
             dataTestId="password-input"

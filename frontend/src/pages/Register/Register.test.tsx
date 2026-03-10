@@ -1,12 +1,12 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from '../context/AuthContext';
+import { AuthProvider } from '../../context/AuthContext';
 import { Register } from './Register';
 import { describe, it, expect, vi } from 'vitest';
 
 const mockRegister = vi.fn();
-vi.mock('../context/AuthContext', async () => {
-  const actual = await vi.importActual('../context/AuthContext');
+vi.mock('../../context/AuthContext', async () => {
+  const actual = await vi.importActual('../../context/AuthContext');
   return {
     ...actual as any,
     useAuth: () => ({
@@ -45,6 +45,20 @@ describe('Register Component', () => {
     await waitFor(() => {
       expect(screen.getByText('Name is required')).toBeInTheDocument();
       expect(screen.getByText('Email is required')).toBeInTheDocument();
+    });
+  });
+
+  it('shows error for incorrectly formatted email', async () => {
+    renderRegister();
+    
+    fireEvent.change(screen.getByTestId('name-input'), { target: { value: 'Test User' } });
+    fireEvent.change(screen.getByTestId('email-input'), { target: { value: 'johndoe@' } });
+    fireEvent.change(screen.getByTestId('password-input'), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByTestId('confirm-password-input'), { target: { value: 'password123' } });
+    fireEvent.click(screen.getByTestId('submit-button'));
+    
+    await waitFor(() => {
+      expect(screen.getByText('Invalid email format')).toBeInTheDocument();
     });
   });
 

@@ -1,0 +1,241 @@
+.feed-page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--background-light, #fdfdfd);
+  width: 100%;
+}
+
+.feed-main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .feed-main-content {
+    padding: 40px 120px;
+  }
+}
+
+/* -- Actions Row -- */
+.feed-actions-row {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .feed-actions-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.search-and-submit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  max-width: 600px;
+}
+
+.search-bar-container {
+  display: flex;
+  align-items: center;
+  background-color: var(--input-bg, #ececeb);
+  border: 1px solid var(--input-border, #b2bcc2);
+  border-radius: 8px;
+  padding: 8px 16px;
+  flex: 1;
+  gap: 12px;
+  position: relative;
+  height: 40px;
+}
+
+.search-icon-img {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0);
+  opacity: 0.6;
+}
+
+.search-submit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--btn-primary-bg, #08283b);
+  border: none;
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+
+.search-submit-btn:hover {
+  opacity: 0.9;
+}
+
+.search-submit-icon {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) invert(1);
+}
+
+.search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--body-text-primary, #08283b);
+  width: 100%;
+}
+
+.search-input::placeholder {
+  color: var(--body-text-secondary, #395362);
+}
+
+.clear-search-btn {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  color: var(--body-text-secondary, #395362);
+  cursor: pointer;
+}
+
+.create-post-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: var(--btn-primary-bg, #08283b);
+  color: var(--btn-primary-text, #fdfdfd);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  height: 40px;
+}
+
+.create-post-btn:hover {
+  opacity: 0.9;
+}
+
+/* -- Categories Row -- */
+.categories-row {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+@media (min-width: 768px) {
+  .categories-row {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.categories-label {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--body-text-primary, #08283b);
+  white-space: nowrap;
+}
+
+.categories-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px; /* for scrollbar spacing */
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+}
+
+/* Hide scrollbar for clean look but keep functionality */
+.categories-list::-webkit-scrollbar {
+  display: none;
+}
+.categories-list {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* -- Posts List -- */
+.posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.empty-feed-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 40px;
+  gap: 24px;
+}
+
+.empty-state-img {
+  width: 200px;
+  height: auto;
+}
+
+.empty-state-text {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--body-text-tertiary, #5a6f7c);
+  text-align: center;
+}
+
+/* -- Pagination -- */
+.pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.pagination-btn {
+  background: transparent;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--body-text-primary, #08283b);
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+
+.pagination-btn:hover {
+  background-color: var(--input-bg, #ececeb);
+}
+
+.pagination-active {
+  background-color: var(--input-bg, #ececeb);
+}

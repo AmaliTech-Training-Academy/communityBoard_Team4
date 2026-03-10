@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for pages/Login.tsx</title>
+    <title>Code coverage report for pages/Login/Login.tsx</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../prettify.css" />
-    <link rel="stylesheet" href="../base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="../favicon.png" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(../sort-arrow-sprite.png);
+            background-image: url(../../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../index.html">All files</a> / <a href="index.html">pages</a> Login.tsx</h1>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">pages/Login</a> Login.tsx</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">85.29% </span>
+                <span class="strong">79.48% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>29/34</span>
+                <span class='fraction'>31/39</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.33% </span>
+                <span class="strong">78.57% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>10/12</span>
+                <span class='fraction'>11/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">66.66% </span>
+                <span class="strong">62.5% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/6</span>
+                <span class='fraction'>5/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">96.66% </span>
+                <span class="strong">88.57% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>29/30</span>
+                <span class='fraction'>31/35</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -158,7 +158,18 @@
 <a name='L93'></a><a href='#L93'>93</a>
 <a name='L94'></a><a href='#L94'>94</a>
 <a name='L95'></a><a href='#L95'>95</a>
-<a name='L96'></a><a href='#L96'>96</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -206,6 +217,15 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">48x</span>
+<span class="cline-any cline-yes">40x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">48x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -232,8 +252,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -255,10 +277,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { AuthLayout } from '../components/ui/AuthLayout';
-import { AuthInput } from '../components/ui/AuthInput';
-import { AuthButton } from '../components/ui/AuthButton';
+import { useAuth } from '../../context/AuthContext';
+import { AuthLayout } from '../../components/ui/AuthLayout';
+import { AuthInput } from '../../components/ui/AuthInput';
+import { AuthButton } from '../../components/ui/AuthButton';
 import './Login.css';
 &nbsp;
 export function Login() {
@@ -301,6 +323,15 @@ export function Login() {
       setIsLoading(false);
     }
   };
+  const handleKeyDown = (e: React.KeyboardEvent&lt;HTMLInputElement&gt;) =&gt; {
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (e.key === 'Enter') {
+<span class="cstat-no" title="statement not covered" >      e.preventDefault();</span>
+      // To mimic form submit event without extensive mocking, simply dispatch an event
+      // However the simplest way in React is to just construct a synthetic event or extract the logic
+      const syntheticEvent = <span class="cstat-no" title="statement not covered" >{ preventDefault: <span class="fstat-no" title="function not covered" >() =&gt; {</span>} } as React.FormEvent&lt;HTMLFormElement&gt;;</span>
+<span class="cstat-no" title="statement not covered" >      handleSubmit(syntheticEvent);</span>
+    }
+  };
 &nbsp;
   return (
     &lt;AuthLayout heading="Welcome back" subtitle="Sign in to your neighborhood community"&gt;
@@ -316,6 +347,7 @@ export function Login() {
               setEmail(e.target.value);
               <span class="missing-if-branch" title="if path not taken" >I</span>if (errors.email) <span class="cstat-no" title="statement not covered" >setErrors(<span class="fstat-no" title="function not covered" >prev =&gt; (<span class="cstat-no" title="statement not covered" >{</span> ...prev, email: '' }))</span>;</span>
             }}
+            onKeyDown={handleKeyDown}
             iconSrc="/assets/mail.svg"
             error={errors.email}
             dataTestId="email-input"
@@ -330,6 +362,7 @@ export function Login() {
               setPassword(e.target.value);
               <span class="missing-if-branch" title="if path not taken" >I</span>if (errors.password) <span class="cstat-no" title="statement not covered" >setErrors(<span class="fstat-no" title="function not covered" >prev =&gt; (<span class="cstat-no" title="statement not covered" >{</span> ...prev, password: '' }))</span>;</span>
             }}
+            onKeyDown={handleKeyDown}
             iconSrc="/assets/icon-lock.svg"
             error={errors.password}
             dataTestId="password-input"
@@ -355,16 +388,16 @@ export function Login() {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-09T15:44:43.673Z
+                at 2026-03-10T15:15:12.277Z
             </div>
-        <script src="../prettify.js"></script>
+        <script src="../../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="../sorter.js"></script>
-        <script src="../block-navigation.js"></script>
+        <script src="../../sorter.js"></script>
+        <script src="../../block-navigation.js"></script>
     </body>
 </html>
     
