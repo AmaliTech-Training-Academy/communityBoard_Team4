@@ -111,6 +111,11 @@ variable "backend_tg_arn" {
 }
 
 # ── Secrets ────────────────────────────────────────────────────────────────────
+variable "spring_datasource_url_ssm_arn" {
+  description = "ARN of the SSM parameter holding the pre-assembled JDBC URL for SPRING_DATASOURCE_URL"
+  type        = string
+}
+
 variable "db_credentials_secret_arn" {
   description = "Secrets Manager ARN for RDS credentials JSON (injected into Backend container)"
   type        = string

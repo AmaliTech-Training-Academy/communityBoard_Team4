@@ -124,14 +124,13 @@ resource "aws_ecs_task_definition" "backend" {
         { name = "SERVER_PORT",            value = "8080" }
       ]
 
-      # Secrets Manager values injected at container start — never in plaintext
+      # Secrets injected at container start by the ECS agent — never in plaintext
+      # Names match application.yml: SPRING_DATASOURCE_URL / USERNAME / PASSWORD / JWT_SECRET
       secrets = [
-        { name = "DB_USERNAME", valueFrom = "${var.db_credentials_secret_arn}:username::" },
-        { name = "DB_PASSWORD", valueFrom = "${var.db_credentials_secret_arn}:password::" },
-        { name = "DB_HOST",     valueFrom = "${var.db_credentials_secret_arn}:host::" },
-        { name = "DB_PORT",     valueFrom = "${var.db_credentials_secret_arn}:port::" },
-        { name = "DB_NAME",     valueFrom = "${var.db_credentials_secret_arn}:dbname::" },
-        { name = "JWT_SECRET",  valueFrom = var.jwt_secret_arn }
+        { name = "SPRING_DATASOURCE_URL",      valueFrom = var.spring_datasource_url_ssm_arn },
+        { name = "SPRING_DATASOURCE_USERNAME", valueFrom = "${var.db_credentials_secret_arn}:username::" },
+        { name = "SPRING_DATASOURCE_PASSWORD", valueFrom = "${var.db_credentials_secret_arn}:password::" },
+        { name = "JWT_SECRET",                 valueFrom = var.jwt_secret_arn }
       ]
 
       logConfiguration = {
