@@ -18,7 +18,13 @@ ECR_REPO=$(aws ecr describe-repositories \
   --repository-names "${PROJECT}" \
   --region "${AWS_REGION}" \
   --query 'repositories[0].repositoryUri' \
-  --output text)
+  --output text 2>/dev/null || true)
+
+if [[ -z "${ECR_REPO}" || "${ECR_REPO}" == "None" ]]; then
+  echo "[deploy] ERROR: ECR repository '${PROJECT}' not found in ${AWS_REGION}."
+  echo "         Run 'terraform apply' first to create the registry."
+  exit 1
+fi
 
 echo "[deploy] Environment : ${ENVIRONMENT}"
 echo "[deploy] Image tag   : ${IMAGE_TAG}"

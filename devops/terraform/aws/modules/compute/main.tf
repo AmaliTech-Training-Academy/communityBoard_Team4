@@ -83,7 +83,8 @@ resource "aws_ecs_task_definition" "frontend" {
       }
 
       healthCheck = {
-        command     = ["CMD-SHELL", "curl -f http://localhost/ || exit 1"]
+        # nginx:alpine is BusyBox-based — use wget, not curl (curl not installed)
+        command     = ["CMD-SHELL", "wget -q -O /dev/null http://localhost/ || exit 1"]
         interval    = 30
         timeout     = 5
         retries     = 3
@@ -143,7 +144,8 @@ resource "aws_ecs_task_definition" "backend" {
       }
 
       healthCheck = {
-        command     = ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
+        # eclipse-temurin:17-jre-alpine is BusyBox-based — use wget, not curl
+        command     = ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/actuator/health || exit 1"]
         interval    = 30
         timeout     = 5
         retries     = 3
