@@ -53,14 +53,6 @@ resource "aws_security_group" "frontend" {
     security_groups = [aws_security_group.alb.id]
   }
 
-  ingress {
-    description = "SSH from admin network (ops access)"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = var.admin_cidrs
-  }
-
   egress {
     description = "All outbound"
     from_port   = 0
@@ -97,14 +89,6 @@ resource "aws_security_group" "backend" {
     to_port         = 8080
     protocol        = "tcp"
     security_groups = [aws_security_group.frontend.id]
-  }
-
-  ingress {
-    description = "SSH from admin network (ops access)"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = var.admin_cidrs
   }
 
   egress {

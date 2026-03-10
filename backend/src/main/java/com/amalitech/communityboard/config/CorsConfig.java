@@ -1,16 +1,13 @@
 package com.amalitech.communityboard.config;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-@Configuration
-public class CorsConfig implements WebMvcConfigurer {
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:3000")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*");
-    }
+/**
+ * CORS is now configured centrally in SecurityConfig#corsConfigurationSource().
+ * This class is intentionally empty to avoid duplicate CORS configuration.
+ *
+ * The previous WebMvcConfigurer implementation conflicted with the SecurityConfig CORS bean
+ * (both were defining allowed origins independently). Consolidating into SecurityConfig
+ * ensures a single, consistent CORS policy across all routes including secured endpoints.
+ */
+public class CorsConfig {
+    // CORS configuration lives in SecurityConfig.corsConfigurationSource()
 }

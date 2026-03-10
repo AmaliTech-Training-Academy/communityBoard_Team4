@@ -125,26 +125,13 @@ resource "aws_cloudtrail" "this" {
 }
 
 # ---------------------------------------------------------------------------
-# GuardDuty — threat detection
+# GuardDuty — disabled to save ~$3/month on capstone budget
+# CloudTrail above still provides a full audit log.
+# Re-enable by setting enable = true before any production workload.
 # ---------------------------------------------------------------------------
 
 resource "aws_guardduty_detector" "this" {
-  enable = true
-
-  datasources {
-    s3_logs {
-      enable = true
-    }
-    malware_protection {
-      scan_ec2_instance_with_findings {
-        ebs_volumes {
-          enable = true
-        }
-      }
-    }
-  }
-
-  finding_publishing_frequency = "FIFTEEN_MINUTES"
+  enable = false
 
   tags = merge(var.tags, { Name = "${var.project_name}-guardduty" })
 }

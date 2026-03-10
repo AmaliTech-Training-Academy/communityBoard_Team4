@@ -1,0 +1,68 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 12px;
+  border-radius: 6px;
+  border-width: 1px;
+  border-style: solid;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.badge-clickable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.badge-clickable:hover {
+  opacity: 0.8;
+}
+
+/* Colored badged for cards */
+.badge-events {
+  background-color: #edebfe;
+  border-color: #ac94fa;
+  color: #5521b5;
+}
+
+.badge-lost-found {
+  background-color: #fdf2f2;
+  border-color: #f98080;
+  color: #9b1c1c;
+}
+
+.badge-recommendations {
+  background-color: #def7ec;
+  border-color: #31c48d;
+  color: #03543f;
+}
+
+.badge-help-requests {
+  background-color: #fdf6b2;
+  border-color: #e3a008;
+  color: #723b13;
+}
+
+.badge-default {
+  background-color: #b2bcc2;
+  border-color: #395362;
+  color: #08283b;
+}
+
+/* Filter badge styles */
+.badge-filter-active {
+  background-color: #e6eaeb;
+  border-color: #e6eaeb;
+  color: #061c2a;
+}
+
+.badge-filter-inactive {
+  background-color: transparent;
+  border-color: #b2bcc2;
+  color: #08283b;
+}

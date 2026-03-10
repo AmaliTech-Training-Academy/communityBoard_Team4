@@ -14,6 +14,84 @@ data "aws_iam_policy_document" "ec2_assume_role" {
   }
 }
 
+data "aws_iam_policy_document" "ecs_assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+##############################################################################
+# ECS Task Execution Role — used by ECS agent (not the container)
+# Pulls images from ECR, writes logs to CloudWatch, injects secrets at start
+##############################################################################
+resource "aws_iam_role" "ecs_task_execution" {
+  name               = "${var.project_name}-ecs-execution-role"
+  assume_role_policy = data.aws_iam_policy_document.ecs_assume_role.json
+
+  tags = merge(var.tags, { Role = "ecs-execution" })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_managed" {
+  role       = aws_iam_role.ecs_task_execution.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+data "aws_iam_policy_document" "ecs_execution_secrets" {
+  statement {
+    sid    = "SecretsManagerReadForInjection"
+    effect = "Allow"
+    actions = [
+      "secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret",
+    ]
+    resources = [
+      "arn:aws:secretsmanager:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:secret:/${var.project_name}/${var.environment}/*",
+    ]
+  }
+
+  statement {
+    sid    = "SSMParameterReadForInjection"
+    effect = "Allow"
+    actions = [
+      "ssm:GetParameter",
+      "ssm:GetParameters",
+      "ssm:GetParametersByPath",
+    ]
+    resources = [
+      "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/${var.project_name}/${var.environment}/*",
+    ]
+  }
+
+  statement {
+    sid    = "KMSDecryptViaServices"
+    effect = "Allow"
+    actions = ["kms:Decrypt", "kms:GenerateDataKey"]
+    resources = ["*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "kms:ViaService"
+      values = [
+        "ssm.${data.aws_region.current.name}.amazonaws.com",
+        "secretsmanager.${data.aws_region.current.name}.amazonaws.com",
+      ]
+    }
+  }
+}
+
+resource "aws_iam_role_policy" "ecs_execution_secrets" {
+  name   = "${var.project_name}-ecs-execution-secrets"
+  role   = aws_iam_role.ecs_task_execution.id
+  policy = data.aws_iam_policy_document.ecs_execution_secrets.json
+}
+
 ##############################################################################
 # Monitoring role — Prometheus + Grafana + Alertmanager host
 # Permissions: SSM (session manager) + CloudWatch read (metrics/logs scraping)
@@ -60,24 +138,14 @@ resource "aws_iam_instance_profile" "monitoring" {
 }
 
 ##############################################################################
-# App role — shared by Frontend and Backend EC2 instances
-# Permissions: ECR read (pull images), SSM (session manager), CloudWatch logs
+# App task role — assumed by running Frontend/Backend Fargate container code
+# Permissions: CloudWatch logs write, Secrets Manager + SSM read at runtime
 ##############################################################################
 resource "aws_iam_role" "app" {
   name               = "${var.project_name}-app-role"
-  assume_role_policy = data.aws_iam_policy_document.ec2_assume_role.json
+  assume_role_policy = data.aws_iam_policy_document.ecs_assume_role.json
 
   tags = merge(var.tags, { Role = "app" })
-}
-
-resource "aws_iam_role_policy_attachment" "app_ecr_readonly" {
-  role       = aws_iam_role.app.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-}
-
-resource "aws_iam_role_policy_attachment" "app_ssm" {
-  role       = aws_iam_role.app.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 data "aws_iam_policy_document" "app_cloudwatch" {
@@ -90,7 +158,7 @@ data "aws_iam_policy_document" "app_cloudwatch" {
       "logs:PutLogEvents",
       "logs:DescribeLogStreams",
     ]
-    resources = ["arn:aws:logs:*:*:log-group:/app/${var.project_name}/*"]
+    resources = ["arn:aws:logs:*:*:log-group:/${var.project_name}/*"]
   }
 }
 
@@ -98,13 +166,6 @@ resource "aws_iam_role_policy" "app_cloudwatch" {
   name   = "${var.project_name}-app-cw-logs"
   role   = aws_iam_role.app.id
   policy = data.aws_iam_policy_document.app_cloudwatch.json
-}
-
-resource "aws_iam_instance_profile" "app" {
-  name = "${var.project_name}-app-instance-profile"
-  role = aws_iam_role.app.name
-
-  tags = merge(var.tags, { Role = "app" })
 }
 
 ##############################################################################

@@ -111,33 +111,48 @@ module "iam" {
 ##############################################################################
 module "key_pair" {
   source          = "./modules/key_pair"
-  key_pair_name   = var.key_pair_name
+  key_pair_name   = "${local.project}-key"
   keys_output_dir = "${abspath(path.root)}/../../keys"
   tags            = local.common_tags
 }
 
 ##############################################################################
-# Compute — Frontend (Nginx), Backend (Spring Boot), Monitoring (Prometheus + Grafana)
+# Compute — ECS Fargate (Frontend + Backend) + Monitoring EC2
 ##############################################################################
 module "compute" {
   source = "./modules/compute"
 
-  project_name           = local.project
-  ami_id                 = data.aws_ami.amazon_linux_2.id
-  public_subnet_id       = module.network.public_subnet_ids[0]
-  private_app_subnet_ids = module.network.private_app_subnet_ids
+  project_name  = local.project
+  environment   = local.environment
+  ami_id        = data.aws_ami.amazon_linux_2.id
+  public_subnet_id = module.network.public_subnet_ids[0]
+  app_subnet_ids   = module.network.public_subnet_ids
   key_name               = module.key_pair.key_name
-  ssh_key_fingerprint    = module.key_pair.public_key_fingerprint_sha256
 
-  frontend_security_group_id  = module.security.frontend_security_group_id
-  backend_security_group_id   = module.security.backend_security_group_id
+  frontend_security_group_id   = module.security.frontend_security_group_id
+  backend_security_group_id    = module.security.backend_security_group_id
   monitoring_security_group_id = module.security.monitoring_security_group_id
 
-  app_instance_profile_name        = module.iam.app_instance_profile_name
+  ecs_task_execution_role_arn      = module.iam.ecs_task_execution_role_arn
+  ecs_task_role_arn                = module.iam.ecs_task_role_arn
   monitoring_instance_profile_name = module.iam.monitoring_instance_profile_name
 
-  frontend_instance_type   = var.frontend_instance_type
-  backend_instance_type    = var.backend_instance_type
+  frontend_image = "${module.ecr.repository_url}:frontend-${var.image_tag}"
+  backend_image  = "${module.ecr.repository_url}:backend-${var.image_tag}"
+
+  frontend_tg_arn = module.alb.frontend_target_group_arn
+  backend_tg_arn  = module.alb.backend_target_group_arn
+
+  spring_datasource_url_ssm_arn = module.secrets.spring_datasource_url_ssm_arn
+  db_credentials_secret_arn     = module.secrets.db_credentials_secret_arn
+  jwt_secret_arn                = module.secrets.jwt_secret_arn
+
+  frontend_cpu           = var.frontend_cpu
+  frontend_memory        = var.frontend_memory
+  backend_cpu            = var.backend_cpu
+  backend_memory         = var.backend_memory
+  frontend_desired_count = var.frontend_desired_count
+  backend_desired_count  = var.backend_desired_count
   monitoring_instance_type = var.monitoring_instance_type
 
   tags = local.common_tags
@@ -153,8 +168,6 @@ module "alb" {
   vpc_id                = module.network.vpc_id
   public_subnet_ids     = module.network.public_subnet_ids
   alb_security_group_id = module.security.alb_security_group_id
-  frontend_instance_id  = module.compute.frontend_instance_id
-  backend_instance_id   = module.compute.backend_instance_id
   # Enable deletion protection only in production
   enable_deletion_protection = var.environment == "prod"
 

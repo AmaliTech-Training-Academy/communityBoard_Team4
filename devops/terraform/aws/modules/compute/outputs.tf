@@ -1,29 +1,29 @@
-output "frontend_instance_id" {
-  description = "EC2 instance ID of the Frontend host"
-  value       = aws_instance.frontend.id
+output "ecs_cluster_name" {
+  description = "Name of the ECS cluster"
+  value       = aws_ecs_cluster.this.name
 }
 
-output "backend_instance_id" {
-  description = "EC2 instance ID of the Backend host"
-  value       = aws_instance.backend.id
+output "ecs_cluster_arn" {
+  description = "ARN of the ECS cluster"
+  value       = aws_ecs_cluster.this.arn
 }
 
-output "frontend_private_ip" {
-  description = "Private IP of the Frontend EC2 instance"
-  value       = aws_instance.frontend.private_ip
+output "frontend_service_name" {
+  description = "Name of the Frontend ECS service"
+  value       = aws_ecs_service.frontend.name
 }
 
-output "backend_private_ip" {
-  description = "Private IP of the Backend EC2 instance"
-  value       = aws_instance.backend.private_ip
+output "backend_service_name" {
+  description = "Name of the Backend ECS service"
+  value       = aws_ecs_service.backend.name
 }
 
 output "monitoring_public_ip" {
-  description = "Public IP of the Monitoring host"
+  description = "Public IP of the Monitoring EC2 host"
   value       = aws_instance.monitoring.public_ip
 }
 
 output "monitoring_public_dns" {
-  description = "Public DNS of the Monitoring host"
+  description = "Public DNS of the Monitoring EC2 host"
   value       = aws_instance.monitoring.public_dns
 }

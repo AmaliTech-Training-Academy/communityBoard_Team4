@@ -15,13 +15,17 @@ db_subnet_cidrs      = ["10.30.20.0/24", "10.30.21.0/24"]
 
 admin_cidrs = ["<YOUR_OFFICE_OR_VPN_IP>/32"]
 
-# ── SSH ───────────────────────────────────────────────────────────────────────
-key_pair_name = "community-board-key"
-
-# ── Compute ───────────────────────────────────────────────────────────────────
-frontend_instance_type   = "t3.small"
-backend_instance_type    = "t3.small"
+# ── Monitoring EC2 ───────────────────────────────────────────────────────────
 monitoring_instance_type = "t3.medium"   # Prometheus + Grafana + Alertmanager
+
+# ── ECS Fargate ───────────────────────────────────────────────────────────────
+frontend_cpu           = 256
+frontend_memory        = 512
+backend_cpu            = 512
+backend_memory         = 1024
+frontend_desired_count = 1
+backend_desired_count  = 1
+image_tag              = "latest"
 
 
 
