@@ -2,7 +2,8 @@ spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/communityboard}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:aND#.814352}
+<<<<<<< HEAD
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}  # pragma: allowlist secret
   jpa:
     hibernate:
       # 'validate' — Hibernate checks entity mappings against the real schema but makes no changes.
@@ -27,7 +28,7 @@ spring:
       mode: never
 
 jwt:
-  secret: ${JWT_SECRET:communityboard-secret-key-amalitech-2024-minimum-256-bits}
+  secret: ${JWT_SECRET:communityboard-secret-key-amalitech-2024}  # pragma: allowlist secret
   expiration: 86400000  # 24 hours in milliseconds
 
 # CORS: comma-separated list of allowed origins

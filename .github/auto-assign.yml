@@ -1,0 +1,42 @@
+# Auto-assign reviewers based on files changed
+
+addReviewers: true
+addAssignees: false
+numberOfReviewers: 1
+
+# Default reviewer pool (fallback)
+reviewers:
+- Ayamigah16
+- JoelAlumasa
+
+# Assign reviewers based on file patterns
+filePathAssignments:
+  # Backend files
+  'backend/**':
+  - Bruce-the-dev
+  # Frontend files
+  'frontend/**':
+  - mmanueljoe
+  # DevOps files
+  'devops/**':
+  - JoelAlumasa
+  '.github/**':
+  - JoelAlumasa
+  'docker-compose.yml':
+  - JoelAlumasa
+  '**/Dockerfile':
+  - JoelAlumasa
+  # QA files
+  'qa/**':
+  - DivineBAYINGANA
+  # Data Engineering files
+  'data-engineering/**':
+  - ResearcherErnest
+  # Security sensitive
+  '**/security/**':
+  - JoelAlumasa
+  '**/.env*':
+  - JoelAlumasa
+
+# Skip draft PRs
+skipDraftPR: true
