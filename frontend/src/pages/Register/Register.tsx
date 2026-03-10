@@ -16,8 +16,14 @@ export function Register() {
   const validate = () => {
     const newErrors: Record<string, string> = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const nameRegex = /^[A-Za-z\s]+$/;
     
-    if (!formData.name) newErrors.name = 'Name is required';
+    if (!formData.name) {
+      newErrors.name = 'Name is required';
+    } else if (!nameRegex.test(formData.name)) {
+      newErrors.name = 'Name can only contain letters and spaces';
+    }
+
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!emailRegex.test(formData.email)) {
