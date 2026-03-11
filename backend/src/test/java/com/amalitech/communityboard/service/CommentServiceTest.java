@@ -15,25 +15,38 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import org.junit.jupiter.api.BeforeEach;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
+import java.util.function.Supplier;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class CommentServiceTest {
 
     @Mock CommentRepository commentRepository;
     @Mock PostRepository postRepository;
+    @Mock PerformanceMetricsService metricsService;
     @InjectMocks CommentService commentService;
+
+    @BeforeEach
+    @SuppressWarnings("unchecked")
+    void stubMetrics() {
+        // Make timeCommentOperation call through the supplier so existing tests keep passing
+        doAnswer(inv -> ((Supplier<?>) inv.getArgument(0)).get())
+                .when(metricsService).timeCommentOperation(any(Supplier.class));
+    }
 
     // ── helpers ──────────────────────────────────────────────────────────────
 
