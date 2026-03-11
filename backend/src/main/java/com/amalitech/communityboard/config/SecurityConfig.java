@@ -45,6 +45,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Public: auth endpoints
                 .requestMatchers("/api/auth/**").permitAll()
+                // Public: analytics endpoints — read-only, no sensitive data
+                .requestMatchers(HttpMethod.GET, "/api/analytics/**").permitAll()
                 // Public: read posts and categories (no auth needed to browse)
                 .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
