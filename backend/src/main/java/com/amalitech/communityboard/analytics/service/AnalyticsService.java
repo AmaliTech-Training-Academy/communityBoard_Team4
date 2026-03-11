@@ -9,14 +9,10 @@ import com.amalitech.communityboard.analytics.repository.PostsByCategoryReposito
 import com.amalitech.communityboard.analytics.repository.PostsByDayRepository;
 import com.amalitech.communityboard.analytics.repository.TopContributorsRepository;
 import com.amalitech.communityboard.exception.ResourceNotFoundException;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -38,10 +34,6 @@ public class AnalyticsService {
     private final PostsByCategoryRepository postsByCategoryRepository;
     private final PostsByDayRepository postsByDayRepository;
     private final TopContributorsRepository topContributorsRepository;
-    private final CacheManager cacheManager;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     /**
      * Returns total post and comment counts from the analytics_summary view.
@@ -82,24 +74,5 @@ public class AnalyticsService {
     @Async
     public CompletableFuture<List<TopContributor>> getTopContributors() {
         return CompletableFuture.completedFuture(topContributorsRepository.getTopContributors());
-    }
-
-    /**
-     * Refreshes all 4 analytics materialized views and evicts the caches.
-     * Call this after seeding data or whenever the ETL pipeline is not running.
-     */
-    @Transactional
-    public void refreshViews() {
-        entityManager.createNativeQuery("REFRESH MATERIALIZED VIEW CONCURRENTLY analytics_summary").executeUpdate();
-        entityManager.createNativeQuery("REFRESH MATERIALIZED VIEW CONCURRENTLY analytics_posts_by_category").executeUpdate();
-        entityManager.createNativeQuery("REFRESH MATERIALIZED VIEW CONCURRENTLY analytics_posts_by_day").executeUpdate();
-        entityManager.createNativeQuery("REFRESH MATERIALIZED VIEW CONCURRENTLY analytics_top_contributors").executeUpdate();
-
-        // Evict all analytics caches so the next read picks up the refreshed data
-        List.of("analyticsSummary", "analyticsPostsByCategory", "analyticsPostsByDay", "analyticsTopContributors")
-            .forEach(name -> {
-                var cache = cacheManager.getCache(name);
-                if (cache != null) cache.clear();
-            });
     }
 }
