@@ -241,33 +241,6 @@
   display: none;
 }
 
-/* Full-page layout for CreatePost on all screen sizes (matches Figma) */
-.create-post-page {
-  position: static;
-  width: 100%;
-  height: auto;
-  min-height: calc(100vh - 60px);
-  background-color: var(--background-general-light, #fdfdfd);
-  padding: 16px 24px 24px;
-  align-items: flex-start;
-  justify-content: flex-start;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.create-post-page .create-post-breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: var(--background-general-light, #fdfdfd);
-  border: 1px solid var(--stroke-default-light, #e6eaeb);
-  border-radius: 8px;
-  padding: 12px 20px;
-  width: 100%;
-  max-width: 566px;
-  box-sizing: border-box;
-}
-
 .breadcrumb-link {
   display: flex;
   align-items: center;
@@ -296,30 +269,51 @@
   color: var(--body-text-primary, #08283b);
 }
 
-.create-post-page .create-post-modal {
-  max-width: 566px;
-  border: none;
-  border-radius: 0;
-  box-shadow: none;
-  padding: 0;
-  animation: none;
-}
-
-.create-post-page .create-post-header {
-  display: none;
-}
-
-.create-post-page .create-post-body {
-  padding-top: 0;
-}
-
-/* Mobile adjustments */
+/* Mobile adjustments — full-page layout */
 @media (max-width: 767px) {
+  .create-post-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--background-general-light, #fdfdfd);
+    padding: 16px 24px 24px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+    z-index: 1100;
+  }
+
   .create-post-page .create-post-breadcrumb {
-    max-width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--background-general-light, #fdfdfd);
+    border: 1px solid var(--stroke-default-light, #e6eaeb);
+    border-radius: 8px;
+    padding: 12px 20px;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .create-post-page .create-post-modal {
+    width: 100%;
     max-width: 100%;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+    animation: none;
+  }
+
+  .create-post-page .create-post-header {
+    display: none;
+  }
+
+  .create-post-page .create-post-body {
+    padding-top: 0;
   }
 }
