@@ -18,14 +18,14 @@ export function Navbar() {
   };
 
   // Extract initials for the avatar if user name exists
-  const initials = user?.name 
+  const initials = user?.name
     ? user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
     : 'U';
 
   return (
     <nav className="navbar-container border-bottom-light">
       <div className="navbar-content">
-        
+
         {/* Logo Section */}
         <div className="navbar-logo" onClick={() => navigate('/')}>
           <img src="/assets/Logo.svg" alt="Ping Logo" className="logo-svg" />
@@ -33,7 +33,7 @@ export function Navbar() {
 
         {/* Desktop Navigation */}
         <div className="navbar-desktop-menu">
-          
+
           {/* Analytics Button */}
           <button className="navbar-action-btn">
             <img src="/assets/Analytics.svg" alt="Analytics" className="icon-dark svg-icon" />
@@ -79,12 +79,12 @@ export function Navbar() {
               <span className="profile-email">{user?.email || 'user@example.com'}</span>
             </div>
           </div>
-          
+
           <button className="navbar-action-btn mobile-menu-item">
             <img src="/assets/Analytics.svg" alt="Analytics" className="icon-dark svg-icon" />
             <span className="text-dark-medium">Analytics</span>
           </button>
-          
+
           <button className="navbar-action-btn error-btn mobile-menu-item" onClick={handleLogout}>
             <img src="/assets/log-out.svg" alt="Log out" className="icon-error svg-icon" />
             <span className="text-error-medium">Log out</span>

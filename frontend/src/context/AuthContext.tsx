@@ -1,9 +1,11 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from "react";
+import api from '../services/api';
 
-interface User {
-  id?: string;
-  name?: string;
-  email?: string;
+export interface User {
+  name: string;
+  email: string;
+  role: string;
+  token?: string;
   [key: string]: any;
 }
 
@@ -18,41 +20,59 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+    const name = localStorage.getItem("name");
+    const email = localStorage.getItem("email");
+    return token && role && name && email ? { token, role, name, email } : null;
+  });
   const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser && token) {
-      try { setUser(JSON.parse(savedUser)); } catch (e) {}
-    }
-  }, [token]);
+    setToken(localStorage.getItem("token"));
+  }, []);
 
   const login = async (email?: string, password?: string) => {
-    // Mock login simulating API request
-    await new Promise(res => setTimeout(res, 800));
-    if (email === 'admin@amalitech.com' && password === 'password123') { // pragma: allowlist secret
-      const mockUser = { id: '1', name: 'Admin User', email };
-      setUser(mockUser);
-      setToken('mock-auth-token');
-      localStorage.setItem("token", 'mock-auth-token');
-      localStorage.setItem("user", JSON.stringify(mockUser));
-    } else {
-      throw new Error("Invalid credentials");
-    }
+    const { data } = await api.post('/auth/login', { email, password });
+
+    // Validate returned shape manually or inherently trust the API definition
+    const { token: apiToken, role, name, email: apiEmail } = data;
+
+    setToken(apiToken);
+    localStorage.setItem("token", apiToken);
+    localStorage.setItem("role", role);
+    localStorage.setItem("name", name);
+    localStorage.setItem("email", apiEmail);
+
+    setUser({ token: apiToken, role, name, email: apiEmail });
   };
 
   const register = async (name: string, email: string, password: string) => {
-    // Mock registration API call
-    await new Promise(res => setTimeout(res, 800));
-    // For now, assume successful
+    console.log('apache code');
+
+    const { data } = await api.post('/auth/register', { name, email, password });
+    console.log('after apache code');
+
+    const { token: apiToken, role, name: apiName, email: apiEmail } = data;
+
+    setToken(apiToken);
+    localStorage.setItem("token", apiToken);
+    localStorage.setItem("role", role);
+    localStorage.setItem("name", apiName);
+    localStorage.setItem("email", apiEmail);
+
+    setUser({ token: apiToken, role, name: apiName, email: apiEmail });
   };
 
   const logout = () => {
     setUser(null);
     setToken(null);
     localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    localStorage.removeItem("role");
+    localStorage.removeItem("name");
+    localStorage.removeItem("email");
+    localStorage.removeItem("user"); // Clear legacy user objects if present
   };
 
   return (

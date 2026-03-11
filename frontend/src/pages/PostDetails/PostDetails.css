@@ -45,7 +45,7 @@
 }
 
 .breadcrumb-text {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 500;
   font-size: 14px;
   color: #08283b;
@@ -86,7 +86,7 @@
 }
 
 .post-title {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-weight: 600;
   font-size: 32px;
   line-height: normal;
@@ -100,7 +100,7 @@
 }
 
 .post-body-text {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 400;
   font-size: 16px;
   line-height: 1.5;
@@ -117,7 +117,7 @@
 }
 
 .post-author-name {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 500;
   font-size: 14px;
   color: var(--body-text-secondary, #395362);
@@ -136,7 +136,7 @@
 }
 
 .post-time-text {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 400;
   font-size: 14px;
   color: var(--body-text-tertiary, #5a6f7c);
@@ -175,7 +175,7 @@
   border: 1px solid var(--input-border-light, #b2bcc2);
   border-radius: 8px;
   padding: 12px 16px;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 14px;
   color: var(--body-text-primary, #08283b);
   resize: none;
@@ -196,7 +196,7 @@
   border: none;
   border-radius: 8px;
   padding: 10px 20px;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 500;
   font-size: 14px;
   cursor: pointer;
@@ -215,7 +215,7 @@
 }
 
 .comments-header h2 {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-weight: 600;
   font-size: 24px;
   line-height: normal;
@@ -259,7 +259,7 @@
   width: 32px;
   height: 32px;
   color: #222220;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 500;
   font-size: 12px;
   flex-shrink: 0;
@@ -272,7 +272,7 @@
 }
 
 .comment-author-name {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 600;
   font-size: 16px;
   line-height: 16px;
@@ -280,7 +280,7 @@
 }
 
 .comment-time {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 400;
   font-size: 12px;
   line-height: 12px;
@@ -288,12 +288,65 @@
 }
 
 .comment-content {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 400;
   font-size: 16px;
   line-height: 1.5;
   color: var(--body-text-secondary, #395362);
   width: 100%;
+}
+
+.comment-edit-textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 80px;
+  background-color: var(--input-bg, #ececeb);
+  border: 1px solid var(--input-border-light, #b2bcc2);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  color: var(--body-text-primary, #08283b);
+  resize: vertical;
+  outline: none;
+}
+
+.comment-edit-textarea:focus {
+  border-color: var(--btn-primary-bg, #08283b);
+}
+
+.comment-edit-save-btn {
+  background-color: var(--btn-primary-bg, #08283b);
+  color: var(--btn-primary-text, #fdfdfd);
+  border: none;
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.comment-edit-save-btn:hover {
+  opacity: 0.9;
+}
+
+.comment-edit-cancel-btn {
+  background: transparent;
+  color: var(--body-text-secondary, #395362);
+  border: 1px solid var(--input-border-light, #b2bcc2);
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.comment-edit-cancel-btn:hover {
+  background-color: var(--input-border-light, #e6eaeb);
 }
 
 .comment-actions {
@@ -338,7 +391,7 @@
 }
 
 .empty-comments-text {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 500;
   font-size: 14px;
   color: var(--body-text-tertiary, #5a6f7c);
