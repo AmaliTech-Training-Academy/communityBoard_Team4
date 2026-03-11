@@ -1,0 +1,108 @@
+.toast-container {
+  position: fixed;
+  top: 16px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 6px;
+  box-shadow:
+    0px 1px 3px 0px rgba(0, 0, 0, 0.1),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.1);
+  font-family: "Inter", sans-serif;
+  animation: toastSlideIn 0.3s ease-out;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Success toast — Figma: alert/success */
+.toast-success {
+  background-color: var(--alert-success-background, #def7ec);
+}
+
+.toast-success .toast-icon-wrapper {
+  background-color: var(--alert-success-icon, #046c4e);
+}
+
+.toast-success .toast-message {
+  color: var(--alert-success-text, #046c4e);
+}
+
+.toast-success .toast-close {
+  color: var(--alert-success-text, #046c4e);
+}
+
+/* Error toast — red variant */
+.toast-error {
+  background-color: var(--alert-error-background, #fde8e8);
+}
+
+.toast-error .toast-icon-wrapper {
+  background-color: #c81e1e;
+}
+
+.toast-error .toast-message {
+  color: #9b1c1c;
+}
+
+.toast-error .toast-close {
+  color: #9b1c1c;
+}
+
+/* Icon wrapper — green/red rounded square with check/alert icon */
+.toast-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+/* Content area: text + close button */
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toast-message {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.toast-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  line-height: 0;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toast-close:hover {
+  opacity: 0.6;
+}

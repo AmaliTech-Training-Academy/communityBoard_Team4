@@ -45,7 +45,7 @@
 }
 
 .breadcrumb-text {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 500;
   font-size: 14px;
   color: #08283b;
@@ -79,14 +79,31 @@
 
 .post-header-row {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 46px;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
   width: 100%;
 }
 
+.post-header-info {
+  flex: 1;
+}
+
+.post-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.breadcrumb-clickable {
+  cursor: pointer;
+}
+
+.comment-pagination {
+  margin-top: 20px;
+}
+
 .post-title {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-weight: 600;
   font-size: 32px;
   line-height: normal;
@@ -100,7 +117,7 @@
 }
 
 .post-body-text {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 400;
   font-size: 16px;
   line-height: 1.5;
@@ -117,7 +134,7 @@
 }
 
 .post-author-name {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 500;
   font-size: 14px;
   color: var(--body-text-secondary, #395362);
@@ -136,7 +153,7 @@
 }
 
 .post-time-text {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 400;
   font-size: 14px;
   color: var(--body-text-tertiary, #5a6f7c);
@@ -175,7 +192,7 @@
   border: 1px solid var(--input-border-light, #b2bcc2);
   border-radius: 8px;
   padding: 12px 16px;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 14px;
   color: var(--body-text-primary, #08283b);
   resize: none;
@@ -196,7 +213,7 @@
   border: none;
   border-radius: 8px;
   padding: 10px 20px;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 500;
   font-size: 14px;
   cursor: pointer;
@@ -215,7 +232,7 @@
 }
 
 .comments-header h2 {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-weight: 600;
   font-size: 24px;
   line-height: normal;
@@ -256,23 +273,23 @@
   justify-content: center;
   background-color: #c3c3c2;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  width: 48px;
+  height: 48px;
   color: #222220;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 500;
-  font-size: 12px;
+  font-size: 16px;
   flex-shrink: 0;
 }
 
 .comment-author-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .comment-author-name {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 600;
   font-size: 16px;
   line-height: 16px;
@@ -280,20 +297,63 @@
 }
 
 .comment-time {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 400;
-  font-size: 12px;
-  line-height: 12px;
-  color: var(--body-text-tertiary, #5a6f7c);
+  font-size: 14px;
+  line-height: 14px;
+  color: var(--body-text-secondary, #395362);
 }
 
 .comment-content {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 400;
   font-size: 16px;
   line-height: 1.5;
   color: var(--body-text-secondary, #395362);
   width: 100%;
+}
+
+.comment-edit-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.comment-edit-input {
+  box-sizing: border-box;
+  width: 421px;
+  max-width: 100%;
+  background-color: var(--input-bg, #ececeb);
+  border: 1px solid var(--input-border-light, #b2bcc2);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  line-height: 1.25;
+  color: var(--body-text-secondary, #395362);
+  outline: none;
+}
+
+.comment-edit-input:focus {
+  border-color: var(--btn-primary-bg, #08283b);
+}
+
+.comment-save-changes-btn {
+  background-color: var(--btn-primary-bg, #08283b);
+  color: var(--btn-primary-text, #fdfdfd);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.comment-save-changes-btn:hover {
+  opacity: 0.9;
 }
 
 .comment-actions {
@@ -338,26 +398,8 @@
 }
 
 .empty-comments-text {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 500;
   font-size: 14px;
   color: var(--body-text-tertiary, #5a6f7c);
-}
-
-/* Edit Comment State overrides */
-.edit-comment-container {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 16px;
-  width: 100%;
-}
-
-.edit-textarea {
-  height: 44px;
-  padding: 12px 16px;
-}
-
-.save-changes-btn {
-  align-self: flex-start;
 }

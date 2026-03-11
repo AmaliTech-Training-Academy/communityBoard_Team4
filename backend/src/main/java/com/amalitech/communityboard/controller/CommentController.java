@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "Comments", description = "Create, list, update, and delete comments on posts")
+@Tag(name = "Comments", description = "Create, list, and delete comments on posts")
 public class CommentController {
 
     private final CommentService commentService;
@@ -54,12 +54,12 @@ public class CommentController {
                 .body(commentService.createComment(postId, request, author));
     }
 
-    @Operation(summary = "Update a comment (author only)", security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "Edit a comment (author or admin)", security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Comment updated"),
         @ApiResponse(responseCode = "400", description = "Validation error — content is blank"),
         @ApiResponse(responseCode = "401", description = "Not authenticated — Bearer token required"),
-        @ApiResponse(responseCode = "403", description = "Authenticated but not the comment author"),
+        @ApiResponse(responseCode = "403", description = "Authenticated but not the comment author or an admin"),
         @ApiResponse(responseCode = "404", description = "Comment not found")
     })
     @PutMapping("/api/comments/{id}")

@@ -1,106 +1,140 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Badge, CategoryType } from '../../components/ui/Badge';
-import { PostCard, Post } from '../../components/features/posts/PostCard';
-import { EmptyFeed } from '../../components/features/posts/EmptyFeed';
-import { Navbar } from '../../components/layout/Navbar';
-import './PostFeed.css';
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate, Outlet } from "react-router-dom";
+import { Badge, CategoryType } from "../../components/ui/Badge";
+import { PostCard, Post } from "../../components/features/posts/PostCard";
+import { EmptyFeed } from "../../components/features/posts/EmptyFeed";
+import { Navbar } from "../../components/layout/Navbar";
+import api from "../../services/api";
+import "./PostFeed.css";
 
-// Dummy data matching Figma exactly
-const DUMMY_POSTS: Post[] = [
-  {
-    id: '1',
-    title: 'Community Garden Workday This Saturday',
-    category: 'Events',
-    content: "Join us this Saturday at 9 AM for our monthly community garden workday! We'll be planting spring vegetables and need volunteers. Bring gloves and water. Coffee and donuts provided!",
-    author: { id: 'u1', name: 'Sarah Johnson' },
-    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-    commentCount: 3,
-  },
-  {
-    id: '2',
-    title: 'Lost: Orange Tabby Cat',
-    category: 'Lost & Found',
-    content: "Our cat Whiskers went missing yesterday evening near Oak Street. He's an orange tabby with a white chest, very friendly. Please call 555-0123 if you see him. Reward offered.",
-    author: { id: 'u2', name: 'John Smith' },
-    createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5 hours ago
-    commentCount: 2,
-  },
-  {
-    id: '3',
-    title: 'Best Local Plumber Recommendation?',
-    category: 'Recommendations',
-    content: "Looking for a reliable plumber to fix a leaky pipe. Does anyone have recommendations for someone trustworthy and reasonably priced in our area?",
-    author: { id: 'u3', name: 'Mike Davis' },
-    createdAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(), // 8 hours ago
-    commentCount: 5,
-  },
-  {
-    id: '4',
-    title: 'Need Help Moving Furniture',
-    category: 'Help Requests',
-    content: "I'm moving this weekend and could use help moving some heavy furniture up to a second floor apartment. Happy to provide pizza and drinks! Sunday afternoon works best.",
-    author: { id: 'u1', name: 'Sarah Johnson' },
-    createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(), // 12 hours ago
-    commentCount: 8,
-  },
-  {
-    id: '5',
-    title: 'Looking for Dog Walker Recommendations',
-    category: 'Recommendations',
-    content: "Starting a new job and need someone reliable to walk my golden retriever during lunch hours. Any recommendations for dog walkers in the neighborhood?",
-    author: { id: 'u4', name: 'Emma Wilson' },
-    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
-    commentCount: 6,
-  }
+const CATEGORIES: CategoryType[] = [
+  "All",
+  "EVENT",
+  "NEWS",
+  "DISCUSSION",
+  "ALERT",
 ];
-
-const CATEGORIES: CategoryType[] = ['All', 'Events', 'Lost & Found', 'Recommendations', 'Help Requests'];
 
 export function PostFeed() {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState<CategoryType>('All');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState<CategoryType>("All");
 
-  // Filter posts based on category and search query
-  const filteredPosts = DUMMY_POSTS.filter((post) => {
-    const matchesCategory = activeCategory === 'All' || post.category === activeCategory;
-    const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          post.content.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const onPostCreated = useCallback(() => {
+    setSearchQuery("");
+    setDebouncedSearch("");
+    setActiveCategory("All");
+    setPage(0);
+    setRefreshKey((k) => k + 1);
+  }, []);
+
+  // Debounce search input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  // Reset page when search or category changes
+  useEffect(() => {
+    setPage(0);
+  }, [debouncedSearch, activeCategory]);
+
+  // Fetch posts from API
+  useEffect(() => {
+    const fetchPosts = async () => {
+      setLoading(true);
+      try {
+        const params: any = { page, size: 10 };
+        if (activeCategory !== "All") params.category = activeCategory;
+        if (debouncedSearch) params.keyword = debouncedSearch;
+
+        // Use the default sorted endpoint if no filters are applied
+        const endpoint =
+          activeCategory === "All" && !debouncedSearch
+            ? "/posts"
+            : "/posts/search";
+
+        const { data } = await api.get(endpoint, { params });
+        setPosts(data.content || []);
+        setTotalPages(data.totalPages || 0);
+        setError("");
+      } catch (err) {
+        console.error("Failed to load posts", err);
+        setPosts([]);
+        setError("Failed to load posts. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPosts();
+  }, [page, debouncedSearch, activeCategory, refreshKey]);
+
+  const handleSearchSubmit = () => {
+    setDebouncedSearch(searchQuery);
+    setPage(0);
+  };
 
   return (
     <div className="feed-page-container">
       <Navbar />
 
       <main className="feed-main-content">
-
         {/* Top Actions Row: Search & Create */}
         <div className="feed-actions-row">
           <div className="search-and-submit">
             <div className="search-bar-container">
-              <img src="/assets/search.svg" alt="Search" className="search-icon-img" />
+              <img
+                src="/assets/search.svg"
+                alt="Search"
+                className="search-icon-img"
+              />
               <input
                 type="text"
                 placeholder="Search by title of post..."
                 className="search-input"
+                data-testid="search-input"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearchSubmit()}
               />
               {searchQuery && (
-                <button className="clear-search-btn" onClick={() => setSearchQuery('')}>
+                <button
+                  className="clear-search-btn"
+                  onClick={() => setSearchQuery("")}
+                >
                   &times;
                 </button>
               )}
             </div>
 
-            <button className="search-submit-btn">
-              <img src="/assets/search.svg" alt="Search" className="search-submit-icon" />
+            <button
+              className="search-submit-btn"
+              onClick={handleSearchSubmit}
+              data-testid="search-submit-btn"
+            >
+              <img
+                src="/assets/search.svg"
+                alt="Search"
+                className="search-submit-icon"
+              />
             </button>
           </div>
 
-          <button className="create-post-btn">
+          <button
+            className="create-post-btn"
+            onClick={() => navigate("/create")}
+            data-testid="create-post-btn"
+          >
             <img src="/assets/plus.svg" alt="Plus" className="plus-icon-img" />
             <span>Create post</span>
           </button>
@@ -124,11 +158,19 @@ export function PostFeed() {
 
         {/* Posts List */}
         <div className="posts-list">
-          {filteredPosts.length > 0 ? (
-            filteredPosts.map((post) => (
+          {loading ? (
+            <p className="posts-loading-text">Loading posts...</p>
+          ) : error ? (
+            <p className="posts-error-text">{error}</p>
+          ) : posts.length > 0 ? (
+            posts.map((post: any) => (
               <PostCard
                 key={post.id}
-                post={post}
+                post={{
+                  ...post,
+                  author: { id: post.authorEmail, name: post.authorName },
+                  commentCount: post.commentCount || 0,
+                }}
                 onClick={(id: string) => navigate(`/post/${id}`)}
               />
             ))
@@ -138,15 +180,39 @@ export function PostFeed() {
         </div>
 
         {/* Pagination */}
-        <div className="pagination-container">
-          <button className="pagination-btn">Previous</button>
-          <button className="pagination-btn pagination-active">1</button>
-          <button className="pagination-btn">2</button>
-          <button className="pagination-btn">3</button>
-          <button className="pagination-btn">Next</button>
-        </div>
+        {totalPages > 0 && (
+          <div className="pagination-container">
+            <button
+              className="pagination-btn"
+              disabled={page === 0}
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+            >
+              Previous
+            </button>
 
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                className={`pagination-btn ${page === i ? "pagination-active" : ""}`}
+                onClick={() => setPage(i)}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              className="pagination-btn"
+              disabled={page >= totalPages - 1}
+              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+            >
+              Next
+            </button>
+          </div>
+        )}
       </main>
+
+      {/* Renders CreatePost modal when on /create */}
+      <Outlet context={{ onPostCreated }} />
     </div>
   );
 }
