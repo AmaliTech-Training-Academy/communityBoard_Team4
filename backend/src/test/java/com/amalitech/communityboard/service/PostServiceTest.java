@@ -44,6 +44,7 @@ class PostServiceTest {
 
     @Mock PostRepository postRepository;
     @Mock CommentRepository commentRepository;
+    @Mock PostAnalyticsService postAnalyticsService;
     @InjectMocks PostService postService;
 
     // ── helpers ──────────────────────────────────────────────────────────────
@@ -98,7 +99,7 @@ class PostServiceTest {
         when(postRepository.findById(5L)).thenReturn(Optional.of(p));
         when(commentRepository.countByPostId(5L)).thenReturn(0L);
 
-        PostResponse resp = postService.getPostById(5L);
+        PostResponse resp = postService.getPostById(5L, "u1@test.com");
 
         assertThat(resp.getId()).isEqualTo(5L);
         assertThat(resp.getAuthorName()).isEqualTo("User1");
@@ -109,7 +110,7 @@ class PostServiceTest {
     void getPostById_notFound_throws404() {
         when(postRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> postService.getPostById(99L))
+        assertThatThrownBy(() -> postService.getPostById(99L, "u1@test.com"))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("99");
     }

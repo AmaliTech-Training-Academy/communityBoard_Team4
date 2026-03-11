@@ -62,8 +62,11 @@ public class PostController {
         @ApiResponse(responseCode = "404", description = "Post not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<PostResponse> getPostById(@PathVariable Long id) {
-        return ResponseEntity.ok(postService.getPostById(id));
+    public ResponseEntity<PostResponse> getPostById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User viewer) {
+        String viewerEmail = (viewer != null) ? viewer.getEmail() : "anonymous";
+        return ResponseEntity.ok(postService.getPostById(id, viewerEmail));
     }
 
     @Operation(summary = "Create a new post", security = @SecurityRequirement(name = "bearerAuth"))
