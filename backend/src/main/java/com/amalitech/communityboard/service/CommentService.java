@@ -45,6 +45,22 @@ public class CommentService {
     }
 
     /**
+     * Updates the content of a comment.
+     * Only the comment author may update their own comment.
+     * Throws ResourceNotFoundException (404) if comment does not exist.
+     * Throws UnauthorizedException (403) if user is not the author.
+     */
+    public CommentResponse updateComment(Long commentId, CommentRequest request, User currentUser) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id: " + commentId));
+        if (!comment.getAuthor().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedException("Not authorized to edit this comment");
+        }
+        comment.setContent(request.getContent());
+        return toResponse(commentRepository.save(comment));
+    }
+
+    /**
      * Deletes a comment.
      * ADMIN may delete any comment.
      * A USER may only delete their own comment.
@@ -64,10 +80,10 @@ public class CommentService {
     private CommentResponse toResponse(Comment comment) {
         return CommentResponse.builder()
                 .id(comment.getId())
+                .postId(comment.getPost().getId())
                 .content(comment.getContent())
                 .authorName(comment.getAuthor().getName())
                 .createdAt(comment.getCreatedAt())
                 .build();
     }
 }
-
