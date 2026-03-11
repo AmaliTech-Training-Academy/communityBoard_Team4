@@ -1,0 +1,299 @@
+##############################################################################
+# pipeline.yml — Unified CI / CD Pipeline
+#
+# Merges the former ci.yml, docker.yml, and deploy.yml into a single workflow
+# so the full chain is visible as one graph in the GitHub Actions UI.
+#
+# Triggers:
+#   push to main/develop    → test → build & push → deploy to ECS
+#   pull_request            → test only (build & deploy are skipped)
+#   workflow_dispatch       → full pipeline (test → build → deploy)
+#
+# Job graph (push / dispatch):
+#   backend-test  ─┐
+#   frontend-test ─┼─► build-push (frontend) ─┐
+#   tf-validate   ─┘   build-push (backend)  ─┴─► prepare ─► deploy (frontend)
+#                                                             deploy (backend)
+#
+# Branch → environment mapping:
+#   main    → production
+#   develop → staging
+#
+# Required repository secrets:
+#   AWS_ROLE_ARN    — IAM role ARN with OIDC trust for GitHub Actions
+#   CODECOV_TOKEN   — Codecov upload token
+##############################################################################
+name: Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref to build (branch, tag, or SHA). Defaults to HEAD."
+        required: false
+        default: ""
+
+# Cancel stale PR runs; never cancel an active push/deploy.
+concurrency:
+  group: pipeline-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  id-token: write # OIDC credential exchange (deploy jobs)
+  contents: read
+
+env:
+  AWS_REGION: eu-west-1
+  ECR_REPO: community-board
+  ECS_CLUSTER: community-board-cluster
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────
+  # CI — runs on every push AND every pull request
+  # ─────────────────────────────────────────────────────────────────────────
+
+  backend-test:
+    name: Backend — Test & Coverage
+    runs-on: ubuntu-latest
+    # Tests use H2 in-memory DB (src/test/resources/application.properties).
+    # No PostgreSQL service — OS-level datasource env vars would override H2.
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: "17"
+        distribution: temurin
+        cache: maven
+
+    - name: Build & test with coverage
+      working-directory: ./backend
+      run: mvn clean verify
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./backend/target/site/jacoco/jacoco.xml
+        flags: backend
+        fail_ci_if_error: false
+
+  frontend-test:
+    name: Frontend — Test & Build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js 20
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+        cache: npm
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: Lint
+      working-directory: ./frontend
+      run: npm run lint
+      continue-on-error: true # surface lint issues without blocking merge
+
+    - name: Test with coverage
+      working-directory: ./frontend
+      run: npm run test:ci
+
+    - name: Production build
+      working-directory: ./frontend
+      run: npm run build
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./frontend/coverage/lcov.info
+        flags: frontend
+        fail_ci_if_error: false
+
+  terraform-validate:
+    name: Terraform — Format & Validate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: devops/terraform/aws
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "~> 1.6"
+
+    - name: Format check
+      run: terraform fmt -check -recursive
+
+    - name: Init (no backend)
+      run: terraform init -backend=false
+
+    - name: Validate
+      run: terraform validate
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Build & Push — skipped on pull requests; only runs on push / dispatch
+  # ─────────────────────────────────────────────────────────────────────────
+
+  build-push:
+    name: Build & Push — ${{ matrix.service }}
+    needs: [backend-test, frontend-test]
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false # build both images even if one fails
+      matrix:
+        include:
+        - service: frontend
+          context: ./frontend
+          dockerfile: ./frontend/Dockerfile
+        - service: backend
+          context: ./backend
+          dockerfile: ./backend/Dockerfile
+
+    steps:
+    - name: Resolve image tag
+      id: vars
+      run: |
+        REF="${{ github.event.inputs.ref || github.sha }}"
+        echo "tag=${REF::7}" >> "$GITHUB_OUTPUT"
+
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.inputs.ref || github.sha }}
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build and push ${{ matrix.service }}
+      uses: docker/build-push-action@v5
+      with:
+        context: ${{ matrix.context }}
+        file: ${{ matrix.dockerfile }}
+        push: true
+        # ECR is IMMUTABLE — SHA tag only (no :latest to avoid conflicts)
+        tags: ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ matrix.service }}-${{ steps.vars.outputs.tag }}
+        cache-from: type=gha,scope=${{ matrix.service }}
+        cache-to: type=gha,scope=${{ matrix.service }},mode=max
+
+    - name: Image digest summary
+      run: |
+        echo "### ${{ matrix.service }} image pushed" >> "$GITHUB_STEP_SUMMARY"
+        echo "**Tag:** \`${{ matrix.service }}-${{ steps.vars.outputs.tag }}\`" >> "$GITHUB_STEP_SUMMARY"
+        echo "**Registry:** \`${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}\`" >> "$GITHUB_STEP_SUMMARY"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Deploy — skipped on pull requests; runs after build-push succeeds
+  # ─────────────────────────────────────────────────────────────────────────
+
+  prepare:
+    name: Resolve deployment context
+    needs: [build-push]
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+
+    outputs:
+      image_tag: ${{ steps.ctx.outputs.image_tag }}
+      environment: ${{ steps.ctx.outputs.environment }}
+
+    steps:
+    - name: Compute context
+      id: ctx
+      run: |
+        REF="${{ github.event.inputs.ref || github.sha }}"
+        IMAGE_TAG="${REF::7}"
+        BRANCH="${{ github.ref_name }}"
+        ENV=$([[ "$BRANCH" == "main" ]] && echo "production" || echo "staging")
+        echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+        echo "environment=$ENV"     >> "$GITHUB_OUTPUT"
+
+  deploy:
+    name: Deploy ${{ matrix.service }} → ${{ needs.prepare.outputs.environment }}
+    needs: [prepare]
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    # environment: ${{ needs.prepare.outputs.environment }}
+    # Uncomment above once 'production' and 'staging' GitHub Environments are
+    # created under Settings → Environments. Without them the job fails to start.
+
+    strategy:
+      max-parallel: 1 # deploy frontend before backend to avoid mixed-version traffic
+      matrix:
+        include:
+        - service: frontend
+          container: frontend
+        - service: backend
+          container: backend
+
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    # Build the full ECR image URI from the authenticated session — avoids
+    # depending on AWS_ACCOUNT_ID secret which is inaccessible in jobs
+    # without an environment context.
+    - name: Build ECR image URI
+      id: ecr
+      run: |
+        ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
+        IMAGE="${ACCOUNT}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}:${{ matrix.service }}-${{ needs.prepare.outputs.image_tag }}"
+        echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+
+    - name: Download current task definition
+      run: |
+        aws ecs describe-task-definition \
+          --task-definition community-board-${{ matrix.service }} \
+          --query taskDefinition \
+          --region ${{ env.AWS_REGION }} \
+          > task-def-${{ matrix.service }}.json
+
+    - name: Render updated task definition
+      id: render
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: task-def-${{ matrix.service }}.json
+        container-name: ${{ matrix.container }}
+        image: ${{ steps.ecr.outputs.image }}
+
+    - name: Deploy to ECS
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      with:
+        task-definition: ${{ steps.render.outputs.task-definition }}
+        service: community-board-${{ matrix.service }}
+        cluster: ${{ env.ECS_CLUSTER }}
+        wait-for-service-stability: true
+        wait-for-minutes: 15
+
+    - name: Deployment summary
+      run: |
+        echo "### ${{ matrix.service }} deployed to ${{ needs.prepare.outputs.environment }}" >> "$GITHUB_STEP_SUMMARY"
+        echo "**Image tag:** \`${{ matrix.service }}-${{ needs.prepare.outputs.image_tag }}\`" >> "$GITHUB_STEP_SUMMARY"
+        echo "**Environment:** ${{ needs.prepare.outputs.environment }}" >> "$GITHUB_STEP_SUMMARY"

@@ -22,7 +22,7 @@ name: Release
 
 on:
   workflow_run:
-    workflows: [ "Deploy" ]
+    workflows: [ "Pipeline" ]
     branches: [ main ]
     types: [ completed ]
   workflow_dispatch:
