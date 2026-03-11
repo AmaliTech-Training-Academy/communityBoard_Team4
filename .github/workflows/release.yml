@@ -1,0 +1,128 @@
+##############################################################################
+# release.yml — Release Pipeline
+#
+# Triggers : workflow_dispatch — manually trigger a release with a chosen
+#              version bump type (patch / minor / major)
+#            workflow_run — automatically cuts a patch release after every
+#              successful production deploy (main branch only)
+#
+# What it does:
+#   1. Finds the latest semver git tag (e.g. v1.2.3); defaults to v0.0.0
+#   2. Computes the next version based on the bump type
+#   3. Generates a changelog from all non-merge commits since the last tag
+#   4. Creates and pushes an annotated git tag
+#   5. Publishes a GitHub Release with the generated changelog
+#
+# Required permissions:
+#   contents: write — to push tags and create releases
+#
+# No AWS credentials needed — this is a pure GitHub operation.
+##############################################################################
+name: Release
+
+on:
+  workflow_run:
+    workflows: [ "Deploy" ]
+    branches: [ main ]
+    types: [ completed ]
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version bump type"
+        required: true
+        type: choice
+        options: [ patch, minor, major ]
+        default: patch
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+
+    # Only run when Deploy succeeded (workflow_run) or triggered manually
+    if: >-
+      github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # full history needed for git log and tag operations
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    # ── Find latest semver tag ─────────────────────────────────────────
+    - name: Get latest semver tag
+      id: prev
+      run: |
+        TAG=$(git tag --sort=-version:refname \
+          | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+        echo "tag=${TAG:-v0.0.0}" >> "$GITHUB_OUTPUT"
+        echo "Latest tag: ${TAG:-v0.0.0}"
+
+    # ── Compute next version ───────────────────────────────────────────
+    - name: Compute next version
+      id: next
+      run: |
+        TAG="${{ steps.prev.outputs.tag }}"
+        MAJOR=$(echo "$TAG" | cut -d. -f1 | tr -d v)
+        MINOR=$(echo "$TAG" | cut -d. -f2)
+        PATCH=$(echo "$TAG" | cut -d. -f3)
+        # workflow_dispatch uses explicit input; workflow_run defaults to patch
+        BUMP="${{ github.event.inputs.bump || 'patch' }}"
+        case "$BUMP" in
+          major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+          minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+          patch) PATCH=$((PATCH + 1)) ;;
+        esac
+        echo "version=v${MAJOR}.${MINOR}.${PATCH}" >> "$GITHUB_OUTPUT"
+        echo "Next version: v${MAJOR}.${MINOR}.${PATCH}"
+
+    # ── Generate changelog from commits since last tag ─────────────────
+    - name: Generate changelog
+      id: notes
+      run: |
+        SINCE="${{ steps.prev.outputs.tag }}"
+        NEXT="${{ steps.next.outputs.version }}"
+
+        if git rev-parse "$SINCE" >/dev/null 2>&1; then
+          LOG=$(git log "${SINCE}..HEAD" --pretty=format:"- %s (%h)" --no-merges)
+        else
+          # First release — include up to last 50 commits
+          LOG=$(git log --pretty=format:"- %s (%h)" --no-merges | head -50)
+        fi
+
+        if [[ -z "$LOG" ]]; then
+          LOG="- No notable changes"
+        fi
+
+        # Write multiline output using GitHub Actions heredoc syntax
+        {
+          echo "body<<__CHANGELOG_EOF__"
+          echo "## What's Changed"
+          echo ""
+          echo "$LOG"
+          echo ""
+          echo "**Full changelog:** [\`${SINCE}...${NEXT}\`](../../compare/${SINCE}...${NEXT})"
+          echo "__CHANGELOG_EOF__"
+        } >> "$GITHUB_OUTPUT"
+
+    # ── Tag and push ───────────────────────────────────────────────────
+    - name: Create and push git tag
+      run: |
+        git config user.name  "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git tag -a "${{ steps.next.outputs.version }}" \
+          -m "Release ${{ steps.next.outputs.version }}"
+        git push origin "${{ steps.next.outputs.version }}"
+
+    # ── Publish GitHub Release ─────────────────────────────────────────
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.next.outputs.version }}
+        name: "Community Board ${{ steps.next.outputs.version }}"
+        body: ${{ steps.notes.outputs.body }}
+        make_latest: true

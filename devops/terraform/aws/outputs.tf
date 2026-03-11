@@ -18,6 +18,12 @@ output "alb_zone_id" {
   value       = module.alb.alb_zone_id
 }
 
+# ── GitHub Actions ───────────────────────────────────────────────────────────
+output "github_actions_role_arn" {
+  description = "Set this as the AWS_ROLE_ARN secret in GitHub repository settings"
+  value       = module.iam.github_actions_role_arn
+}
+
 # ── ECS ──────────────────────────────────────────────────────────────────────
 output "ecs_cluster_name" {
   description = "ECS cluster name"
