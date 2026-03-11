@@ -43,8 +43,9 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
-  id-token: write # OIDC credential exchange (deploy jobs)
+  id-token: write      # OIDC credential exchange (deploy jobs)
   contents: read
+  security-events: write # Trivy container scan SARIF upload
 
 env:
   AWS_REGION: eu-west-1
@@ -206,6 +207,26 @@ jobs:
         echo "### ${{ matrix.service }} image pushed" >> "$GITHUB_STEP_SUMMARY"
         echo "**Tag:** \`${{ matrix.service }}-${{ steps.vars.outputs.tag }}\`" >> "$GITHUB_STEP_SUMMARY"
         echo "**Registry:** \`${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}\`" >> "$GITHUB_STEP_SUMMARY"
+
+    # ── Container vulnerability scan ─────────────────────────────────────
+    # Scan the just-pushed image from ECR. Non-blocking (exit-code: 0) so
+    # a found vulnerability surfaces in the Security tab but does not stop
+    # the deploy. Promote to exit-code: 1 when you want hard enforcement.
+    - name: Scan container image (Trivy)
+      uses: aquasecurity/trivy-action@0.28.0
+      with:
+        image-ref: ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ matrix.service }}-${{ steps.vars.outputs.tag }}
+        format: sarif
+        output: trivy-${{ matrix.service }}.sarif
+        severity: CRITICAL,HIGH
+        exit-code: 0
+
+    - name: Upload container scan results to Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: trivy-${{ matrix.service }}.sarif
+        category: container-${{ matrix.service }}
 
   # ─────────────────────────────────────────────────────────────────────────
   # Deploy — skipped on pull requests; runs after build-push succeeds
