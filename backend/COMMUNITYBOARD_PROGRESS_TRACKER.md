@@ -1,9 +1,9 @@
 # CommunityBoard Backend — Progress Tracker
 
-> **Project:** CommunityBoard  
-> **Team:** Team 4  
-> **Stack:** Java 17 · Spring Boot 3.2 · Spring Security (JWT) · PostgreSQL · Swagger/OpenAPI  
-> **Architecture:** Controller → Service → Repository → Database  
+> **Project:** CommunityBoard
+> **Team:** Team 4
+> **Stack:** Java 17 · Spring Boot 3.2 · Spring Security (JWT) · PostgreSQL · Swagger/OpenAPI
+> **Architecture:** Controller → Service → Repository → Database
 
 ---
 

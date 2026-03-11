@@ -1,8 +1,8 @@
 # Phase 1 — Database Foundation: Verification Checklist
 
-> **Project:** CommunityBoard  
-> **Phase:** 1 — Database Foundation  
-> **Completed:** 2026-03-09  
+> **Project:** CommunityBoard
+> **Phase:** 1 — Database Foundation
+> **Completed:** 2026-03-09
 
 ---
 

@@ -3,7 +3,8 @@ package com.amalitech.communityboard.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.amalitech.communityboard.dto.PostRequest;
@@ -37,22 +38,31 @@ public class PostService {
     /**
      * Searches and filters posts by any combination of category, date range, and keyword.
      * All parameters are optional — passing null disables that filter.
-     *
-     * @param categoryStr  Category name (case-insensitive); null = no filter
-     * @param startDate    Inclusive start of creation date range; null = no filter
-     * @param endDate      Inclusive end of creation date range; null = no filter
-     * @param keyword      Case-insensitive substring matched against title and body; null = no filter
-     * @param page         0-based page index
-     * @param size         Page size
      */
     public Page<PostResponse> searchPosts(String categoryStr, LocalDateTime startDate,
                                           LocalDateTime endDate, String keyword,
                                           int page, int size) {
         Category category = (categoryStr == null || categoryStr.isBlank()) ? null : parseCategory(categoryStr);
         String kw = (keyword == null || keyword.isBlank()) ? null : keyword.trim();
-        Pageable pageable = PageRequest.of(page, size);
-        return postRepository.searchPosts(category, startDate, endDate, kw, pageable)
-                .map(this::toResponse);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Specification<Post> spec = Specification.where(null);
+
+        if (category != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("category"), category));
+        }
+        if (startDate != null) {
+            spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("createdAt"), startDate));
+        }
+        if (endDate != null) {
+            spec = spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("createdAt"), endDate));
+        }
+        if (kw != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.like(cb.lower(root.get("title")), "%" + kw.toLowerCase() + "%"));
+        }
+
+        return postRepository.findAll(spec, pageable).map(this::toResponse);
     }
 
     public PostResponse getPostById(Long id) {

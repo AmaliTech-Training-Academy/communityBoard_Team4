@@ -6,7 +6,7 @@
   border-radius: 6px;
   border-width: 1px;
   border-style: solid;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 500;
   font-size: 14px;
   line-height: 1.5;
@@ -16,6 +16,7 @@
 
 .badge-clickable {
   cursor: pointer;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -23,29 +24,29 @@
   opacity: 0.8;
 }
 
-/* Colored badged for cards */
-.badge-events {
+/* Colored badges for cards */
+.badge-event {
   background-color: #edebfe;
   border-color: #ac94fa;
   color: #5521b5;
 }
 
-.badge-lost-found {
-  background-color: #fdf2f2;
+.badge-news {
+  background-color: #fde8e8;
   border-color: #f98080;
   color: #9b1c1c;
 }
 
-.badge-recommendations {
+.badge-discussion {
   background-color: #def7ec;
   border-color: #31c48d;
   color: #03543f;
 }
 
-.badge-help-requests {
-  background-color: #fdf6b2;
-  border-color: #e3a008;
-  color: #723b13;
+.badge-alert {
+  background-color: #ffebb0;
+  border-color: #fecb33;
+  color: #8c6900;
 }
 
 .badge-default {
@@ -56,13 +57,13 @@
 
 /* Filter badge styles */
 .badge-filter-active {
-  background-color: #e6eaeb;
-  border-color: #e6eaeb;
-  color: #061c2a;
+  background-color: #b2bcc2;
+  border-color: #395362;
+  color: #08283b;
 }
 
 .badge-filter-inactive {
-  background-color: transparent;
-  border-color: #b2bcc2;
+  background-color: #fdfdfd;
+  border-color: #395362;
   color: #08283b;
 }
