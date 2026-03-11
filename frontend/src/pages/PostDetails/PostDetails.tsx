@@ -241,7 +241,6 @@ export function PostDetails() {
   return (
     <div className="details-page-container">
       <Navbar />
-
       <main className="details-main-content">
         {/* Breadcrumb */}
         <div className="breadcrumb-container">
@@ -270,11 +269,22 @@ export function PostDetails() {
         <div className="post-center-column">
           {/* Post Content Box */}
           {loadingPost ? (
-            <p>Loading post...</p>
+            <div className="skeleton-post-card">
+              <div className="skeleton-block skeleton-title" />
+              <div className="skeleton-block skeleton-badge" />
+              <div className="skeleton-block skeleton-body-line" />
+              <div className="skeleton-block skeleton-body-line" />
+              <div className="skeleton-block skeleton-body-line-short" />
+              <div className="skeleton-meta-row">
+                <div className="skeleton-block skeleton-author" />
+                <div className="skeleton-block skeleton-time" />
+              </div>
+              <div className="skeleton-block skeleton-divider" />
+            </div>
           ) : !post ? (
             <p>Post not found.</p>
           ) : (
-            <section className="post-details-card">
+            <section className="post-details-card fade-in">
               <div className="post-header-row">
                 <div className="post-header-info">
                   <h1 className="post-title">{post.title}</h1>
@@ -334,182 +344,196 @@ export function PostDetails() {
           )}
 
           {/* Comments Section */}
-          <section className="comments-section">
-            {/* Add Comment Input */}
-            <div className="add-comment-container">
-              <textarea
-                className="comment-textarea"
-                placeholder="Share your thoughts..."
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                data-testid="add-comment-textarea"
-              />
-              <button
-                className="add-comment-btn"
-                onClick={handleAddComment}
-                data-testid="submit-comment-button"
-              >
-                Add comment
-              </button>
-            </div>
-
-            <div className="comments-header">
-              <h2>
-                Comments <span>({post?.commentCount || comments.length})</span>
-              </h2>
-            </div>
-
-            {loadingComments ? (
-              <p>Loading comments...</p>
-            ) : comments.length > 0 ? (
-              <div className="comments-list">
-                {comments.map((comment, index) => {
-                  // Admin or matching author name/email can delete comments
-                  const canDeleteComment =
-                    user &&
-                    (user.role === "ADMIN" ||
-                      user.name === comment.authorName ||
-                      user.email === comment.authorEmail);
-                  const initials = comment.authorName
-                    ? comment.authorName.slice(0, 2).toUpperCase()
-                    : "U";
-
-                  return (
-                    <React.Fragment key={comment.id}>
-                      <div className="comment-item">
-                        <div className="comment-header-row">
-                          <div className="comment-meta-row">
-                            <div className="comment-avatar">{initials}</div>
-                            <div className="comment-author-info">
-                              <span className="comment-author-name">
-                                {comment.authorName}
-                              </span>
-                              <span className="comment-time">
-                                {timeAgo(comment.createdAt)}
-                              </span>
-                            </div>
-                          </div>
-
-                          {canDeleteComment &&
-                            editingCommentId !== comment.id && (
-                              <div className="comment-actions">
-                                <button
-                                  className="action-icon-btn"
-                                  onClick={() => handleEditComment(comment)}
-                                  data-testid={`edit-comment-${comment.id}`}
-                                >
-                                  <img
-                                    src="/assets/pen.svg"
-                                    alt="Edit"
-                                    className="action-icon-img"
-                                  />
-                                </button>
-                                <button
-                                  className="action-icon-btn"
-                                  onClick={() =>
-                                    handleDeleteComment(comment.id)
-                                  }
-                                  data-testid={`delete-comment-${comment.id}`}
-                                >
-                                  <img
-                                    src="/assets/trash-2.svg"
-                                    alt="Delete"
-                                    className="action-icon-img"
-                                  />
-                                </button>
-                              </div>
-                            )}
-                        </div>
-
-                        {editingCommentId === comment.id ? (
-                          <div className="comment-edit-container">
-                            <input
-                              className="comment-edit-input"
-                              value={editingCommentContent}
-                              onChange={(e) =>
-                                setEditingCommentContent(e.target.value)
-                              }
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") handleSaveEditComment();
-                                if (e.key === "Escape") handleCancelEdit();
-                              }}
-                              autoFocus
-                              aria-label="Edit comment"
-                              data-testid={`edit-input-${comment.id}`}
-                            />
-                            <button
-                              className="comment-save-changes-btn"
-                              onClick={handleSaveEditComment}
-                              data-testid={`save-edit-comment-${comment.id}`}
-                            >
-                              Save Changes
-                            </button>
-                          </div>
-                        ) : (
-                          <p
-                            className="comment-content"
-                            data-testid={`comment-content-${comment.id}`}
-                          >
-                            {comment.content}
-                          </p>
-                        )}
-                      </div>
-                      {index < comments.length - 1 && (
-                        <hr className="details-divider" />
-                      )}
-                    </React.Fragment>
-                  );
-                })}
-
-                {/* Comment Pagination */}
-                {totalCommentPages > 1 && (
-                  <div className="pagination-container comment-pagination">
-                    <button
-                      className="pagination-btn"
-                      disabled={commentPage === 0}
-                      onClick={() =>
-                        fetchComments(Math.max(0, commentPage - 1))
-                      }
-                    >
-                      Previous
-                    </button>
-                    {Array.from({ length: totalCommentPages }, (_, i) => (
-                      <button
-                        key={i}
-                        className={`pagination-btn ${commentPage === i ? "pagination-active" : ""}`}
-                        onClick={() => fetchComments(i)}
-                      >
-                        {i + 1}
-                      </button>
-                    ))}
-                    <button
-                      className="pagination-btn"
-                      disabled={commentPage >= totalCommentPages - 1}
-                      onClick={() =>
-                        fetchComments(
-                          Math.min(totalCommentPages - 1, commentPage + 1),
-                        )
-                      }
-                    >
-                      Next
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="empty-comments-state">
-                <img
-                  src="/assets/Group.svg"
-                  alt="No Comments"
-                  className="empty-comments-img"
+          {!loadingPost && post && (
+            <section className="comments-section fade-in">
+              {/* Add Comment Input */}
+              <div className="add-comment-container">
+                <textarea
+                  className="comment-textarea"
+                  placeholder="Share your thoughts..."
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  data-testid="add-comment-textarea"
                 />
-                <span className="empty-comments-text">No Comments yet</span>
+                <button
+                  className="add-comment-btn"
+                  onClick={handleAddComment}
+                  data-testid="submit-comment-button"
+                >
+                  Add comment
+                </button>
               </div>
-            )}
-          </section>
+
+              <div className="comments-header">
+                <h2>
+                  Comments{" "}
+                  <span>({post?.commentCount || comments.length})</span>
+                </h2>
+              </div>
+
+              {loadingComments ? (
+                <div className="comments-list">
+                  {[1, 2].map((i) => (
+                    <div className="skeleton-comment" key={i}>
+                      <div className="skeleton-block skeleton-avatar" />
+                      <div className="skeleton-comment-body">
+                        <div className="skeleton-block skeleton-comment-name" />
+                        <div className="skeleton-block skeleton-comment-time" />
+                        <div className="skeleton-block skeleton-comment-text" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : comments.length > 0 ? (
+                <div className="comments-list fade-in">
+                  {comments.map((comment, index) => {
+                    // Admin or matching author name/email can delete comments
+                    const canDeleteComment =
+                      user &&
+                      (user.role === "ADMIN" ||
+                        user.name === comment.authorName ||
+                        user.email === comment.authorEmail);
+                    const initials = comment.authorName
+                      ? comment.authorName.slice(0, 2).toUpperCase()
+                      : "U";
+
+                    return (
+                      <React.Fragment key={comment.id}>
+                        <div className="comment-item">
+                          <div className="comment-header-row">
+                            <div className="comment-meta-row">
+                              <div className="comment-avatar">{initials}</div>
+                              <div className="comment-author-info">
+                                <span className="comment-author-name">
+                                  {comment.authorName}
+                                </span>
+                                <span className="comment-time">
+                                  {timeAgo(comment.createdAt)}
+                                </span>
+                              </div>
+                            </div>
+
+                            {canDeleteComment &&
+                              editingCommentId !== comment.id && (
+                                <div className="comment-actions">
+                                  <button
+                                    className="action-icon-btn"
+                                    onClick={() => handleEditComment(comment)}
+                                    data-testid={`edit-comment-${comment.id}`}
+                                  >
+                                    <img
+                                      src="/assets/pen.svg"
+                                      alt="Edit"
+                                      className="action-icon-img"
+                                    />
+                                  </button>
+                                  <button
+                                    className="action-icon-btn"
+                                    onClick={() =>
+                                      handleDeleteComment(comment.id)
+                                    }
+                                    data-testid={`delete-comment-${comment.id}`}
+                                  >
+                                    <img
+                                      src="/assets/trash-2.svg"
+                                      alt="Delete"
+                                      className="action-icon-img"
+                                    />
+                                  </button>
+                                </div>
+                              )}
+                          </div>
+
+                          {editingCommentId === comment.id ? (
+                            <div className="comment-edit-container">
+                              <input
+                                className="comment-edit-input"
+                                value={editingCommentContent}
+                                onChange={(e) =>
+                                  setEditingCommentContent(e.target.value)
+                                }
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter")
+                                    handleSaveEditComment();
+                                  if (e.key === "Escape") handleCancelEdit();
+                                }}
+                                autoFocus
+                                aria-label="Edit comment"
+                                data-testid={`edit-input-${comment.id}`}
+                              />
+                              <button
+                                className="comment-save-changes-btn"
+                                onClick={handleSaveEditComment}
+                                data-testid={`save-edit-comment-${comment.id}`}
+                              >
+                                Save Changes
+                              </button>
+                            </div>
+                          ) : (
+                            <p
+                              className="comment-content"
+                              data-testid={`comment-content-${comment.id}`}
+                            >
+                              {comment.content}
+                            </p>
+                          )}
+                        </div>
+                        {index < comments.length - 1 && (
+                          <hr className="details-divider" />
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+
+                  {/* Comment Pagination */}
+                  {totalCommentPages > 1 && (
+                    <div className="pagination-container comment-pagination">
+                      <button
+                        className="pagination-btn"
+                        disabled={commentPage === 0}
+                        onClick={() =>
+                          fetchComments(Math.max(0, commentPage - 1))
+                        }
+                      >
+                        Previous
+                      </button>
+                      {Array.from({ length: totalCommentPages }, (_, i) => (
+                        <button
+                          key={i}
+                          className={`pagination-btn ${commentPage === i ? "pagination-active" : ""}`}
+                          onClick={() => fetchComments(i)}
+                        >
+                          {i + 1}
+                        </button>
+                      ))}
+                      <button
+                        className="pagination-btn"
+                        disabled={commentPage >= totalCommentPages - 1}
+                        onClick={() =>
+                          fetchComments(
+                            Math.min(totalCommentPages - 1, commentPage + 1),
+                          )
+                        }
+                      >
+                        Next
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="empty-comments-state">
+                  <img
+                    src="/assets/Group.svg"
+                    alt="No Comments"
+                    className="empty-comments-img"
+                  />
+                  <span className="empty-comments-text">No Comments yet</span>
+                </div>
+              )}
+            </section>
+          )}
         </div>
       </main>
-
       {confirmAction && (
         <ConfirmDialog
           message={confirmAction.message}
@@ -517,7 +541,6 @@ export function PostDetails() {
           onCancel={() => setConfirmAction(null)}
         />
       )}
-
       {editingPost && (
         <div
           className="create-post-overlay"
@@ -665,32 +688,6 @@ export function PostDetails() {
           </div>
         </div>
       )}
-    - [x] New feature (non-breaking change which adds functionality)
-    - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-    - [ ] Documentation update
-    - [ ] Refactoring (no functional changes)
-    - [ ] Performance improvement
-    - [x] Test coverage improvement
-
-    ## Related Ticket
-    Closes #CB-123
-
-    ## Changes Made
-    - Implement PostFeed page with search, category filtering, and pagination
-    - Implement PostDetails page with full post view and comment CRUD
-    - Implement CreatePost as modal on desktop, full-page layout on mobile
-    - Implement post editing via modal on PostDetails page
-    - Add Navbar, Badge, PostCard, EmptyFeed, and Toast UI components
-    - Add AuthContext with JWT login/register flow
-    - Add API service layer with axios interceptors
-    - Achieve 87%+ frontend test coverage (21 tests passing)
-    - Responsive design matching Figma across all breakpoints
-
-    ## How to Test
-    1. Run `docker compose up --build`
-    2. Open `http://localhost:3000`
-    3. Register/login, create posts, view feed, filter by category, search, paginate
-    4. Click a post to view details, add/edit/delete comments
-    5. Test create post on desktop (modal) and mobile (full-page)    </div>
+    </div>
   );
 }
