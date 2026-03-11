@@ -47,7 +47,52 @@ export function CreatePost() {
   };
 
   return (
-    <div className="create-post-overlay" onClick={() => navigate("/")}>
+    <div
+      className="create-post-overlay create-post-page"
+      onClick={() => navigate("/")}
+    >
+      <div className="create-post-breadcrumb">
+        <button
+          className="breadcrumb-link"
+          onClick={() => navigate("/")}
+          data-testid="breadcrumb-home"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M3.33334 10L10 3.33334L16.6667 10M5 8.33334V15.8333C5 16.2754 5.17559 16.6993 5.48816 17.0118C5.80072 17.3244 6.22464 17.5 6.66667 17.5H13.3333C13.7754 17.5 14.1993 17.3244 14.5118 17.0118C14.8244 16.6993 15 16.2754 15 15.8333V8.33334"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          Home
+        </button>
+        <svg
+          className="breadcrumb-chevron"
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M7.5 5L12.5 10L7.5 15"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+        <span className="breadcrumb-current">Create Post</span>
+      </div>
+
       <div className="create-post-modal" onClick={(e) => e.stopPropagation()}>
         <div className="create-post-header">
           <button
@@ -157,7 +202,12 @@ export function CreatePost() {
               >
                 Cancel
               </button>
-              <button type="submit" className="submit-btn" disabled={loading} data-testid="submit-create-post-btn">
+              <button
+                type="submit"
+                className="submit-btn"
+                disabled={loading}
+                data-testid="submit-create-post-btn"
+              >
                 {loading ? "Publishing..." : "Create Post"}
               </button>
             </div>

@@ -31,7 +31,11 @@ export function Navbar() {
     <nav className="navbar-container border-bottom-light">
       <div className="navbar-content">
         {/* Logo Section */}
-        <div className="navbar-logo" onClick={() => navigate('/')} data-testid="navbar-logo">
+        <div
+          className="navbar-logo"
+          onClick={() => navigate("/")}
+          data-testid="navbar-logo"
+        >
           <img src="/assets/Logo.svg" alt="Ping Logo" className="logo-svg" />
         </div>
 
@@ -76,7 +80,11 @@ export function Navbar() {
 
         {/* Mobile Menu Toggle Button */}
         <div className="navbar-mobile-toggle">
-          <button onClick={toggleMobileMenu} className="icon-button" data-testid="mobile-menu-toggle">
+          <button
+            onClick={toggleMobileMenu}
+            className="icon-button"
+            data-testid="mobile-menu-toggle"
+          >
             {isMobileMenuOpen ? (
               <span className="mobile-close-icon">&times;</span>
             ) : (
