@@ -61,17 +61,16 @@ jobs:
         cache: maven
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
+      uses: github/codeql-action/init@v4
       with:
         languages: java
-        # Run the extended security query suite (includes more experimental queries)
         queries: security-extended
 
     - name: Build backend (CodeQL autobuild)
-      uses: github/codeql-action/autobuild@v3
+      uses: github/codeql-action/autobuild@v4
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
+      uses: github/codeql-action/analyze@v4
       with:
         category: sast-java
 
@@ -86,13 +85,13 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
+      uses: github/codeql-action/init@v4
       with:
         languages: javascript-typescript
         queries: security-extended
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
+      uses: github/codeql-action/analyze@v4
       with:
         category: sast-javascript
 
@@ -117,19 +116,22 @@ jobs:
 
     - name: OWASP Dependency-Check
       working-directory: ./backend
-      # NVD API key speeds up the DB download (optional but recommended).
-      # Add NVD_API_KEY as a repository secret if available:
+      # -Dformat=ALL generates HTML + JSON + XML + SARIF in one pass.
+      # The SARIF file is always written regardless of whether CVEs are found.
+      # NVD API key (optional): add NVD_API_KEY repo secret to speed up DB download.
       #   https://nvd.nist.gov/developers/request-an-api-key
+      env:
+        NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
       run: |
         mvn dependency-check:check \
           -DfailBuildOnCVSS=7 \
-          -Dformat=SARIF \
+          -Dformat=ALL \
           -DoutputDirectory=target/dependency-check \
           || true   # don't fail here; let the SARIF upload surface issues
 
     - name: Upload OWASP results to Security tab
-      uses: github/codeql-action/upload-sarif@v3
-      if: always()
+      uses: github/codeql-action/upload-sarif@v4
+      if: always() && hashFiles('backend/target/dependency-check/dependency-check-report.sarif') != ''
       with:
         sarif_file: backend/target/dependency-check/dependency-check-report.sarif
         category: sca-backend
@@ -196,7 +198,7 @@ jobs:
         fetch-depth: 0
 
     - name: TruffleHog — scan PR commits
-      uses: trufflesecurity/trufflehog@v3
+      uses: trufflesecurity/trufflehog@main
       with:
         base: ${{ github.event.pull_request.base.sha }}
         head: ${{ github.event.pull_request.head.sha }}
