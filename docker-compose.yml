@@ -37,5 +37,20 @@ services:
     depends_on:
       - backend
 
+  etl:
+      build: ./data-engineering
+      volumes:
+      - ./data-engineering/database:/app/database
+      environment:
+        DB_HOST: postgres
+        DB_PORT: 5432
+        DB_NAME: ${POSTGRES_DB:-communityboard}
+        DB_USER: ${POSTGRES_USER:-postgres}
+        DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}  # pragma: allowlist secret
+      depends_on:
+        postgres:
+          condition: service_healthy
+      restart: always   # keep the listener alive, restart if it crashes
+
 volumes:
   pgdata:
