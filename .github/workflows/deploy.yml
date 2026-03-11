@@ -71,7 +71,6 @@ jobs:
     outputs:
       image_tag: ${{ steps.ctx.outputs.image_tag }}
       environment: ${{ steps.ctx.outputs.environment }}
-      ecr_url: ${{ steps.ctx.outputs.ecr_url }}
 
     steps:
     - name: Compute context
@@ -86,10 +85,8 @@ jobs:
           IMAGE_TAG="${{ github.event.inputs.image_tag }}"
           ENV="${{ github.event.inputs.environment }}"
         fi
-        ECR_URL="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}"
-        echo "image_tag=$IMAGE_TAG"   >> "$GITHUB_OUTPUT"
-        echo "environment=$ENV"       >> "$GITHUB_OUTPUT"
-        echo "ecr_url=$ECR_URL"       >> "$GITHUB_OUTPUT"
+        echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+        echo "environment=$ENV"     >> "$GITHUB_OUTPUT"
 
   # ─────────────────────────────────────────────────────────────────────────
   # ECS rolling deploy — frontend then backend (max-parallel: 1)
@@ -121,6 +118,16 @@ jobs:
         role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
         aws-region: ${{ env.AWS_REGION }}
 
+    # Build the full ECR image URI from the authenticated session — avoids
+    # depending on AWS_ACCOUNT_ID secret which is not available in the
+    # prepare job (no environment context there).
+    - name: Build ECR image URI
+      id: ecr
+      run: |
+        ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
+        IMAGE="${ACCOUNT}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}:${{ matrix.service }}-${{ needs.prepare.outputs.image_tag }}"
+        echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+
     # Download current task definition so we can update the image URI
     - name: Download current task definition
       run: |
@@ -137,7 +144,7 @@ jobs:
       with:
         task-definition: task-def-${{ matrix.service }}.json
         container-name: ${{ matrix.container }}
-        image: ${{ needs.prepare.outputs.ecr_url }}:${{ matrix.service }}-${{ needs.prepare.outputs.image_tag }}
+        image: ${{ steps.ecr.outputs.image }}
 
     # Register new revision and update the ECS service
     - name: Deploy to ECS
