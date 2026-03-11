@@ -82,10 +82,11 @@ jobs:
         echo "✅ Coverage meets 80% threshold"
 
     - name: Upload coverage report
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         files: ./backend/target/site/jacoco/jacoco.xml
         flags: backend
+        fail_ci_if_error: false
 
   frontend-tests:
     name: Frontend Tests & Coverage
@@ -126,10 +127,11 @@ jobs:
         fi
 
     - name: Upload coverage report
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         files: ./frontend/coverage/coverage-final.json
         flags: frontend
+        fail_ci_if_error: false
 
   security-scan:
     name: Security Vulnerability Scan
