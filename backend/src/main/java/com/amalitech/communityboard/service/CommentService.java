@@ -67,17 +67,6 @@ public class CommentService {
      * Throws ResourceNotFoundException (404) if comment does not exist.
      * Throws UnauthorizedException (403) if user is not the author and not ADMIN.
      */
-    public CommentResponse updateComment(Long commentId, CommentRequest request, User currentUser) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id: " + commentId));
-        boolean isAdmin = currentUser.getRole() == Role.ADMIN;
-        if (!isAdmin && !comment.getAuthor().getId().equals(currentUser.getId())) {
-            throw new UnauthorizedException("Not authorized to edit this comment");
-        }
-        comment.setContent(request.getContent());
-        return toResponse(commentRepository.save(comment));
-    }
-
     public void deleteComment(Long commentId, User currentUser) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id: " + commentId));
