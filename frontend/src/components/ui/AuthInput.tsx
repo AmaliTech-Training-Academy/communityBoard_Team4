@@ -13,11 +13,12 @@ interface AuthInputProps {
   id?: string;
   name?: string;
   dataTestId?: string;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 export function AuthInput({
   label, type = 'text', placeholder, value, onChange,
-  iconSrc, error, helperText, id, name, dataTestId
+  iconSrc, error, helperText, id, name, dataTestId, onKeyDown
 }: AuthInputProps) {
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === 'password';
@@ -42,6 +43,7 @@ export function AuthInput({
             placeholder={placeholder}
             value={value}
             onChange={onChange}
+            onKeyDown={onKeyDown}
           />
 
           {isPassword && (

@@ -1,0 +1,645 @@
+Below is a **professional implementation roadmap** you can present to your **project owner/assessor**. It structures the backend work into **clear phases**, each with:
+
+* Objective
+* User Stories
+* Implementation Tasks
+* Acceptance Criteria
+* Definition of Done
+
+This format reflects how **senior backend engineers structure delivery in Agile projects**.
+
+---
+
+# CommunityBoard Backend Implementation Plan
+
+## Overview
+
+The backend implementation for **CommunityBoard** will follow a **phased development approach** aligned with the MVP requirements. Each phase focuses on delivering a functional set of capabilities that can be tested independently while building toward full system integration.
+
+The backend will be implemented using:
+
+* **Java 17**
+* **Spring Boot 3.2**
+* **Spring Security with JWT**
+* **Spring Data JPA**
+* **PostgreSQL**
+
+The architecture will follow a **layered design**:
+
+```
+Controller → Service → Repository → Database
+```
+
+This ensures **separation of concerns, maintainability, and testability**.
+
+---
+
+# Phase 1 — Project Setup & Database Foundation
+
+## Objective
+
+Establish the backend project structure, database schema, and core entities required for all application functionality.
+
+---
+
+# User Story 1
+
+**As a backend developer, I want a well-structured database schema so that the database is consistent and supports all application functionality.**
+
+---
+
+# Implementation Tasks
+
+### 1. Project Setup
+
+* Clone the starter repository.
+* Configure the Spring Boot project.
+* Configure Docker environment.
+* Connect Spring Boot to PostgreSQL.
+
+### 2. Database Schema Design
+
+Create the following tables:
+
+### Users Table
+
+Fields:
+
+* id (Primary Key)
+* name
+* email (unique)
+* password
+* role (USER / ADMIN)
+* created_at
+
+### Posts Table
+
+Fields:
+
+* id
+* title
+* body
+* category
+* created_at
+* updated_at
+* user_id (Foreign Key)
+
+### Comments Table
+
+Fields:
+
+* id
+* content
+* created_at
+* updated_at
+* user_id (Foreign Key)
+* post_id (Foreign Key)
+
+---
+
+### 3. Entity Implementation
+
+Create JPA entities:
+
+```
+User
+Post
+Comment
+```
+
+Implement relationships:
+
+```
+User → OneToMany → Post
+User → OneToMany → Comment
+Post → OneToMany → Comment
+Comment → ManyToOne → Post
+```
+
+---
+
+### 4. Category Enumeration
+
+Create enum:
+
+```
+NEWS
+EVENT
+DISCUSSION
+ALERT
+```
+
+Persisted as:
+
+```
+@Enumerated(EnumType.STRING)
+```
+
+---
+
+# Acceptance Criteria
+
+* Database contains **users, posts, and comments tables**.
+* Foreign key relationships enforce referential integrity.
+* Category field allows only the four valid values.
+* Timestamp fields (`created_at`, `updated_at`) are generated automatically.
+* Text fields have appropriate length limits and are non-nullable where required.
+
+---
+
+# Definition of Done
+
+* Database schema migrated successfully.
+* Entities mapped correctly.
+* Application starts successfully with database connection.
+
+---
+
+# Phase 2 — Authentication & Authorization System
+
+## Objective
+
+Implement a **secure authentication system using JWT** and enforce role-based authorization across the API.
+
+---
+
+# User Story 2
+
+**As a resident, I want to register an account so that I can access the CommunityBoard platform.**
+
+---
+
+# Implementation Tasks
+
+### 1. Registration Endpoint
+
+```
+POST /api/auth/register
+```
+
+Input:
+
+```
+name
+email
+password
+```
+
+Implementation details:
+
+* Validate request using `@Valid`.
+* Encrypt password using **BCryptPasswordEncoder**.
+* Save user with default role **USER**.
+
+---
+
+### 2. Login Endpoint
+
+```
+POST /api/auth/login
+```
+
+Flow:
+
+1. Validate credentials.
+2. Authenticate via Spring Security.
+3. Generate JWT token.
+4. Return token in response.
+
+---
+
+### 3. JWT Security Implementation
+
+Implement:
+
+* JWT utility class
+* Authentication filter
+* Token validation filter
+* Security configuration
+
+Protected routes require:
+
+```
+Authorization: Bearer <JWT>
+```
+
+---
+
+# User Story 3
+
+**As a system administrator, I want role-based access enforced so that only authorized users can perform privileged actions.**
+
+---
+
+# Implementation Tasks
+
+Implement role-based authorization:
+
+* USER role
+* ADMIN role
+
+Configure Spring Security rules.
+
+Example:
+
+```
+ADMIN → delete any post
+USER → delete only their own post
+```
+
+---
+
+# Acceptance Criteria
+
+* Registration requires name, email, and password.
+* Duplicate email registration returns a clear error.
+* Passwords are hashed using BCrypt.
+* Registration response does not return the password.
+* Requests without a token return **401 Unauthorized**.
+* Requests with insufficient role return **403 Forbidden**.
+* Admin users can delete any post or comment.
+* Standard users can only delete their own resources.
+
+---
+
+# Definition of Done
+
+* JWT authentication working.
+* Protected endpoints enforced.
+* Role-based authorization verified.
+
+---
+
+# Phase 3 — Post Management System
+
+## Objective
+
+Enable residents to create and manage posts across the four community categories.
+
+---
+
+# User Story 4
+
+**As a resident, I want to create, read, update, and delete posts so that I can share and manage community content.**
+
+---
+
+# Implementation Tasks
+
+### Create Post
+
+Endpoint:
+
+```
+POST /api/posts
+```
+
+Requirements:
+
+* Valid JWT token
+* Title
+* Body
+* Category
+
+---
+
+### Fetch Posts
+
+Endpoints:
+
+```
+GET /api/posts
+GET /api/posts/{id}
+```
+
+Include in response:
+
+* title
+* body
+* author name
+* category
+* timestamps
+* comment count
+
+---
+
+### Update Post
+
+Endpoint:
+
+```
+PUT /api/posts/{id}
+```
+
+Allowed if:
+
+* Post author
+* Admin user
+
+---
+
+### Delete Post
+
+Endpoint:
+
+```
+DELETE /api/posts/{id}
+```
+
+Deleting a post also removes associated comments.
+
+---
+
+# Acceptance Criteria
+
+* New posts require title, body, and valid category.
+* Invalid category produces validation error.
+* Fetching a single post returns:
+
+  * author name
+  * category
+  * timestamps
+  * comment count
+* Fetching a non-existent post returns **404 Not Found**.
+* Authors or admins can update posts.
+* Deleting a post deletes all associated comments.
+
+---
+
+# Definition of Done
+
+* All CRUD endpoints implemented.
+* Authorization rules enforced.
+* Post data returned correctly.
+
+---
+
+# Phase 4 — Comment System
+
+## Objective
+
+Allow residents to participate in discussions by commenting on posts.
+
+---
+
+# User Story 5
+
+**As a resident, I want to comment on posts so that I can participate in community discussions.**
+
+---
+
+# Implementation Tasks
+
+### Create Comment
+
+Endpoint:
+
+```
+POST /api/posts/{postId}/comments
+```
+
+Requirements:
+
+* Valid token
+* Existing post
+
+---
+
+### Fetch Comments
+
+Endpoint:
+
+```
+GET /api/posts/{postId}/comments
+```
+
+Response should include:
+
+* comment content
+* author name
+* timestamp
+
+Results must be **paginated**.
+
+---
+
+### Delete Comment
+
+Endpoint:
+
+```
+DELETE /api/comments/{id}
+```
+
+Allowed if:
+
+* Comment author
+* Admin
+
+---
+
+# Acceptance Criteria
+
+* Comment creation requires valid token.
+* Commenting on non-existent post returns **404**.
+* Comments returned in paginated list.
+* Comment author or admin can delete comment.
+* Deleting a post deletes its comments.
+
+---
+
+# Definition of Done
+
+* Comment CRUD working.
+* Authorization enforced.
+* Pagination implemented.
+
+---
+
+# Phase 5 — Search and Filtering
+
+## Objective
+
+Allow users to find relevant content quickly through search and filtering.
+
+---
+
+# User Story 6
+
+**As a resident, I want to search and filter posts by category, date range, and keyword so that I can find relevant content quickly.**
+
+---
+
+# Implementation Tasks
+
+Create endpoint:
+
+```
+GET /api/posts/search
+```
+
+Supported filters:
+
+```
+category
+startDate
+endDate
+keyword
+```
+
+Keyword search applies to:
+
+```
+title
+body
+```
+
+Case-insensitive.
+
+---
+
+# Pagination
+
+Results must include:
+
+```
+content
+totalElements
+totalPages
+pageNumber
+pageSize
+```
+
+---
+
+# Acceptance Criteria
+
+* Posts filterable by category.
+* Date filters are inclusive.
+* Keyword search is case-insensitive.
+* Empty results return success with empty list.
+* Results are paginated.
+
+---
+
+# Definition of Done
+
+* Search endpoint implemented.
+* Pagination functioning.
+* All filters validated.
+
+---
+
+# Phase 6 — API Quality & Error Handling
+
+## Objective
+
+Ensure the API is robust, predictable, and developer-friendly.
+
+---
+
+# Implementation Tasks
+
+Implement:
+
+### Global Exception Handling
+
+Using:
+
+```
+@ControllerAdvice
+```
+
+Handle errors:
+
+* Validation errors
+* Resource not found
+* Authentication failures
+* Authorization failures
+
+---
+
+### Input Validation
+
+Use:
+
+```
+@NotBlank
+@Email
+@Size
+@Valid
+```
+
+---
+
+### Standard API Response Format
+
+Example:
+
+```
+{
+  "status": 404,
+  "message": "Post not found",
+  "timestamp": "2026-03-05T10:00:00"
+}
+```
+
+---
+
+# Acceptance Criteria
+
+* Validation errors return clear messages.
+* API returns appropriate HTTP status codes.
+* Errors follow a consistent response format.
+
+---
+
+# Phase 7 — Performance Optimization & Analytics Support
+
+## Objective
+
+Prepare backend data structures for analytics processing.
+
+---
+
+# Implementation Tasks
+
+Add indexes on:
+
+```
+category
+created_at
+user_id
+post_id
+```
+
+Prepare queries for:
+
+* Posts per category
+* Top contributors
+* Activity trends
+
+Ensure database supports **ETL extraction for analytics pipeline**.
+
+---
+
+# Definition of Done
+
+* Queries optimized.
+* Database indexed appropriately.
+* Analytics-ready data.
+
+---
+
+# Final Outcome
+
+At the end of these phases, the backend will deliver:
+
+* Secure JWT authentication
+* Role-based authorization
+* Post and comment management
+* Advanced search capabilities
+* Scalable database architecture
+* Analytics-ready data structure
+* Production-quality REST API
+
