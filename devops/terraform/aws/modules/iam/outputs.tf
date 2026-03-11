@@ -12,3 +12,8 @@ output "monitoring_instance_profile_name" {
   description = "IAM instance profile name for the Monitoring host"
   value       = aws_iam_instance_profile.monitoring.name
 }
+
+output "github_actions_role_arn" {
+  description = "ARN of the GitHub Actions OIDC role — set this as AWS_ROLE_ARN in GitHub repository secrets"
+  value       = aws_iam_role.github_actions.arn
+}

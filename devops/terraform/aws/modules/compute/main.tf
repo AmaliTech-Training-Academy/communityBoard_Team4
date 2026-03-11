@@ -40,13 +40,13 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
 resource "aws_cloudwatch_log_group" "frontend" {
   name              = "/${var.project_name}/${var.environment}/frontend"
   retention_in_days = 30
-  tags = merge(var.tags, { Name = "${var.project_name}-frontend-logs", Role = "frontend" })
+  tags              = merge(var.tags, { Name = "${var.project_name}-frontend-logs", Role = "frontend" })
 }
 
 resource "aws_cloudwatch_log_group" "backend" {
   name              = "/${var.project_name}/${var.environment}/backend"
   retention_in_days = 30
-  tags = merge(var.tags, { Name = "${var.project_name}-backend-logs", Role = "backend" })
+  tags              = merge(var.tags, { Name = "${var.project_name}-backend-logs", Role = "backend" })
 }
 
 ##############################################################################
@@ -122,16 +122,16 @@ resource "aws_ecs_task_definition" "backend" {
 
       environment = [
         { name = "SPRING_PROFILES_ACTIVE", value = var.environment },
-        { name = "SERVER_PORT",            value = "8080" }
+        { name = "SERVER_PORT", value = "8080" }
       ]
 
       # Secrets injected at container start by the ECS agent — never in plaintext
       # Names match application.yml: SPRING_DATASOURCE_URL / USERNAME / PASSWORD / JWT_SECRET
       secrets = [
-        { name = "SPRING_DATASOURCE_URL",      valueFrom = var.spring_datasource_url_ssm_arn },
+        { name = "SPRING_DATASOURCE_URL", valueFrom = var.spring_datasource_url_ssm_arn },
         { name = "SPRING_DATASOURCE_USERNAME", valueFrom = "${var.db_credentials_secret_arn}:username::" },
         { name = "SPRING_DATASOURCE_PASSWORD", valueFrom = "${var.db_credentials_secret_arn}:password::" },
-        { name = "JWT_SECRET",                 valueFrom = var.jwt_secret_arn }
+        { name = "JWT_SECRET", valueFrom = var.jwt_secret_arn }
       ]
 
       logConfiguration = {
@@ -277,7 +277,7 @@ resource "aws_instance" "monitoring" {
 
   metadata_options {
     http_endpoint               = "enabled"
-    http_tokens                 = "required"   # IMDSv2 enforced
+    http_tokens                 = "required" # IMDSv2 enforced
     http_put_response_hop_limit = 1
   }
 
