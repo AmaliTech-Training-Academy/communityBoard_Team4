@@ -67,9 +67,9 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
         mvn clean verify sonar:sonar \
-          -Dsonar.projectKey=AmaliTech-Training-Academy_communityBoard_Team4_backend \
-          -Dsonar.projectName="CommunityBoard Backend" \
-          -Dsonar.organization=${{ vars.SONAR_ORGANIZATION || 'amalitech-training-academy' }} \
+          -Dsonar.projectKey=ayamigah16_community-board \
+          -Dsonar.projectName="community-board" \
+          -Dsonar.organization=ayamigah16 \
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
           -Dsonar.qualitygate.wait=true

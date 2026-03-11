@@ -98,9 +98,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <!-- ByteBuddy experimental mode: required for @MockBean on Java 25 -->
+                <!-- @{argLine} late-binds JaCoCo's agent arg set by prepare-agent;
+                     using ${argLine} would resolve before JaCoCo runs and lose it. -->
                 <configuration>
-                    <argLine>-Dnet.bytebuddy.experimental=true</argLine>
+                    <argLine>@{argLine} -Dnet.bytebuddy.experimental=true</argLine>
                 </configuration>
             </plugin>
             <plugin>
