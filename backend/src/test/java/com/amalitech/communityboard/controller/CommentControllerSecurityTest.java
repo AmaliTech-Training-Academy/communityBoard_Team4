@@ -51,4 +51,3 @@ class CommentControllerSecurityTest {
                 .andExpect(jsonPath("$.status").value(401));
     }
 }
-

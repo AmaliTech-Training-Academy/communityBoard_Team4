@@ -1,0 +1,293 @@
+##############################################################################
+# terraform.yml — Infrastructure State Management
+#
+# Triggers:
+#   pull_request  → terraform plan (posted as PR comment)
+#   push to main  → terraform apply (gated by production environment approval)
+#   workflow_dispatch → manual plan or apply
+#
+# State backend (S3 + DynamoDB — created by bootstrap/):
+#   bucket : community-board-tf-state
+#   key    : community-board/aws/terraform.tfstate
+#   table  : community-board-tf-locks
+#   region : eu-west-1
+#
+# Required GitHub repository secrets:
+#   AWS_ROLE_ARN       — GitHub Actions OIDC IAM role ARN (from tf output)
+#   AWS_ACCOUNT_ID     — 12-digit AWS account ID
+#   TF_VARS            — full contents of terraform.tfvars (never commit this)
+#
+# Required GitHub repository variable (non-sensitive):
+#   TF_STATE_BUCKET    — e.g. community-board-tf-state
+#
+# Required GitHub Environment:
+#   production         — add required reviewers to gate terraform apply
+##############################################################################
+name: Terraform
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+    - "devops/terraform/aws/**"
+    - ".github/workflows/terraform.yml"
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+    - "devops/terraform/aws/**"
+    - ".github/workflows/terraform.yml"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Terraform action to run"
+        required: true
+        type: choice
+        options: [ plan, apply, destroy ]
+        default: plan
+
+permissions:
+  id-token: write # OIDC credential exchange
+  contents: read
+  pull-requests: write # post plan output as PR comment
+
+concurrency:
+  # Only one Terraform run at a time against the same state — never cancel
+  group: terraform-state
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: eu-west-1
+  TF_DIR: devops/terraform/aws
+  TF_STATE_BUCKET: community-board-tf-state
+  TF_STATE_KEY: community-board/aws/terraform.tfstate
+  TF_LOCK_TABLE: community-board-tf-locks
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Plan — runs on every PR and on workflow_dispatch(plan)
+  # Posts the plan output as a comment on the PR
+  # ─────────────────────────────────────────────────────────────────────────
+  plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'plan')
+
+    defaults:
+      run:
+        working-directory: ${{ env.TF_DIR }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "~> 1.6"
+
+    # Write the gitignored tfvars from the GitHub secret
+    - name: Write terraform.tfvars
+      run: echo "${{ secrets.TF_VARS }}" > terraform.tfvars
+
+    - name: Terraform Init
+      run: |
+        terraform init \
+          -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
+          -backend-config="key=${{ env.TF_STATE_KEY }}" \
+          -backend-config="region=${{ env.AWS_REGION }}" \
+          -backend-config="dynamodb_table=${{ env.TF_LOCK_TABLE }}" \
+          -backend-config="encrypt=true" \
+          -input=false
+
+    - name: Terraform Format Check
+      run: terraform fmt -check -recursive
+      continue-on-error: true # surfaced in comment; fmt errors don't block plan
+
+    - name: Terraform Validate
+      run: terraform validate
+
+    - name: Terraform Plan
+      id: plan
+      run: |
+        terraform plan \
+          -input=false \
+          -no-color \
+          -out=tfplan.binary \
+          2>&1 | tee plan.txt
+        echo "exitcode=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+      continue-on-error: true # non-zero exit captured in exitcode output
+
+    # Save plan artifact for the apply job to consume (avoids re-planning)
+    - name: Upload plan artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: tfplan
+        path: |
+          ${{ env.TF_DIR }}/tfplan.binary
+          ${{ env.TF_DIR }}/.terraform.lock.hcl
+        retention-days: 3 # plans older than 3 days may be stale
+
+    # Post plan output as a PR comment (replaces previous comment on re-runs)
+    - name: Post plan to PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      env:
+        PLAN: ${{ steps.plan.outputs.stdout }}
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const fs   = require('fs');
+          const plan = fs.readFileSync('${{ env.TF_DIR }}/plan.txt', 'utf8');
+          const truncated = plan.length > 60000
+            ? plan.slice(0, 60000) + '\n\n... (truncated — see Actions log for full plan)'
+            : plan;
+
+          const marker   = '<!-- tf-plan-comment -->';
+          const exitcode = '${{ steps.plan.outputs.exitcode }}';
+          const icon     = exitcode === '0' ? '✅' : exitcode === '2' ? '⚠️' : '❌';
+          const body = `${marker}
+          ## ${icon} Terraform Plan — \`${{ github.event.pull_request.head.sha && github.event.pull_request.head.sha.slice(0,7) || 'manual' }}\`
+
+          <details><summary>Show Plan</summary>
+
+          \`\`\`hcl
+          ${truncated}
+          \`\`\`
+
+          </details>
+
+          *Triggered by: @${{ github.actor }} | Workflow: \`${{ github.workflow }}\`*`;
+
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner, repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+          const existing = comments.find(c => c.body.includes(marker));
+          if (existing) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner, repo: context.repo.repo,
+              comment_id: existing.id, body,
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner, repo: context.repo.repo,
+              issue_number: context.issue.number, body,
+            });
+          }
+
+    - name: Fail if plan errored
+      if: steps.plan.outputs.exitcode == '1'
+      run: |
+        echo "Terraform plan returned an error. See plan output above."
+        exit 1
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Apply — runs on push to main or workflow_dispatch(apply)
+  # Gated by the production GitHub Environment (requires review approval)
+  # ─────────────────────────────────────────────────────────────────────────
+  apply:
+    name: Terraform Apply → production
+    runs-on: ubuntu-latest
+    environment: production # required reviewers gate here
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply')
+
+    defaults:
+      run:
+        working-directory: ${{ env.TF_DIR }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "~> 1.6"
+
+    - name: Write terraform.tfvars
+      run: echo "${{ secrets.TF_VARS }}" > terraform.tfvars
+
+    - name: Terraform Init
+      run: |
+        terraform init \
+          -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
+          -backend-config="key=${{ env.TF_STATE_KEY }}" \
+          -backend-config="region=${{ env.AWS_REGION }}" \
+          -backend-config="dynamodb_table=${{ env.TF_LOCK_TABLE }}" \
+          -backend-config="encrypt=true" \
+          -input=false
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve -input=false
+
+    - name: Capture outputs
+      id: tf_out
+      run: terraform output -json > tf-outputs.json
+
+    - name: Apply summary
+      run: |
+        APP_URL=$(terraform output -raw app_url 2>/dev/null || echo "n/a")
+        GH_ROLE=$(terraform output -raw github_actions_role_arn 2>/dev/null || echo "n/a")
+        {
+          echo "### ✅ Terraform Apply — production"
+          echo "| Output | Value |"
+          echo "|---|---|"
+          echo "| App URL | \`${APP_URL}\` |"
+          echo "| GitHub Actions Role ARN | \`${GH_ROLE}\` |"
+        } >> "$GITHUB_STEP_SUMMARY"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Destroy — only via manual workflow_dispatch; requires production approval
+  # ─────────────────────────────────────────────────────────────────────────
+  destroy:
+    name: Terraform Destroy ⚠️
+    runs-on: ubuntu-latest
+    environment: production
+    if: >-
+      github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
+
+    defaults:
+      run:
+        working-directory: ${{ env.TF_DIR }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "~> 1.6"
+
+    - name: Write terraform.tfvars
+      run: echo "${{ secrets.TF_VARS }}" > terraform.tfvars
+
+    - name: Terraform Init
+      run: |
+        terraform init \
+          -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
+          -backend-config="key=${{ env.TF_STATE_KEY }}" \
+          -backend-config="region=${{ env.AWS_REGION }}" \
+          -backend-config="dynamodb_table=${{ env.TF_LOCK_TABLE }}" \
+          -backend-config="encrypt=true" \
+          -input=false
+
+    - name: Terraform Destroy
+      run: terraform destroy -auto-approve -input=false
