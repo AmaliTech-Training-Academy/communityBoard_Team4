@@ -3,10 +3,15 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Navbar } from "../../components/layout/Navbar";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
-import { Badge, CategoryType } from "../../components/ui/Badge";
+import {
+  Badge,
+  CategoryType,
+  CATEGORY_DISPLAY_NAMES,
+} from "../../components/ui/Badge";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import api from "../../services/api";
 import "./PostDetails.css";
+import "../CreatePost/CreatePost.css";
 
 interface Comment {
   id: string;
@@ -65,6 +70,15 @@ export function PostDetails() {
 
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editingCommentContent, setEditingCommentContent] = useState("");
+
+  const [editingPost, setEditingPost] = useState(false);
+  const [editPostForm, setEditPostForm] = useState({
+    title: "",
+    body: "",
+    category: "" as CategoryType,
+  });
+  const [editPostLoading, setEditPostLoading] = useState(false);
+  const [editPostError, setEditPostError] = useState("");
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -171,6 +185,39 @@ export function PostDetails() {
     }
   };
 
+  const handleOpenEditPost = () => {
+    if (!post) return;
+    setEditPostForm({
+      title: post.title,
+      body: post.body,
+      category: post.category,
+    });
+    setEditPostError("");
+    setEditingPost(true);
+  };
+
+  const handleSaveEditPost = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editPostForm.title.trim() || !editPostForm.body.trim()) {
+      setEditPostError("Title and body are required.");
+      return;
+    }
+    setEditPostError("");
+    setEditPostLoading(true);
+    try {
+      const { data } = await api.put(`/posts/${id}`, editPostForm);
+      setPost(data);
+      setEditingPost(false);
+      showToast("Post updated successfully");
+    } catch (err: any) {
+      const msg = err.response?.data?.message || "Failed to update post";
+      setEditPostError(msg);
+      showToast(msg, "error");
+    } finally {
+      setEditPostLoading(false);
+    }
+  };
+
   const handleDeletePost = async () => {
     setConfirmAction({
       message: "Are you sure you want to delete this post?",
@@ -240,7 +287,7 @@ export function PostDetails() {
                   <div className="post-header-actions">
                     <button
                       className="action-icon-btn"
-                      onClick={() => alert("Edit post coming soon!")}
+                      onClick={handleOpenEditPost}
                       title="Edit Post"
                       data-testid="edit-post-btn"
                     >
@@ -469,6 +516,154 @@ export function PostDetails() {
           onConfirm={confirmAction.onConfirm}
           onCancel={() => setConfirmAction(null)}
         />
+      )}
+
+      {editingPost && (
+        <div
+          className="create-post-overlay"
+          onClick={() => setEditingPost(false)}
+        >
+          <div
+            className="create-post-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="create-post-header">
+              <button
+                className="close-btn"
+                onClick={() => setEditingPost(false)}
+                aria-label="Close"
+                data-testid="close-edit-post-btn"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M15 5L5 15M5 5L15 15"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="create-post-body">
+              <h2>Edit Post</h2>
+
+              <form onSubmit={handleSaveEditPost} className="create-post-form">
+                {editPostError && (
+                  <div className="create-post-error">{editPostError}</div>
+                )}
+
+                <div className="form-group">
+                  <label>Post Title</label>
+                  <input
+                    type="text"
+                    value={editPostForm.title}
+                    onChange={(e) =>
+                      setEditPostForm({
+                        ...editPostForm,
+                        title: e.target.value,
+                      })
+                    }
+                    placeholder="Enter a clear, descriptive title"
+                    maxLength={200}
+                    required
+                    data-testid="edit-post-title-input"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="edit-category-select">Category</label>
+                  <div className="select-wrapper">
+                    <select
+                      id="edit-category-select"
+                      value={editPostForm.category}
+                      onChange={(e) =>
+                        setEditPostForm({
+                          ...editPostForm,
+                          category: e.target.value as CategoryType,
+                        })
+                      }
+                      required
+                      data-testid="edit-category-select"
+                    >
+                      <option value="" disabled hidden>
+                        Select
+                      </option>
+                      {(
+                        [
+                          "EVENT",
+                          "NEWS",
+                          "DISCUSSION",
+                          "ALERT",
+                        ] as CategoryType[]
+                      ).map((c) => (
+                        <option key={c} value={c}>
+                          {CATEGORY_DISPLAY_NAMES[c] || c}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="select-arrow">
+                      <svg
+                        width="12"
+                        height="8"
+                        viewBox="0 0 12 8"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M1 1.5L6 6.5L11 1.5"
+                          stroke="#395362"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-group textarea-group">
+                  <textarea
+                    value={editPostForm.body}
+                    onChange={(e) =>
+                      setEditPostForm({ ...editPostForm, body: e.target.value })
+                    }
+                    placeholder="Share the details of your post..."
+                    required
+                    data-testid="edit-post-body-textarea"
+                  />
+                </div>
+
+                <div className="create-post-actions">
+                  <button
+                    type="button"
+                    className="cancel-btn"
+                    onClick={() => setEditingPost(false)}
+                    disabled={editPostLoading}
+                    data-testid="cancel-edit-post-btn"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="submit-btn"
+                    disabled={editPostLoading}
+                    data-testid="save-edit-post-btn"
+                  >
+                    {editPostLoading ? "Saving..." : "Save Changes"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
