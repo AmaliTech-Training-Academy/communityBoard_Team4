@@ -1,4 +1,4 @@
-version: "3.8"
+# version: "3.8"
 services:
   postgres:
     image: postgres:15-alpine
@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}  # pragma: allowlist secret
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -36,6 +36,21 @@ services:
       - "${FRONTEND_PORT:-3000}:80"
     depends_on:
       - backend
+
+  etl:
+      build: ./data-engineering
+      volumes:
+      - ./data-engineering/database:/app/database
+      environment:
+        DB_HOST: postgres
+        DB_PORT: 5432
+        DB_NAME: ${POSTGRES_DB:-communityboard}
+        DB_USER: ${POSTGRES_USER:-postgres}
+        DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}  # pragma: allowlist secret
+      depends_on:
+        postgres:
+          condition: service_healthy
+      restart: always   # keep the listener alive, restart if it crashes
 
 volumes:
   pgdata:
