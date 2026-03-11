@@ -27,17 +27,11 @@ jobs:
   backend-test:
     name: Backend — Test & Coverage
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_DB: communityboard
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres # pragma: allowlist secret
-        ports: [ "5432:5432" ]
-        options: >-
-          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    # No PostgreSQL service needed — integration tests use H2 in-memory DB
+    # configured in src/test/resources/application.properties.
+    # Passing SPRING_DATASOURCE_URL as an env var would override the H2 URL
+    # (OS env vars > application.properties in Spring Boot precedence) and
+    # cause context startup failure with mismatched driver/dialect settings.
 
     steps:
     - uses: actions/checkout@v4
@@ -52,10 +46,6 @@ jobs:
     - name: Build & test with coverage
       working-directory: ./backend
       run: mvn clean verify
-      env:
-        SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/communityboard
-        SPRING_DATASOURCE_USERNAME: postgres
-        SPRING_DATASOURCE_PASSWORD: postgres # pragma: allowlist secret
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
