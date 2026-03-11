@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Navbar } from "../../components/layout/Navbar";
 import api from "../../services/api";
 import "./Analytics.css";
+import "../PostDetails/PostDetails.css";
 
 interface PostResponse {
   id: number;
@@ -123,8 +124,11 @@ function BarChart({
                   style={{
                     height: `${yMax > 0 ? (d.count / yMax) * 100 : 0}%`,
                   }}
-                  title={`${d.label}: ${d.count}`}
-                />
+                >
+                  <span className="analytics-bar-tooltip">
+                    Count: {d.count}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
@@ -174,16 +178,26 @@ export function Analytics() {
 
       <main className="analytics-main-content">
         {/* Breadcrumb */}
-        <nav className="analytics-breadcrumb" aria-label="Breadcrumb">
+        <div className="breadcrumb-container">
+          <img
+            src="/assets/house.svg"
+            alt="Home"
+            className="breadcrumb-icon-img breadcrumb-clickable"
+            onClick={() => navigate("/")}
+          />
           <span
-            className="analytics-breadcrumb-link"
+            className="breadcrumb-text breadcrumb-clickable"
             onClick={() => navigate("/")}
           >
             Home
           </span>
-          <span className="analytics-breadcrumb-chevron">&gt;</span>
-          <span className="analytics-breadcrumb-current">Analytics</span>
-        </nav>
+          <img
+            src="/assets/chevron-right.svg"
+            alt="Arrow"
+            className="breadcrumb-icon-img"
+          />
+          <span className="breadcrumb-text breadcrumb-active">Analytics</span>
+        </div>
 
         {loading && <p className="analytics-loading">Loading analytics...</p>}
         {error && <p className="analytics-error">{error}</p>}
@@ -196,19 +210,12 @@ export function Analytics() {
                 <div className="analytics-stat-header">
                   <h3 className="analytics-stat-title">Total Posts</h3>
                   <div className="analytics-stat-icon analytics-stat-icon-chart">
-                    <svg
+                    <img
+                      src="/assets/trending-up.svg"
+                      alt="Trending up"
                       width="20"
                       height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#395362"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-                      <polyline points="16 7 22 7 22 13" />
-                    </svg>
+                    />
                   </div>
                 </div>
                 <p className="analytics-stat-value">{analytics.totalPosts}</p>
@@ -217,21 +224,12 @@ export function Analytics() {
                 <div className="analytics-stat-header">
                   <h3 className="analytics-stat-title">Total Comments</h3>
                   <div className="analytics-stat-icon analytics-stat-icon-comment">
-                    <svg
+                    <img
+                      src="/assets/total-comments.svg"
+                      alt="Comments"
                       width="20"
                       height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#395362"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
-                      <path d="M8 12h.01" />
-                      <path d="M12 12h.01" />
-                      <path d="M16 12h.01" />
-                    </svg>
+                    />
                   </div>
                 </div>
                 <p className="analytics-stat-value">
@@ -261,7 +259,7 @@ export function Analytics() {
                 <table className="analytics-table">
                   <thead>
                     <tr>
-                      <th className="analytics-th analytics-th-rank">Rank</th>
+                      <th className="analytics-th analytics-th-rank">Ranks</th>
                       <th className="analytics-th analytics-th-name">Name</th>
                       <th className="analytics-th analytics-th-posts">Posts</th>
                     </tr>

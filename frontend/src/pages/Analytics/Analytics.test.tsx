@@ -119,7 +119,7 @@ describe("Analytics Component", () => {
       expect(screen.getByText("Home")).toBeInTheDocument();
       expect(
         screen.getByText("Analytics", {
-          selector: ".analytics-breadcrumb-current",
+          selector: ".breadcrumb-active",
         }),
       ).toBeInTheDocument();
     });
