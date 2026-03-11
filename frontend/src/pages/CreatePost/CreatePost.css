@@ -301,6 +301,7 @@
   }
 
   .create-post-page .create-post-modal {
+    width: 100%;
     max-width: 100%;
     border: none;
     border-radius: 0;
