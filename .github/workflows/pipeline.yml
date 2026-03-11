@@ -43,7 +43,7 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
-  id-token: write      # OIDC credential exchange (deploy jobs)
+  id-token: write # OIDC credential exchange (deploy jobs)
   contents: read
   security-events: write # Trivy container scan SARIF upload
 

@@ -30,7 +30,7 @@ on:
   pull_request:
     branches: [ main, develop ]
   schedule:
-    - cron: "0 3 * * 1" # weekly Monday 03:00 UTC — catch new CVE patterns
+  - cron: "0 3 * * 1" # weekly Monday 03:00 UTC — catch new CVE patterns
 
 concurrency:
   group: security-${{ github.ref }}
