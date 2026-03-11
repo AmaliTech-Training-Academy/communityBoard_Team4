@@ -1,0 +1,115 @@
+##############################################################################
+# stale.yml — Warn about long-lived feature branches
+#
+# Runs every hour.  Any open PR whose head branch has had no activity in 3+
+# hours gets labelled "stale" and receives a comment.  The stale label is
+# cleared automatically when the author pushes a new commit.
+#
+# Target branch lifetime: 1–3 hours.
+#
+# actions/stale only supports whole-day granularity, so this workflow uses
+# github-script to check PR inactivity in hours directly.
+#
+# Required: no additional secrets; uses the built-in GITHUB_TOKEN.
+##############################################################################
+name: Stale Branch Warning
+
+on:
+  schedule:
+    - cron: "0 * * * *"   # every hour
+  workflow_dispatch:       # allow manual runs for testing
+
+permissions:
+  pull-requests: write
+
+jobs:
+  stale:
+    name: Flag stale PRs (> 3 hours without activity)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Warn stale PRs (inactive > 3 hours)
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const STALE_HOURS    = 3;
+          const STALE_LABEL    = 'stale';
+          const EXEMPT_LABELS  = ['do-not-merge', 'hold', 'WIP', 'blocked'];
+          const EXEMPT_BRANCHES = ['main', 'develop'];
+
+          const now = Date.now();
+          const staleMs = STALE_HOURS * 60 * 60 * 1000;
+
+          // Ensure the stale label exists
+          try {
+            await github.rest.issues.getLabel({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              name:  STALE_LABEL,
+            });
+          } catch {
+            await github.rest.issues.createLabel({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              name:  STALE_LABEL,
+              color: 'ededed',
+              description: 'Branch lifetime exceeded (> 3 hours)',
+            });
+          }
+
+          const { data: prs } = await github.rest.pulls.list({
+            owner: context.repo.owner,
+            repo:  context.repo.repo,
+            state: 'open',
+            per_page: 100,
+          });
+
+          for (const pr of prs) {
+            const branch    = pr.head.ref;
+            const labels    = pr.labels.map(l => l.name);
+            const updatedAt = new Date(pr.updated_at).getTime();
+            const ageMs     = now - updatedAt;
+            const ageFmt    = (ageMs / 3600000).toFixed(1);
+
+            // Skip protected/permanent branches and draft PRs
+            if (EXEMPT_BRANCHES.includes(branch) || pr.draft) continue;
+
+            // Skip PRs with exempt labels
+            if (labels.some(l => EXEMPT_LABELS.includes(l))) continue;
+
+            if (ageMs >= staleMs) {
+              // Add stale label if not already present
+              if (!labels.includes(STALE_LABEL)) {
+                await github.rest.issues.addLabels({
+                  owner:        context.repo.owner,
+                  repo:         context.repo.repo,
+                  issue_number: pr.number,
+                  labels:       [STALE_LABEL],
+                });
+
+                await github.rest.issues.createComment({
+                  owner:        context.repo.owner,
+                  repo:         context.repo.repo,
+                  issue_number: pr.number,
+                  body: `⏰ **Stale PR — branch lifetime exceeded**\n\n` +
+                    `This pull request (branch \`${branch}\`) has had no activity for **${ageFmt} hours**.\n` +
+                    `Our target branch lifetime is **1–3 hours** to keep the repository clean and merges conflict-free.\n\n` +
+                    `Please take one of the following actions:\n` +
+                    `- **Merge** if the work is complete and reviewed\n` +
+                    `- **Push a new commit** to reset the stale timer if work is ongoing\n` +
+                    `- **Close** the PR and delete the branch if the work is abandoned`,
+                });
+
+                core.info(`Marked PR #${pr.number} (${branch}) as stale after ${ageFmt}h`);
+              }
+            } else if (labels.includes(STALE_LABEL)) {
+              // Activity detected — remove stale label
+              await github.rest.issues.removeLabel({
+                owner:        context.repo.owner,
+                repo:         context.repo.repo,
+                issue_number: pr.number,
+                name:         STALE_LABEL,
+              });
+              core.info(`Removed stale label from PR #${pr.number} (${branch}) — updated ${ageFmt}h ago`);
+            }
+          }
