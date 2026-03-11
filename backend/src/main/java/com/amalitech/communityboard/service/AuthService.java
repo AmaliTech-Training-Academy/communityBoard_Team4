@@ -24,16 +24,16 @@ public class AuthService {
             throw new DuplicateResourceException("Email already registered: " + request.getEmail());
         }
         User user = User.builder()
-                .name(request.getName())
-                .email(request.getEmail())
+                .name(request.getName().trim())
+                .email(request.getEmail().trim().toLowerCase())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
                 .build();
-        userRepository.save(user);
-        String token = jwtService.generateToken(user.getEmail(), user.getRole().name());
+        User savedUser = userRepository.save(user);
+        String token = jwtService.generateToken(savedUser.getEmail(), savedUser.getRole().name());
         return AuthResponse.builder()
-                .id(user.getId()).token(token).email(user.getEmail())
-                .name(user.getName()).role(user.getRole().name()).build();
+                .id(savedUser.getId()).token(token).email(savedUser.getEmail())
+                .name(savedUser.getName()).role(savedUser.getRole().name()).build();
     }
 
     public AuthResponse login(AuthRequest request) {

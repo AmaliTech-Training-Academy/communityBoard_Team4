@@ -45,6 +45,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Public: auth endpoints
                 .requestMatchers("/api/auth/**").permitAll()
+                // Allow Spring Boot's internal error forwarding — prevents 401 masking real errors
+                .requestMatchers("/error").permitAll()
                 // Public: read posts and categories (no auth needed to browse)
                 .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
