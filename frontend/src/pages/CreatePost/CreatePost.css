@@ -284,6 +284,7 @@
     flex-direction: column;
     gap: 16px;
     overflow-y: auto;
+    z-index: 1100;
   }
 
   .create-post-page .create-post-breadcrumb {
@@ -299,6 +300,7 @@
   }
 
   .create-post-page .create-post-modal {
+    width: 100%;
     max-width: 100%;
     border: none;
     border-radius: 0;
