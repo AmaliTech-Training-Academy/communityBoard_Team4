@@ -1,9 +1,10 @@
 package com.amalitech.communityboard.repository;
 
-import com.amalitech.communityboard.model.Category;
-import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.Optional;
-
-public interface CategoryRepository extends JpaRepository<Category, Long> {
-    Optional<Category> findByName(String name);
+/**
+ * Category was refactored from a JPA entity to a Java enum (model/Category.java).
+ * This placeholder is kept to preserve project structure.
+ * Category values are now validated via the Category enum directly.
+ */
+public final class CategoryRepository {
+    private CategoryRepository() {}
 }
