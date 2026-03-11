@@ -54,6 +54,7 @@ export function CreatePost() {
             className="close-btn"
             onClick={() => navigate("/")}
             aria-label="Close"
+            data-testid="close-create-post-btn"
           >
             <svg
               width="20"
@@ -88,6 +89,7 @@ export function CreatePost() {
                 placeholder="Enter a clear, descriptive title"
                 maxLength={200}
                 required
+                data-testid="post-title-input"
               />
             </div>
 
@@ -104,6 +106,7 @@ export function CreatePost() {
                     })
                   }
                   required
+                  data-testid="category-select"
                 >
                   <option value="" disabled hidden>
                     Select
@@ -140,6 +143,7 @@ export function CreatePost() {
                 onChange={(e) => setForm({ ...form, body: e.target.value })}
                 placeholder="Share the details of your post..."
                 required
+                data-testid="post-body-textarea"
               />
             </div>
 
@@ -149,10 +153,11 @@ export function CreatePost() {
                 className="cancel-btn"
                 onClick={() => navigate("/")}
                 disabled={loading}
+                data-testid="cancel-create-post-btn"
               >
                 Cancel
               </button>
-              <button type="submit" className="submit-btn" disabled={loading}>
+              <button type="submit" className="submit-btn" disabled={loading} data-testid="submit-create-post-btn">
                 {loading ? "Publishing..." : "Create Post"}
               </button>
             </div>

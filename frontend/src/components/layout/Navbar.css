@@ -78,7 +78,7 @@
 }
 
 .text-dark-medium {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 500;
   font-size: 14px;
   color: #061c2a;
@@ -93,8 +93,8 @@
 }
 
 .text-error-medium {
-  color: var(--Alert-Error-Heading, #C81E1E);
-  font-family: 'Inter', sans-serif;
+  color: var(--Alert-Error-Heading, #c81e1e);
+  font-family: "Inter", sans-serif;
   font-size: 14px;
   font-style: normal;
   font-weight: 500;
@@ -102,7 +102,7 @@
 }
 
 .icon-error {
-  color: var(--Alert-Error-Heading, #C81E1E);
+  color: var(--Alert-Error-Heading, #c81e1e);
 }
 
 /* -- User Profile -- */
@@ -121,7 +121,7 @@
   width: 32px;
   height: 32px;
   color: #222220;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 500;
   font-size: 12px;
 }
@@ -133,7 +133,7 @@
 }
 
 .profile-name {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 600;
   font-size: 14px;
   line-height: 14px;
@@ -141,7 +141,7 @@
 }
 
 .profile-email {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 400;
   font-size: 12px;
   line-height: 12px;
@@ -168,6 +168,10 @@
   align-items: center;
   justify-content: center;
   padding: 4px;
+}
+
+.mobile-close-icon {
+  font-size: 24px;
 }
 
 .navbar-mobile-menu {

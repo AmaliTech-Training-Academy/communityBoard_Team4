@@ -2,6 +2,7 @@ import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { AuthProvider, useAuth } from "./AuthContext";
+import api from "../services/api";
 
 // Mock api module
 vi.mock("../services/api", () => ({
@@ -14,7 +15,6 @@ vi.mock("../services/api", () => ({
   },
 }));
 
-import api from "../services/api";
 const mockPost = vi.mocked(api.post);
 
 // Test component that exposes auth context

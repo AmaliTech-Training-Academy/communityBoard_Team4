@@ -52,7 +52,11 @@ const timeAgo = (dateString: string) => {
 
 export function PostCard({ post, onClick }: PostCardProps) {
   return (
-    <div className="post-card" onClick={() => onClick && onClick(post.id)}>
+    <div
+      className="post-card"
+      onClick={() => onClick && onClick(post.id)}
+      data-testid={`post-card-${post.id}`}
+    >
       <div className="post-card-header">
         <h3 className="post-card-title">{post.title}</h3>
         <Badge category={post.category} className="post-card-badge" />
@@ -63,7 +67,7 @@ export function PostCard({ post, onClick }: PostCardProps) {
       <div className="post-card-footer">
         <div className="post-card-meta">
           <span className="post-card-author">{post.author.name}</span>
-          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <div className="post-card-time-container">
             <img
               src="/assets/clock.svg"
               alt="Clock"

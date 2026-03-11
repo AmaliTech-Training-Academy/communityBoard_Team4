@@ -7,8 +7,8 @@ locals {
   # -------------------------------------------------------------------------
   # Naming & identity
   # -------------------------------------------------------------------------
-  project     = var.project_name           # "community-board"
-  environment = var.environment            # "prod" | "staging" | "dev"
+  project     = var.project_name # "community-board"
+  environment = var.environment  # "prod" | "staging" | "dev"
   name_prefix = "${local.project}-${local.environment}"
 
   # -------------------------------------------------------------------------
@@ -43,7 +43,7 @@ locals {
   port = {
     http     = 80
     https    = 443
-    backend  = 8080   # Spring Boot
+    backend  = 8080 # Spring Boot
     postgres = 5432
     ssh      = 22
   }

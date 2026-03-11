@@ -242,6 +242,7 @@ export function PostDetails() {
                       className="action-icon-btn"
                       onClick={() => alert("Edit post coming soon!")}
                       title="Edit Post"
+                      data-testid="edit-post-btn"
                     >
                       <img
                         src="/assets/pen.svg"
@@ -253,6 +254,7 @@ export function PostDetails() {
                       className="action-icon-btn"
                       onClick={handleDeletePost}
                       title="Delete Post"
+                      data-testid="delete-post-btn"
                     >
                       <img
                         src="/assets/trash-2.svg"
@@ -348,12 +350,14 @@ export function PostDetails() {
                                   <button
                                     className="comment-edit-save-btn"
                                     onClick={handleSaveEditComment}
+                                    data-testid={`save-edit-comment-${comment.id}`}
                                   >
                                     Save
                                   </button>
                                   <button
                                     className="comment-edit-cancel-btn"
                                     onClick={handleCancelEdit}
+                                    data-testid={`cancel-edit-comment-${comment.id}`}
                                   >
                                     Cancel
                                   </button>

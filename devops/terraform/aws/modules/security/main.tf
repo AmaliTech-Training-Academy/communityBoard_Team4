@@ -140,7 +140,7 @@ resource "aws_security_group" "rds" {
 ##############################################################################
 resource "aws_security_group" "monitoring" {
   name        = "${var.project_name}-monitoring-sg"
-  description = "Monitoring host: Prometheus (9090), Grafana (3000), Alertmanager (9093) — admin only"
+  description = "Monitoring host: Prometheus (9090), Grafana (3000), Alertmanager (9093) - admin only"
   vpc_id      = var.vpc_id
 
   ingress {

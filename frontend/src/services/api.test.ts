@@ -1,5 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import axios from "axios";
+import { describe, it, expect, beforeEach } from "vitest";
 
 // We need to test the interceptors. Import the configured instance.
 // Since api.ts runs interceptors on import, we test the behavior.

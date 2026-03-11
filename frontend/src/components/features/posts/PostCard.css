@@ -7,13 +7,17 @@
   flex-direction: column;
   gap: 16px;
   cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
   width: 100%;
 }
 
 .post-card:hover {
   border-color: var(--input-border, #b2bcc2);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
 
 .post-card-header {
@@ -24,7 +28,7 @@
 }
 
 .post-card-title {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 600;
   font-size: 16px;
   color: var(--body-text-primary, #08283b);
@@ -37,7 +41,7 @@
 }
 
 .post-card-content-snippet {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 400;
   font-size: 14px;
   color: var(--body-text-secondary, #395362);
@@ -68,15 +72,21 @@
   gap: 12px;
 }
 
+.post-card-time-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .post-card-author {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 500;
   font-size: 14px;
   color: var(--body-text-secondary, #395362);
 }
 
 .post-card-time {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 400;
   font-size: 14px;
   color: var(--body-text-tertiary, #5a6f7c);
@@ -95,7 +105,7 @@
 }
 
 .comment-count {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 500;
   font-size: 14px;
 }

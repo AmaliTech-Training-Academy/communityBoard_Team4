@@ -130,6 +130,9 @@ resource "aws_cloudtrail" "this" {
 # Re-enable by setting enable = true before any production workload.
 # ---------------------------------------------------------------------------
 
+# Import the pre-existing detector rather than creating a new one.
+# Run once if not yet in state:
+#   terraform import module.security_services.aws_guardduty_detector.this <detector-id>
 resource "aws_guardduty_detector" "this" {
   enable = false
 

@@ -98,6 +98,7 @@ export function PostFeed() {
                 type="text"
                 placeholder="Search by title of post..."
                 className="search-input"
+                data-testid="search-input"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearchSubmit()}
@@ -112,7 +113,7 @@ export function PostFeed() {
               )}
             </div>
 
-            <button className="search-submit-btn" onClick={handleSearchSubmit}>
+            <button className="search-submit-btn" onClick={handleSearchSubmit} data-testid="search-submit-btn">
               <img
                 src="/assets/search.svg"
                 alt="Search"
@@ -124,6 +125,7 @@ export function PostFeed() {
           <button
             className="create-post-btn"
             onClick={() => navigate("/create")}
+            data-testid="create-post-btn"
           >
             <img src="/assets/plus.svg" alt="Plus" className="plus-icon-img" />
             <span>Create post</span>
@@ -149,23 +151,9 @@ export function PostFeed() {
         {/* Posts List */}
         <div className="posts-list">
           {loading ? (
-            <p
-              style={{
-                textAlign: "center",
-                color: "var(--body-text-tertiary)",
-              }}
-            >
-              Loading posts...
-            </p>
+            <p className="posts-loading-text">Loading posts...</p>
           ) : error ? (
-            <p
-              style={{
-                textAlign: "center",
-                color: "var(--state-error, #b91c1c)",
-              }}
-            >
-              {error}
-            </p>
+            <p className="posts-error-text">{error}</p>
           ) : posts.length > 0 ? (
             posts.map((post: any) => (
               <PostCard
