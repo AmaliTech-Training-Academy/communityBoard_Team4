@@ -234,7 +234,7 @@ class PostServiceTest {
                 .isInstanceOf(UnauthorizedException.class)
                 .hasMessageContaining("Not authorized");
 
-        verify(postRepository, never()).delete(any());
+        verify(postRepository, never()).delete(any(Post.class));
     }
 
     @Test
