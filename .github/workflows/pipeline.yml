@@ -27,9 +27,9 @@ name: Pipeline
 
 on:
   push:
-    branches: [main, develop]
+    branches: [ main, develop ]
   pull_request:
-    branches: [main, develop]
+    branches: [ main, develop ]
   workflow_dispatch:
     inputs:
       ref:
@@ -151,7 +151,7 @@ jobs:
 
   build-push:
     name: Build & Push — ${{ matrix.service }}
-    needs: [backend-test, frontend-test]
+    needs: [ backend-test, frontend-test ]
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
 
@@ -213,7 +213,7 @@ jobs:
 
   prepare:
     name: Resolve deployment context
-    needs: [build-push]
+    needs: [ build-push ]
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
 
@@ -234,7 +234,7 @@ jobs:
 
   deploy:
     name: Deploy ${{ matrix.service }} → ${{ needs.prepare.outputs.environment }}
-    needs: [prepare]
+    needs: [ prepare ]
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     # environment: ${{ needs.prepare.outputs.environment }}
