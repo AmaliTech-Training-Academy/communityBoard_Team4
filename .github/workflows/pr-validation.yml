@@ -54,17 +54,8 @@ jobs:
   backend-tests:
     name: Backend Tests & Coverage
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_DB: communityboard
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres # pragma: allowlist secret
-        ports:
-        - 5432:5432
-        options: >-
-          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    # Tests use H2 in-memory DB (configured in src/test/resources/application.properties)
+    # No PostgreSQL service needed — OS-level datasource env vars would override H2 config
     steps:
     - uses: actions/checkout@v4
 
@@ -78,10 +69,6 @@ jobs:
     - name: Run tests with coverage
       working-directory: ./backend
       run: mvn clean test jacoco:report
-      env:
-        SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/communityboard
-        SPRING_DATASOURCE_USERNAME: postgres
-        SPRING_DATASOURCE_PASSWORD: postgres
 
     - name: Check coverage threshold
       working-directory: ./backend

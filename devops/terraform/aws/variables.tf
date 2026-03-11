@@ -157,3 +157,11 @@ variable "ecr_repository_name" {
   type        = string
   default     = "community-board"
 }
+
+# ---------------------------------------------------------------------------
+# CI/CD — GitHub Actions OIDC
+# ---------------------------------------------------------------------------
+variable "github_repo" {
+  description = "GitHub repository in org/repo format (e.g. amalitech/communityBoard_Team4). Scopes the OIDC trust policy for the GitHub Actions deployment role."
+  type        = string
+}

@@ -27,7 +27,7 @@ resource "aws_db_parameter_group" "postgres" {
   # Reduce idle session overhead
   parameter {
     name  = "idle_in_transaction_session_timeout"
-    value = "300000"   # 5 minutes in ms
+    value = "300000" # 5 minutes in ms
   }
 
   tags = merge(var.tags, {
@@ -39,7 +39,7 @@ resource "aws_db_parameter_group" "postgres" {
 resource "aws_db_instance" "postgres" {
   identifier        = var.db_identifier
   engine            = "postgres"
-  engine_version    = "15.7"
+  engine_version    = "15.10"
   instance_class    = var.db_instance_class
   allocated_storage = var.db_allocated_storage
   storage_type      = "gp3"
@@ -55,13 +55,13 @@ resource "aws_db_instance" "postgres" {
 
   # Encryption at rest
   storage_encrypted = true
-  kms_key_id        = var.kms_key_arn   # null → AWS-managed key
+  kms_key_id        = var.kms_key_arn # null → AWS-managed key
 
   # Backups — 7-day retention with a preferred window
-  backup_retention_period   = var.backup_retention_days
-  backup_window             = "02:00-03:00"
-  maintenance_window        = "Mon:04:00-Mon:05:00"
-  delete_automated_backups  = false
+  backup_retention_period  = var.backup_retention_days
+  backup_window            = "02:00-03:00"
+  maintenance_window       = "Mon:04:00-Mon:05:00"
+  delete_automated_backups = false
 
   # Prevent accidental deletion in production
   deletion_protection       = var.deletion_protection

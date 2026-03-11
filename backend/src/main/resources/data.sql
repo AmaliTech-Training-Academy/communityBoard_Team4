@@ -9,4 +9,3 @@
 -- spring.sql.init.mode is set to 'never' in application.yml, so Spring will NOT
 -- execute this file. It is kept for historical reference only.
 -- =============================================================================
-
