@@ -229,7 +229,7 @@ resource "aws_iam_role_policy" "app_secrets" {
 }
 
 ##############################################################################
-# GitHub Actions OIDC Role
+# GitHub Actions OIDC Provider + Role
 # Allows GitHub Actions workflows to authenticate to AWS without long-lived
 # access keys. The role is scoped to the specific repository and to the
 # main and develop branches (the only branches that push images / deploy).
@@ -239,6 +239,22 @@ resource "aws_iam_role_policy" "app_secrets" {
 #   Set AWS_ACCOUNT_ID secret in GitHub to data.aws_caller_identity.current.account_id
 ##############################################################################
 
+# The OIDC identity provider must exist in the AWS account before any role
+# can use GitHub Actions tokens. Without this resource, AssumeRoleWithWebIdentity
+# fails with "No OpenIDConnect provider found in your account".
+resource "aws_iam_openid_connect_provider" "github_actions" {
+  url = "https://token.actions.githubusercontent.com"
+
+  # GitHub's OIDC issuer uses this audience for AWS
+  client_id_list = ["sts.amazonaws.com"]
+
+  # Thumbprint for token.actions.githubusercontent.com (GitHub's OIDC cert).
+  # This is the well-known stable thumbprint published by GitHub.
+  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"] # pragma: allowlist secret
+
+  tags = merge(var.tags, { Purpose = "github-actions-oidc" })
+}
+
 data "aws_iam_policy_document" "github_actions_assume" {
   statement {
     effect  = "Allow"
@@ -246,7 +262,7 @@ data "aws_iam_policy_document" "github_actions_assume" {
 
     principals {
       type        = "Federated"
-      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/token.actions.githubusercontent.com"]
+      identifiers = [aws_iam_openid_connect_provider.github_actions.arn]
     }
 
     condition {
