@@ -100,7 +100,9 @@ jobs:
     name: Deploy ${{ matrix.service }} → ${{ needs.prepare.outputs.environment }}
     needs: prepare
     runs-on: ubuntu-latest
-    environment: ${{ needs.prepare.outputs.environment }}
+    # environment: ${{ needs.prepare.outputs.environment }}
+    # Uncomment above once 'production' and 'staging' GitHub Environments are
+    # created under Settings → Environments. Without them the job fails to start.
 
     strategy:
       max-parallel: 1 # deploy frontend before backend to avoid mixed-version traffic
