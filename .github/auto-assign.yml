@@ -7,7 +7,6 @@ numberOfReviewers: 1
 # Default reviewer pool (fallback)
 reviewers:
 - Ayamigah16
-- JoelAlumasa
 
 # Assign reviewers based on file patterns
 filePathAssignments:
