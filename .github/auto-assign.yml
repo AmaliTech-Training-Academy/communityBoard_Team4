@@ -1,4 +1,5 @@
-# Auto-assign reviewers based on files changed
+# Auto-assign reviewers based on files changed.
+# CODEOWNERS handles code author ownership; these are the peer reviewers.
 
 addReviewers: true
 addAssignees: false
