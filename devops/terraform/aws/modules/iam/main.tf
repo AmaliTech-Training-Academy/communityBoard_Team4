@@ -273,10 +273,15 @@ data "aws_iam_policy_document" "github_actions_assume" {
 
     # Restrict to the specific repo; allow both main and develop branches
     # plus workflow_dispatch (which uses repo:<org>/<repo>:ref:refs/heads/*)
+    # and environment-scoped jobs (deploy.yml uses environment: production/staging,
+    # which changes the sub to repo:<org>/<repo>:environment:<name>)
     condition {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_repo}:ref:refs/heads/*"]
+      values   = [
+        "repo:${var.github_repo}:ref:refs/heads/*",
+        "repo:${var.github_repo}:environment:*",
+      ]
     }
   }
 }
