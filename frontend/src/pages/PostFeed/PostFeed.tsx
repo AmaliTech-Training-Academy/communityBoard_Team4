@@ -65,7 +65,7 @@ export function PostFeed() {
   // Filter posts based on category and search query
   const filteredPosts = DUMMY_POSTS.filter((post) => {
     const matchesCategory = activeCategory === 'All' || post.category === activeCategory;
-    const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           post.content.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
@@ -73,17 +73,17 @@ export function PostFeed() {
   return (
     <div className="feed-page-container">
       <Navbar />
-      
+
       <main className="feed-main-content">
-        
+
         {/* Top Actions Row: Search & Create */}
         <div className="feed-actions-row">
           <div className="search-and-submit">
             <div className="search-bar-container">
               <img src="/assets/search.svg" alt="Search" className="search-icon-img" />
-              <input 
-                type="text" 
-                placeholder="Search by title of post..." 
+              <input
+                type="text"
+                placeholder="Search by title of post..."
                 className="search-input"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -94,12 +94,12 @@ export function PostFeed() {
                 </button>
               )}
             </div>
-            
+
             <button className="search-submit-btn">
               <img src="/assets/search.svg" alt="Search" className="search-submit-icon" />
             </button>
           </div>
-          
+
           <button className="create-post-btn">
             <img src="/assets/plus.svg" alt="Plus" className="plus-icon-img" />
             <span>Create post</span>
@@ -111,7 +111,7 @@ export function PostFeed() {
           <span className="categories-label">Categories:</span>
           <div className="categories-list">
             {CATEGORIES.map((category) => (
-              <Badge 
+              <Badge
                 key={category}
                 category={category}
                 isFilter={true}
@@ -126,10 +126,10 @@ export function PostFeed() {
         <div className="posts-list">
           {filteredPosts.length > 0 ? (
             filteredPosts.map((post) => (
-              <PostCard 
-                key={post.id} 
-                post={post} 
-                onClick={(id: string) => navigate(`/post/${id}`)} 
+              <PostCard
+                key={post.id}
+                post={post}
+                onClick={(id: string) => navigate(`/post/${id}`)}
               />
             ))
           ) : (
@@ -145,7 +145,7 @@ export function PostFeed() {
           <button className="pagination-btn">3</button>
           <button className="pagination-btn">Next</button>
         </div>
-        
+
       </main>
     </div>
   );

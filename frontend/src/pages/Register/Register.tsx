@@ -17,7 +17,7 @@ export function Register() {
     const newErrors: Record<string, string> = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const nameRegex = /^[A-Za-z\s]+$/;
-    
+
     if (!formData.name) {
       newErrors.name = 'Name is required';
     } else if (!nameRegex.test(formData.name)) {

@@ -54,10 +54,10 @@ const INITIAL_COMMENTS = [
 const timeAgo = (dateString: string) => {
   const date = new Date(dateString);
   const now = new Date();
-  if (isNaN(date.getTime())) return dateString; 
+  if (isNaN(date.getTime())) return dateString;
 
   const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-  
+
   let interval = seconds / 31536000;
   if (interval > 1) return Math.floor(interval) + ' years ago';
   interval = seconds / 2592000;
@@ -82,7 +82,7 @@ export function PostDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   const [commentText, setCommentText] = useState('');
   const [comments, setComments] = useState(INITIAL_COMMENTS);
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
@@ -132,7 +132,7 @@ export function PostDetails() {
       <Navbar />
 
       <main className="details-main-content">
-        
+
         {/* Breadcrumb */}
         <div className="breadcrumb-container">
           <img src="/assets/house.svg" alt="Home" className="breadcrumb-icon-img" onClick={() => navigate('/')} style={{ cursor: 'pointer' }} />
@@ -144,7 +144,7 @@ export function PostDetails() {
         <div className="post-center-column">
           {/* Post Content Box */}
           <section className="post-details-card">
-          
+
           <div className="post-header-row">
             <h1 className="post-title">{POST.title}</h1>
             <Badge category={POST.category} className="post-badge-large" />
@@ -159,16 +159,16 @@ export function PostDetails() {
               <span className="post-time-text">about 2 hours ago</span>
             </div>
           </div>
-          
+
           <hr className="details-divider" />
         </section>
 
         {/* Comments Section */}
         <section className="comments-section">
-          
+
           {/* Add Comment Input */}
           <div className="add-comment-container">
-            <textarea 
+            <textarea
               className="comment-textarea"
               placeholder="Share your thoughts..."
               value={commentText}
@@ -199,15 +199,15 @@ export function PostDetails() {
                       </div>
 
                         <div className="comment-actions">
-                          <button 
-                            className="action-icon-btn" 
+                          <button
+                            className="action-icon-btn"
                             onClick={() => handleEditStart(comment)}
                             data-testid={`edit-comment-${comment.id}`}
                           >
                             <img src="/assets/pen.svg" alt="Edit" className="action-icon-img" />
                           </button>
-                          <button 
-                            className="action-icon-btn" 
+                          <button
+                            className="action-icon-btn"
                             onClick={() => handleDeleteComment(comment.id)}
                             data-testid={`delete-comment-${comment.id}`}
                           >
@@ -215,7 +215,7 @@ export function PostDetails() {
                           </button>
                         </div>
                     </div>
-                    
+
                     {editingCommentId === comment.id ? (
                       <div className="edit-comment-container">
                         <textarea

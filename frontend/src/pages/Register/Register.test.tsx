@@ -50,13 +50,13 @@ describe('Register Component', () => {
 
   it('shows error for incorrectly formatted email', async () => {
     renderRegister();
-    
+
     fireEvent.change(screen.getByTestId('name-input'), { target: { value: 'Test User' } });
     fireEvent.change(screen.getByTestId('email-input'), { target: { value: 'johndoe@' } });
     fireEvent.change(screen.getByTestId('password-input'), { target: { value: 'password123' } });
     fireEvent.change(screen.getByTestId('confirm-password-input'), { target: { value: 'password123' } });
     fireEvent.click(screen.getByTestId('submit-button'));
-    
+
     await waitFor(() => {
       expect(screen.getByText('Invalid email format')).toBeInTheDocument();
     });
@@ -64,13 +64,13 @@ describe('Register Component', () => {
 
   it('shows error for name containing numbers', async () => {
     renderRegister();
-    
+
     fireEvent.change(screen.getByTestId('name-input'), { target: { value: 'Jane1 Doe' } });
     fireEvent.change(screen.getByTestId('email-input'), { target: { value: 'test@example.com' } });
     fireEvent.change(screen.getByTestId('password-input'), { target: { value: 'password123' } });
     fireEvent.change(screen.getByTestId('confirm-password-input'), { target: { value: 'password123' } });
     fireEvent.click(screen.getByTestId('submit-button'));
-    
+
     await waitFor(() => {
       expect(screen.getByText('Name can only contain letters and spaces')).toBeInTheDocument();
     });

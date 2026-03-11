@@ -642,4 +642,3 @@ At the end of these phases, the backend will deliver:
 * Scalable database architecture
 * Analytics-ready data structure
 * Production-quality REST API
-

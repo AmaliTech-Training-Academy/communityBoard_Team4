@@ -1,11 +1,11 @@
 import React from 'react';
 import './Badge.css';
 
-export type CategoryType = 
-  | 'All' 
-  | 'Events' 
-  | 'Lost & Found' 
-  | 'Recommendations' 
+export type CategoryType =
+  | 'All'
+  | 'Events'
+  | 'Lost & Found'
+  | 'Recommendations'
   | 'Help Requests';
 
 interface BadgeProps {
@@ -18,14 +18,14 @@ interface BadgeProps {
   className?: string;
 }
 
-export function Badge({ 
-  category, 
-  isFilter = false, 
-  isActive = false, 
-  onClick, 
-  className = '' 
+export function Badge({
+  category,
+  isFilter = false,
+  isActive = false,
+  onClick,
+  className = ''
 }: BadgeProps) {
-  
+
   const getBadgeClass = () => {
     if (isFilter) {
       if (isActive) {
@@ -50,7 +50,7 @@ export function Badge({
   };
 
   return (
-    <div 
+    <div
       className={`badge ${getBadgeClass()} ${isFilter ? 'badge-clickable' : ''} ${className}`}
       onClick={isFilter ? onClick : undefined}
     >

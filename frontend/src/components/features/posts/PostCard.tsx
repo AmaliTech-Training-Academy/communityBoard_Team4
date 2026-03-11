@@ -27,7 +27,7 @@ const timeAgo = (dateString: string) => {
   if (isNaN(date.getTime())) return dateString; // fallback if already formatted
 
   const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-  
+
   let interval = seconds / 31536000;
   if (interval > 1) return Math.floor(interval) + ' years ago';
   interval = seconds / 2592000;
@@ -57,11 +57,11 @@ export function PostCard({ post, onClick }: PostCardProps) {
         <h3 className="post-card-title">{post.title}</h3>
         <Badge category={post.category} className="post-card-badge" />
       </div>
-      
+
       <p className="post-card-content-snippet">
         {post.content}
       </p>
-      
+
       <div className="post-card-footer">
         <div className="post-card-meta">
           <span className="post-card-author">{post.author.name}</span>
@@ -70,7 +70,7 @@ export function PostCard({ post, onClick }: PostCardProps) {
             <span className="post-card-time">{timeAgo(post.createdAt)}</span>
           </div>
         </div>
-        
+
         <div className="post-card-comments">
           <img src="/assets/message.svg" alt="Comments" className="comment-icon-img" />
           <span className="comment-count">{post.commentCount}</span>

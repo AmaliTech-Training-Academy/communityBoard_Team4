@@ -42,7 +42,7 @@
   font-size: 14px;
   color: var(--body-text-secondary, #395362);
   line-height: 1.5;
-  
+
   /* Fallback truncate */
   overflow: hidden;
   text-overflow: ellipsis;

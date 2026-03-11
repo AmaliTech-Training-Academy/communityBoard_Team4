@@ -99,3 +99,4 @@ MCP-figma-setup-by-RoboNuggets.md
 
 # Coverage reports (generated, not to be committed)
 frontend/coverage/
+"frontend/coverage/"
