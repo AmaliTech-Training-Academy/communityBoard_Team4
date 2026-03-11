@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import api from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 import {
@@ -12,6 +12,7 @@ const CATEGORIES: CategoryType[] = ["EVENT", "NEWS", "DISCUSSION", "ALERT"];
 
 export function CreatePost() {
   const navigate = useNavigate();
+  const { onPostCreated } = useOutletContext<{ onPostCreated: () => void }>();
   const { showToast } = useToast();
   const [form, setForm] = useState({
     title: "",
@@ -33,6 +34,7 @@ export function CreatePost() {
 
     try {
       await api.post("/posts", form);
+      onPostCreated();
       showToast("Post created successfully");
       navigate("/");
     } catch (err: any) {
@@ -90,9 +92,10 @@ export function CreatePost() {
             </div>
 
             <div className="form-group">
-              <label>Category</label>
+              <label htmlFor="category-select">Category</label>
               <div className="select-wrapper">
                 <select
+                  id="category-select"
                   value={form.category}
                   onChange={(e) =>
                     setForm({

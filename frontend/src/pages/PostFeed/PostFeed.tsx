@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation, Outlet } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate, Outlet } from "react-router-dom";
 import { Badge, CategoryType } from "../../components/ui/Badge";
 import { PostCard, Post } from "../../components/features/posts/PostCard";
 import { EmptyFeed } from "../../components/features/posts/EmptyFeed";
@@ -17,7 +17,6 @@ const CATEGORIES: CategoryType[] = [
 
 export function PostFeed() {
   const navigate = useNavigate();
-  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<CategoryType>("All");
@@ -27,6 +26,11 @@ export function PostFeed() {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const onPostCreated = useCallback(() => {
+    setRefreshKey((k) => k + 1);
+  }, []);
 
   // Debounce search input
   useEffect(() => {
@@ -69,7 +73,7 @@ export function PostFeed() {
       }
     };
     fetchPosts();
-  }, [page, debouncedSearch, activeCategory, location.key]);
+  }, [page, debouncedSearch, activeCategory, refreshKey]);
 
   const handleSearchSubmit = () => {
     setDebouncedSearch(searchQuery);
@@ -212,7 +216,7 @@ export function PostFeed() {
       </main>
 
       {/* Renders CreatePost modal when on /create */}
-      <Outlet />
+      <Outlet context={{ onPostCreated }} />
     </div>
   );
 }

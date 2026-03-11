@@ -79,10 +79,27 @@
 
 .post-header-row {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 46px;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
   width: 100%;
+}
+
+.post-header-info {
+  flex: 1;
+}
+
+.post-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.breadcrumb-clickable {
+  cursor: pointer;
+}
+
+.comment-pagination {
+  margin-top: 20px;
 }
 
 .post-title {

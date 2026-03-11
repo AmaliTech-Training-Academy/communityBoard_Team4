@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Navbar } from "../../components/layout/Navbar";
 import { useAuth } from "../../context/AuthContext";
@@ -80,25 +80,28 @@ export function PostDetails() {
     if (id) fetchPost();
   }, [id]);
 
-  const fetchComments = async (pageToLoad: number) => {
-    setLoadingComments(true);
-    try {
-      const { data } = await api.get(
-        `/posts/${id}/comments?page=${pageToLoad}&size=10`,
-      );
-      setComments(data.content || []);
-      setTotalCommentPages(data.totalPages || 0);
-      setCommentPage(pageToLoad);
-    } catch (err) {
-      console.error("Failed to load comments", err);
-    } finally {
-      setLoadingComments(false);
-    }
-  };
+  const fetchComments = useCallback(
+    async (pageToLoad: number) => {
+      setLoadingComments(true);
+      try {
+        const { data } = await api.get(
+          `/posts/${id}/comments?page=${pageToLoad}&size=10`,
+        );
+        setComments(data.content || []);
+        setTotalCommentPages(data.totalPages || 0);
+        setCommentPage(pageToLoad);
+      } catch (err) {
+        console.error("Failed to load comments", err);
+      } finally {
+        setLoadingComments(false);
+      }
+    },
+    [id],
+  );
 
   useEffect(() => {
     if (id) fetchComments(0);
-  }, [id]);
+  }, [id, fetchComments]);
 
   const handleAddComment = async () => {
     if (!commentText.trim() || !user) return;
@@ -198,14 +201,12 @@ export function PostDetails() {
           <img
             src="/assets/house.svg"
             alt="Home"
-            className="breadcrumb-icon-img"
+            className="breadcrumb-icon-img breadcrumb-clickable"
             onClick={() => navigate("/")}
-            style={{ cursor: "pointer" }}
           />
           <span
-            className="breadcrumb-text"
+            className="breadcrumb-text breadcrumb-clickable"
             onClick={() => navigate("/")}
-            style={{ cursor: "pointer" }}
           >
             Home
           </span>
@@ -227,15 +228,8 @@ export function PostDetails() {
             <p>Post not found.</p>
           ) : (
             <section className="post-details-card">
-              <div
-                className="post-header-row"
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                }}
-              >
-                <div style={{ flex: 1 }}>
+              <div className="post-header-row">
+                <div className="post-header-info">
                   <h1 className="post-title">{post.title}</h1>
                   <Badge
                     category={post.category as CategoryType}
@@ -243,7 +237,7 @@ export function PostDetails() {
                   />
                 </div>
                 {canEditPost && (
-                  <div style={{ display: "flex", gap: "8px" }}>
+                  <div className="post-header-actions">
                     <button
                       className="action-icon-btn"
                       onClick={() => alert("Edit post coming soon!")}
@@ -403,6 +397,7 @@ export function PostDetails() {
                             onChange={(e) =>
                               setEditingCommentContent(e.target.value)
                             }
+                            placeholder="Edit your comment..."
                             autoFocus
                           />
                         ) : (
@@ -423,10 +418,7 @@ export function PostDetails() {
 
                 {/* Comment Pagination */}
                 {totalCommentPages > 1 && (
-                  <div
-                    className="pagination-container"
-                    style={{ marginTop: "20px" }}
-                  >
+                  <div className="pagination-container comment-pagination">
                     <button
                       className="pagination-btn"
                       disabled={commentPage === 0}
