@@ -1,6 +1,7 @@
 package com.amalitech.communityboard.model;
 
 import com.amalitech.communityboard.model.enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ public class User {
     @Column(nullable = false, length = 100)
     private String name;
 
+    @JsonIgnore
     @Column(nullable = false, length = 255)
     private String password;
 
