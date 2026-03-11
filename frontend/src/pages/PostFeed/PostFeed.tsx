@@ -29,6 +29,10 @@ export function PostFeed() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   const onPostCreated = useCallback(() => {
+    setSearchQuery("");
+    setDebouncedSearch("");
+    setActiveCategory("All");
+    setPage(0);
     setRefreshKey((k) => k + 1);
   }, []);
 
@@ -113,7 +117,11 @@ export function PostFeed() {
               )}
             </div>
 
-            <button className="search-submit-btn" onClick={handleSearchSubmit} data-testid="search-submit-btn">
+            <button
+              className="search-submit-btn"
+              onClick={handleSearchSubmit}
+              data-testid="search-submit-btn"
+            >
               <img
                 src="/assets/search.svg"
                 alt="Search"

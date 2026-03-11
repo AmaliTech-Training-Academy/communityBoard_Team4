@@ -343,67 +343,61 @@ export function PostDetails() {
                             </div>
                           </div>
 
-                          {canDeleteComment && (
-                            <div className="comment-actions">
-                              {editingCommentId === comment.id ? (
-                                <>
-                                  <button
-                                    className="comment-edit-save-btn"
-                                    onClick={handleSaveEditComment}
-                                    data-testid={`save-edit-comment-${comment.id}`}
-                                  >
-                                    Save
-                                  </button>
-                                  <button
-                                    className="comment-edit-cancel-btn"
-                                    onClick={handleCancelEdit}
-                                    data-testid={`cancel-edit-comment-${comment.id}`}
-                                  >
-                                    Cancel
-                                  </button>
-                                </>
-                              ) : (
-                                <>
-                                  <button
-                                    className="action-icon-btn"
-                                    onClick={() => handleEditComment(comment)}
-                                    data-testid={`edit-comment-${comment.id}`}
-                                  >
-                                    <img
-                                      src="/assets/pen.svg"
-                                      alt="Edit"
-                                      className="action-icon-img"
-                                    />
-                                  </button>
-                                  <button
-                                    className="action-icon-btn"
-                                    onClick={() =>
-                                      handleDeleteComment(comment.id)
-                                    }
-                                    data-testid={`delete-comment-${comment.id}`}
-                                  >
-                                    <img
-                                      src="/assets/trash-2.svg"
-                                      alt="Delete"
-                                      className="action-icon-img"
-                                    />
-                                  </button>
-                                </>
-                              )}
-                            </div>
-                          )}
+                          {canDeleteComment &&
+                            editingCommentId !== comment.id && (
+                              <div className="comment-actions">
+                                <button
+                                  className="action-icon-btn"
+                                  onClick={() => handleEditComment(comment)}
+                                  data-testid={`edit-comment-${comment.id}`}
+                                >
+                                  <img
+                                    src="/assets/pen.svg"
+                                    alt="Edit"
+                                    className="action-icon-img"
+                                  />
+                                </button>
+                                <button
+                                  className="action-icon-btn"
+                                  onClick={() =>
+                                    handleDeleteComment(comment.id)
+                                  }
+                                  data-testid={`delete-comment-${comment.id}`}
+                                >
+                                  <img
+                                    src="/assets/trash-2.svg"
+                                    alt="Delete"
+                                    className="action-icon-img"
+                                  />
+                                </button>
+                              </div>
+                            )}
                         </div>
 
                         {editingCommentId === comment.id ? (
-                          <textarea
-                            className="comment-edit-textarea"
-                            value={editingCommentContent}
-                            onChange={(e) =>
-                              setEditingCommentContent(e.target.value)
-                            }
-                            placeholder="Edit your comment..."
-                            autoFocus
-                          />
+                          <div className="comment-edit-container">
+                            <input
+                              className="comment-edit-input"
+                              value={editingCommentContent}
+                              onChange={(e) =>
+                                setEditingCommentContent(e.target.value)
+                              }
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") handleSaveEditComment();
+                                if (e.key === "Escape") handleCancelEdit();
+                              }}
+                              autoFocus
+                              aria-label="Edit comment"
+                              data-testid={`edit-input-${comment.id}`}
+                            />
+                            <button
+                              className="comment-save-changes-btn"
+                              onClick={handleSaveEditComment}
+                              data-testid={`save-edit-comment-${comment.id}`}
+                            >
+                              Save Changes
+                            </button>
+                          </div>
                         ) : (
                           <p
                             className="comment-content"
