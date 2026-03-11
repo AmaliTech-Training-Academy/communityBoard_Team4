@@ -47,10 +47,7 @@ export function CreatePost() {
   };
 
   return (
-    <div
-      className="create-post-overlay create-post-page"
-      onClick={() => navigate("/")}
-    >
+    <div className="create-post-overlay create-post-page">
       <div className="create-post-breadcrumb">
         <button
           className="breadcrumb-link"
@@ -93,7 +90,7 @@ export function CreatePost() {
         <span className="breadcrumb-current">Create Post</span>
       </div>
 
-      <div className="create-post-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="create-post-modal">
         <div className="create-post-header">
           <button
             className="close-btn"

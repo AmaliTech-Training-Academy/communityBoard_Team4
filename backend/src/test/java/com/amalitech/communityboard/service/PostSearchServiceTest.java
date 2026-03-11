@@ -58,9 +58,7 @@ class PostSearchServiceTest {
 
     @SuppressWarnings("unchecked")
     private void mockFindAll(Post... posts) {
-        Pageable anyPageable = any(Pageable.class);
-        Specification<Post> anySpec = any(Specification.class);
-        when(postRepository.findAll(anySpec, anyPageable))
+        when(postRepository.findAll(any(Specification.class), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(posts)));
     }
 
