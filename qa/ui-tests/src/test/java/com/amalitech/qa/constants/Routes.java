@@ -28,4 +28,7 @@ public final class Routes {
 
     /** {@code /create} – Create-post form. */
     public static final String CREATE   = "/create";
+
+    /** {@code /analytics} – Analytics dashboard. */
+    public static final String ANALYTICS = "/analytics";
 }
