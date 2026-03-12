@@ -55,15 +55,19 @@ class RegisterTest extends SetUp {
         // Arrange – generate a unique email so this test is repeatable
         String uniqueEmail = "autotest_" + UUID.randomUUID().toString().substring(0, 8) + "@example.com";
 
-        // Act
+        // Act – submit the form then wait briefly for the redirect to complete
         registerPage.enterName(RegisterTestData.VALID_NAME)
                     .enterEmail(uniqueEmail)
                     .enterPassword(RegisterTestData.VALID_PASSWORD)
                     .enterConfirmPassword(RegisterTestData.VALID_PASSWORD)
                     .submitRegistration();
 
+        try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
+
+        boolean onLoginPage = driver.getCurrentUrl().contains(Routes.LOGIN);
+
         // Assert
-        assertTrue(driver.getCurrentUrl().contains(Routes.LOGIN),
+        assertTrue(onLoginPage,
                 "Should redirect to /login after successful registration");
     }
 

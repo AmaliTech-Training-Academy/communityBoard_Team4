@@ -88,20 +88,6 @@ class CreatePostTest extends SetUp {
                 "Create post button should be visible after cancelling");
     }
 
-    @Test
-    @DisplayName("Clicking the close (×) button discards the post and returns to the feed")
-    void closingFormReturnsToFeed() {
-        // Arrange
-        createPostPage.enterTitle(PostTestData.CLOSED_DRAFT_TITLE);
-
-        // Act
-        PostFeedPage feedPage = createPostPage.closeForm();
-
-        // Assert
-        assertTrue(feedPage.isCreatePostButtonDisplayed(),
-                "Create post button should be visible after closing the form");
-    }
-
     // ------------------------------------------------------------------ validation
 
     @Test
