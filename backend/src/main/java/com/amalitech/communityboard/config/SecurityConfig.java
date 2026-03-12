@@ -47,6 +47,8 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/health").permitAll()
                 // Public: auth endpoints
                 .requestMatchers("/api/auth/**").permitAll()
+                // Public: analytics endpoints — read-only, no sensitive data
+                .requestMatchers(HttpMethod.GET, "/api/analytics/**").permitAll()
                 // Public: read posts and categories (no auth needed to browse)
                 .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
@@ -60,6 +62,10 @@ public class SecurityConfig {
                     "/v3/api-docs/**",
                     "/v3/api-docs.yaml"
                 ).permitAll()
+                // CB-214: Actuator — health and info are public; prometheus requires ADMIN
+                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                .requestMatchers("/actuator/prometheus", "/actuator/metrics/**").hasRole("ADMIN")
+                .requestMatchers("/actuator/**").hasRole("ADMIN")
                 // Everything else requires a valid JWT
                 .anyRequest().authenticated()
             )

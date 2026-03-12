@@ -16,14 +16,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import org.junit.jupiter.api.BeforeEach;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
+import java.util.function.Supplier;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -40,11 +43,21 @@ import static org.mockito.Mockito.*;
  *  - parseCategory: valid + invalid input
  */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class PostServiceTest {
 
     @Mock PostRepository postRepository;
     @Mock CommentRepository commentRepository;
+    @Mock PerformanceMetricsService metricsService;
     @InjectMocks PostService postService;
+
+    @BeforeEach
+    @SuppressWarnings("unchecked")
+    void stubMetrics() {
+        // Make timePostOperation call through the supplier so existing tests keep passing
+        doAnswer(inv -> ((Supplier<?>) inv.getArgument(0)).get())
+                .when(metricsService).timePostOperation(any(Supplier.class));
+    }
 
     // ── helpers ──────────────────────────────────────────────────────────────
 

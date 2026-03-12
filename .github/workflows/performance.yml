@@ -1,0 +1,141 @@
+##############################################################################
+# performance.yml — API Load Testing (k6)
+#
+# Runs k6 load tests against the staging environment after a successful
+# deploy. Also supports on-demand execution via workflow_dispatch so the
+# team can run ad-hoc load tests against any URL.
+#
+# Load profile (see qa/load-tests/load-test.js for the full scenario):
+#   Ramp 0 → 20 VUs over 2 min, hold 4 min, spike to 50 VUs for 2 min,
+#   then ramp back down. Total duration ≈ 10 min.
+#
+# SLO thresholds (test fails if violated):
+#   p(95) response time < 1 000 ms
+#   Error rate          < 1 %
+#
+# Triggers:
+#   workflow_run  — auto-runs 5 min after Pipeline completes on develop
+#                   (gives ECS rolling deploy time to stabilize)
+#   workflow_dispatch — manual run against any URL
+#
+# Results:
+#   k6 summary printed to workflow log + uploaded as a job summary artifact.
+#   JSON results are uploaded as a downloadable artifact for trend analysis.
+#
+# No additional secrets required. The ALB URL is a public HTTP endpoint.
+##############################################################################
+name: Performance
+
+on:
+  workflow_run:
+    workflows: [ "Pipeline" ]
+    branches: [ develop ]
+    types: [ completed ]
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: "Target URL (defaults to staging ALB)"
+        required: false
+        default: "http://community-board-alb-1961944079.eu-west-1.elb.amazonaws.com"
+      vus:
+        description: "Peak number of virtual users"
+        required: false
+        default: "50"
+
+permissions:
+  contents: read
+
+jobs:
+  load-test:
+    name: k6 Load Test — Staging
+    runs-on: ubuntu-latest
+
+    # Only run when the upstream Pipeline succeeded
+    if: >-
+      github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    # ── Wait for ECS tasks to stabilise after deploy ─────────────────────
+    - name: Wait for staging to stabilise
+      if: github.event_name == 'workflow_run'
+      run: |
+        echo "Waiting 5 minutes for ECS rolling deploy to stabilise..."
+        sleep 300
+
+    # ── Health check before full load test ────────────────────────────────
+    - name: Health check
+      id: health
+      run: |
+        TARGET="${{ github.event.inputs.target_url || 'http://community-board-alb-1961944079.eu-west-1.elb.amazonaws.com' }}"
+        echo "target=$TARGET" >> "$GITHUB_OUTPUT"
+
+        for i in {1..5}; do
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$TARGET/" || echo "000")
+          echo "Health check attempt $i: HTTP $STATUS"
+          if [[ "$STATUS" == "200" ]]; then
+            echo "✅ Staging is healthy" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          sleep 15
+        done
+        echo "❌ Staging did not respond after 5 attempts — skipping load test" >> "$GITHUB_STEP_SUMMARY"
+        exit 1
+
+    # ── Install k6 ────────────────────────────────────────────────────────
+    - name: Install k6
+      run: |
+        sudo gpg -k
+        sudo gpg --no-default-keyring \
+          --keyring /usr/share/keyrings/k6-archive-keyring.gpg \
+          --keyserver hkp://keyserver.ubuntu.com:80 \
+          --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" \
+          | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update -q
+        sudo apt-get install -q k6
+
+    # ── Run the load test ─────────────────────────────────────────────────
+    - name: Run k6 load test
+      id: k6
+      run: |
+        TARGET="${{ steps.health.outputs.target }}"
+        echo "## Load Test — $TARGET" >> "$GITHUB_STEP_SUMMARY"
+        echo "" >> "$GITHUB_STEP_SUMMARY"
+
+        k6 run \
+          --env TARGET_URL="$TARGET" \
+          --out json=k6-results.json \
+          --summary-export=k6-summary.json \
+          qa/load-tests/load-test.js \
+          | tee k6-output.txt
+
+        # Append k6 text summary to the job summary
+        echo '```' >> "$GITHUB_STEP_SUMMARY"
+        cat k6-output.txt >> "$GITHUB_STEP_SUMMARY"
+        echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+    # ── Upload results artifact ────────────────────────────────────────────
+    - name: Upload k6 results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: k6-results-${{ github.run_number }}
+        path: |
+          k6-results.json
+          k6-summary.json
+          k6-output.txt
+        retention-days: 30
+
+    # ── Post threshold summary ─────────────────────────────────────────────
+    - name: Threshold summary
+      if: always()
+      run: |
+        if [ -f k6-summary.json ]; then
+          echo "### Threshold Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Metric | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          # Parse threshold results from k6 summary JSON (k6 >= 0.46)
+          python3 qa/load-tests/parse-thresholds.py k6-summary.json >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+        fi
