@@ -12,8 +12,8 @@ import lombok.Setter;
 public class AdminUpdateUserRequest {
 
     @Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
-    @Pattern(regexp = "^[A-Za-z]{2,19}([ '\\-][A-Za-z]{1,19})*$",
-             message = "Name must be a valid full name: letters only, with spaces, hyphens, or apostrophes as separators between parts (each part at most 19 characters)")
+    @Pattern(regexp = "^[A-Za-z][A-Za-z0-9]{1,19}([ '\\-][A-Za-z0-9]{1,20})*$",
+             message = "Name must be a valid full name: start with a letter, with spaces, hyphens, or apostrophes as separators between parts (each part at most 20 characters)")
     private String name;
 
     @Email(regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
