@@ -44,8 +44,12 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // Public: health check (ALB uses this)
+                .requestMatchers("/actuator/health").permitAll()
                 // Public: auth endpoints
                 .requestMatchers("/api/auth/**").permitAll()
+                // Public: analytics endpoints — read-only, no sensitive data
+                .requestMatchers(HttpMethod.GET, "/api/analytics/**").permitAll()
                 // Admin-only: user management CRUD
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 // Public: read posts and categories (no auth needed to browse)
@@ -61,6 +65,10 @@ public class SecurityConfig {
                     "/v3/api-docs/**",
                     "/v3/api-docs.yaml"
                 ).permitAll()
+                // CB-214: Actuator — health and info are public; prometheus requires ADMIN
+                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                .requestMatchers("/actuator/prometheus", "/actuator/metrics/**").hasRole("ADMIN")
+                .requestMatchers("/actuator/**").hasRole("ADMIN")
                 // Everything else requires a valid JWT
                 .anyRequest().authenticated()
             )
