@@ -29,6 +29,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final PostAnalyticsService postAnalyticsService;
 
     public Page<PostResponse> getAllPosts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -65,9 +66,10 @@ public class PostService {
         return postRepository.findAll(spec, pageable).map(this::toResponse);
     }
 
-    public PostResponse getPostById(Long id) {
+    public PostResponse getPostById(Long id, String viewerEmail) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));
+        postAnalyticsService.recordPostView(id, viewerEmail);
         return toResponse(post);
     }
 
@@ -81,6 +83,7 @@ public class PostService {
                 .build();
         Post saved = postRepository.save(post);
         log.info("Post created: id={}, author={}", saved.getId(), author.getEmail());
+        postAnalyticsService.recordPostCreated(saved.getId(), author.getEmail(), category.name());
         return toResponse(saved);
     }
 
@@ -108,6 +111,7 @@ public class PostService {
         // Comments are automatically deleted via CascadeType.ALL on Post.comments
         postRepository.delete(post);
         log.info("Post deleted: id={}, deletedBy={}", id, author.getEmail());
+        postAnalyticsService.recordPostDeleted(id, author.getEmail());
     }
 
     /**
