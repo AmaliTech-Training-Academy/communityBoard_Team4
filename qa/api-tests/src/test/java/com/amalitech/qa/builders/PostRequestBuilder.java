@@ -1,7 +1,7 @@
 package com.amalitech.qa.builders;
 
-import com.amalitech.qa.dto.PostRequest;
 import com.amalitech.qa.testdata.PostTestData;
+import com.amalitech.qa.tests.post.PostRequest;
 
 public class PostRequestBuilder {
     private String title;

@@ -1,7 +1,7 @@
 package com.amalitech.qa.builders;
 
-import com.amalitech.qa.dto.RegisterRequest;
 import com.amalitech.qa.testdata.AuthTestData;
+import com.amalitech.qa.tests.auth.RegisterRequest;
 
 public class RegisterRequestBuilder {
     private String name;

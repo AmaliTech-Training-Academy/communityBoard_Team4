@@ -2,6 +2,9 @@ package com.amalitech.qa.dto;
 
 import java.util.List;
 
+import com.amalitech.qa.tests.post.PostResponse;
+import com.amalitech.qa.tests.search.SortObject;
+
 public class PagePostResponse {
     private Integer totalPages;
     private Long totalElements;
