@@ -6,7 +6,6 @@ export interface User {
   email: string;
   role: string;
   token?: string;
-  [key: string]: any;
 }
 
 interface AuthContextType {
@@ -49,10 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const register = async (name: string, email: string, password: string) => {
-    console.log('apache code');
-
     const { data } = await api.post('/auth/register', { name, email, password });
-    console.log('after apache code');
 
     const { token: apiToken, role, name: apiName, email: apiEmail } = data;
 
