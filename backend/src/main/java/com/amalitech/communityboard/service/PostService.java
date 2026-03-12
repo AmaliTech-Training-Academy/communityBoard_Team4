@@ -19,6 +19,9 @@ import com.amalitech.communityboard.repository.PostRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 
 import java.time.LocalDateTime;
 
@@ -30,6 +33,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
 
+    @Cacheable(value = "posts", key = "'page-' + #page + '-size-' + #size")
     public Page<PostResponse> getAllPosts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return postRepository.findAllByOrderByCreatedAtDesc(pageable).map(this::toResponse);
@@ -65,12 +69,14 @@ public class PostService {
         return postRepository.findAll(spec, pageable).map(this::toResponse);
     }
 
+    @Cacheable(value = "post", key = "#id")
     public PostResponse getPostById(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));
         return toResponse(post);
     }
 
+    @CacheEvict(value = "posts", allEntries = true)
     public PostResponse createPost(PostRequest request, User author) {
         Category category = parseCategory(request.getCategory());
         Post post = Post.builder()
@@ -84,6 +90,10 @@ public class PostService {
         return toResponse(saved);
     }
 
+    @Caching(evict = {
+        @CacheEvict(value = "post", key = "#id"),
+        @CacheEvict(value = "posts", allEntries = true)
+    })
     public PostResponse updatePost(Long id, PostRequest request, User author) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));
@@ -98,6 +108,10 @@ public class PostService {
         return toResponse(postRepository.save(post));
     }
 
+    @Caching(evict = {
+        @CacheEvict(value = "post", key = "#id"),
+        @CacheEvict(value = "posts", allEntries = true)
+    })
     public void deletePost(Long id, User author) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));

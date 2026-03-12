@@ -1,10 +1,12 @@
 package com.amalitech.communityboard.controller;
 
+import com.amalitech.communityboard.config.JwtService;
 import com.amalitech.communityboard.dto.*;
 import com.amalitech.communityboard.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +17,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Tag(name = "Authentication", description = "Register and login to obtain a JWT token")
+@Tag(name = "Authentication", description = "Register, login, and logout")
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtService jwtService;
 
     @Operation(summary = "Register a new user account")
     @ApiResponses({
@@ -40,5 +43,19 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @Operation(summary = "Logout — invalidates the current Bearer token", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Logged out successfully"),
+        @ApiResponse(responseCode = "401", description = "No valid token provided")
+    })
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            jwtService.invalidateToken(authHeader.substring(7));
+        }
+        return ResponseEntity.ok().build();
     }
 }

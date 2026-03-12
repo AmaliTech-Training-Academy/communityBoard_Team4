@@ -1,8 +1,8 @@
 # CommunityBoard — Frontend Integration Guide
 
-> **For:** Frontend Developer  
-> **Backend stack:** Java 17 · Spring Boot 3.2.0 · Spring Security (JWT) · Spring Data JPA · PostgreSQL  
-> **Frontend stack:** React (Functional Components + Hooks)  
+> **For:** Frontend Developer
+> **Backend stack:** Java 17 · Spring Boot 3.2.0 · Spring Security (JWT) · Spring Data JPA · PostgreSQL
+> **Frontend stack:** React (Functional Components + Hooks)
 > **Last updated:** March 2026
 
 ---
