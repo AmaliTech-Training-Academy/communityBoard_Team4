@@ -16,19 +16,22 @@ Tests cover:
     - Unexpected exception propagates immediately without retry
     - Connection is closed even when an error occurs
 """
+import os
+import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import etl_pipeline as etl
 
-import os
 import psycopg2
 import pytest
 from unittest.mock import MagicMock, patch
 
-import sys
+
 
 from conftest import make_op_error, make_prog_error
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
 
 
 # ------------------------------------------------------------------ #

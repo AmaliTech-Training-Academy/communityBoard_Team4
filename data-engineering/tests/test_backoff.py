@@ -11,17 +11,17 @@ Tests cover:
   - Edge case: zero jitter_factor produces exact exponential value
 """
 
-import etl_pipeline as etl
-
-from unittest.mock import patch
-
-import pytest
-
 import sys
 
 import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+import etl_pipeline as etl
+
+from unittest.mock import patch
+
+import pytest
 
 
 class TestBackoffDelay:
