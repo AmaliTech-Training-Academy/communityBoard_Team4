@@ -24,7 +24,6 @@ on:
     branches: [ main, develop ]
   workflow_dispatch:
 
-
 concurrency:
   group: e2e-tests-${{ github.ref }}
   cancel-in-progress: true
