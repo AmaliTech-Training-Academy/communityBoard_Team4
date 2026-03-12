@@ -1,0 +1,56 @@
+##############################################################################
+# stale.yml — Warn about long-lived feature branches
+#
+# Runs every hour.  Uses actions/stale to label PRs that have had no activity
+# for 1+ day and post a warning comment.  The stale label is cleared
+# automatically when the author pushes a new commit.
+#
+# Target branch lifetime: 1–3 hours.
+# Note: actions/stale enforces a minimum granularity of 1 day.
+#
+# Required: no additional secrets; uses the built-in GITHUB_TOKEN.
+##############################################################################
+name: Stale Branch Warning
+
+on:
+  schedule:
+    - cron: "0 * * * *"   # every hour
+  workflow_dispatch:       # allow manual runs for testing
+
+permissions:
+  pull-requests: write
+
+jobs:
+  stale:
+    name: Flag stale PRs (inactive > 1 day)
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/stale@v9
+      with:
+        stale-pr-label: "stale"
+
+        # Don't touch issues via this workflow
+        days-before-issue-stale: -1
+        days-before-issue-close: -1
+
+        # Minimum granularity is 1 day with actions/stale.
+        days-before-pr-stale: 1
+
+        # Disable auto-close — team decides manually.
+        days-before-pr-close: -1
+
+        stale-pr-message: |
+          ⏰ **Stale PR — branch lifetime exceeded**
+
+          This pull request has had no activity for **1+ day**.
+          Our target branch lifetime is **1–3 hours** to keep the repository
+          clean and merges conflict-free.
+
+          Please take one of the following actions:
+          - **Merge** if the work is complete and reviewed
+          - **Push a new commit** to reset the stale timer if work is ongoing
+          - **Close** the PR and delete the branch if the work is abandoned
+
+        exempt-pr-labels: "do-not-merge,hold,WIP,blocked"
+        remove-stale-when-updated: true

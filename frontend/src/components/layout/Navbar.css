@@ -77,6 +77,26 @@
   background-color: var(--input-bg, #ececeb);
 }
 
+.navbar-action-btn-active {
+  background-color: var(--btn-primary-bg, #08283b);
+  border-radius: 8px;
+}
+
+.navbar-action-btn-active:hover {
+  background-color: var(--btn-primary-bg, #08283b);
+}
+
+.navbar-action-btn-active img {
+  filter: brightness(0) invert(1);
+}
+
+.text-white-medium {
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: #ffffff;
+}
+
 .text-dark-medium {
   font-family: "Inter", sans-serif;
   font-weight: 500;

@@ -45,6 +45,7 @@ concurrency:
 permissions:
   id-token: write # OIDC credential exchange (deploy jobs)
   contents: read
+  security-events: write # Trivy container scan SARIF upload
 
 env:
   AWS_REGION: eu-west-1
@@ -207,6 +208,27 @@ jobs:
         echo "**Tag:** \`${{ matrix.service }}-${{ steps.vars.outputs.tag }}\`" >> "$GITHUB_STEP_SUMMARY"
         echo "**Registry:** \`${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}\`" >> "$GITHUB_STEP_SUMMARY"
 
+    # ── Container vulnerability scan ─────────────────────────────────────
+    # Scan the just-pushed image from ECR. Non-blocking (exit-code: 0) so
+    # a found vulnerability surfaces in the Security tab but does not stop
+    # the deploy. Promote to exit-code: 1 when you want hard enforcement.
+    - name: Scan container image (Trivy)
+      uses: aquasecurity/trivy-action@0.29.0
+      with:
+        image-ref: ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ matrix.service }}-${{ steps.vars.outputs.tag }}
+        format: sarif
+        output: trivy-${{ matrix.service }}.sarif
+        severity: CRITICAL,HIGH
+        exit-code: 0
+
+    - name: Upload container scan results to Security tab
+      uses: github/codeql-action/upload-sarif@v4
+      if: always()
+      continue-on-error: true  # don't fail the build if sarif upload fails (e.g. scan step errored)
+      with:
+        sarif_file: trivy-${{ matrix.service }}.sarif
+        category: container-${{ matrix.service }}
+
   # ─────────────────────────────────────────────────────────────────────────
   # Deploy — skipped on pull requests; runs after build-push succeeds
   # ─────────────────────────────────────────────────────────────────────────
@@ -237,9 +259,7 @@ jobs:
     needs: [ prepare ]
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    # environment: ${{ needs.prepare.outputs.environment }}
-    # Uncomment above once 'production' and 'staging' GitHub Environments are
-    # created under Settings → Environments. Without them the job fails to start.
+    environment: ${{ needs.prepare.outputs.environment }}
 
     strategy:
       max-parallel: 1 # deploy frontend before backend to avoid mixed-version traffic
