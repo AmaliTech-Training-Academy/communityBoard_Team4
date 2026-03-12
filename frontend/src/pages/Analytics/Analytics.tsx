@@ -92,12 +92,19 @@ function BarChart({
   // Round up to nearest nice number for y-axis
   const yMax = Math.ceil(maxValue / 10) * 10 || 10;
   const yTicks = [
-    yMax,
-    Math.round((yMax * 3) / 4),
-    Math.round(yMax / 2),
-    Math.round(yMax / 4),
-    0,
+    ...new Set([
+      yMax,
+      Math.round((yMax * 3) / 4),
+      Math.round(yMax / 2),
+      Math.round(yMax / 4),
+      0,
+    ]),
   ];
+  const avg =
+    data.length > 0
+      ? data.reduce((sum, d) => sum + d.count, 0) / data.length
+      : 0;
+  const avgPosition = yMax > 0 ? (avg / yMax) * 100 : 0;
 
   return (
     <div className="analytics-chart-card">
@@ -117,6 +124,10 @@ function BarChart({
             ))}
           </div>
           <div className="analytics-chart-bars">
+            <div
+              className="analytics-chart-avg-line"
+              style={{ bottom: `${avgPosition}%` }}
+            />
             {data.map((d) => (
               <div key={d.label} className="analytics-bar-wrapper">
                 <div
