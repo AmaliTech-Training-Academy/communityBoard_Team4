@@ -14,13 +14,64 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <selenium.version>4.16.1</selenium.version>
         <junit.version>5.10.1</junit.version>
-        <webdrivermanager.version>5.6.2</webdrivermanager.version>
+        <webdrivermanager.version>6.1.0</webdrivermanager.version>
         <surefire.version>3.2.2</surefire.version>
         <!-- Override via -Dheadless=false to run with a visible browser -->
         <headless>true</headless>
         <allure.version>2.25.0</allure.version>
         <aspectj.version>1.9.21</aspectj.version>
     </properties>
+
+    <!--
+        Dependency management: pin vulnerable transitive dependencies pulled in by
+        webdrivermanager and selenium to patched versions.
+    -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- CVE-2022-42003, CVE-2022-42004, CVE-2021-46877, CVE-2020-36518, CVE-2020-25649 -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.18.6</version>
+            </dependency>
+            <!-- GHSA-72hv-8253-57qq, CVE-2025-52999, CVE-2025-49128 -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>2.18.6</version>
+            </dependency>
+            <!-- CVE-2024-47554 -->
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.17.0</version>
+            </dependency>
+            <!-- CVE-2024-25710, CVE-2024-26308 -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>1.27.1</version>
+            </dependency>
+            <!-- CVE-2025-48924 -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.18.0</version>
+            </dependency>
+            <!-- CVE-2024-29857, CVE-2024-30171, CVE-2024-30172, CVE-2024-34447, CVE-2025-8885 -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>1.79</version>
+            </dependency>
+            <!-- CVE-2025-8916 -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk18on</artifactId>
+                <version>1.79</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- Selenium WebDriver -->
