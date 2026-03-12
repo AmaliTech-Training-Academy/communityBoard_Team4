@@ -91,12 +91,23 @@ public class ConfigManager {
     }
 
     /**
-     * Generic getter for any property
+     * Generic getter for any property.
+     * Resolution order:
+     *   1. JVM system property  (-Dbase.url=... on the Maven command line)
+     *   2. Entry in config.properties classpath resource
+     *
+     * This lets CI pipelines override the default ALB URL without changing
+     * the committed config.properties file.
      *
      * @param key Property key
-     * @return Property value, or null if not found
+     * @return Property value
      */
     private static String getProperty(String key) {
+        // System property takes precedence (e.g. -Dbase.url=http://localhost:8080)
+        String sysProp = System.getProperty(key);
+        if (sysProp != null && !sysProp.isBlank()) {
+            return sysProp.trim();
+        }
         String value = properties.getProperty(key);
         if (value == null) {
             throw new RuntimeException("Property not found in config: " + key);

@@ -1,0 +1,107 @@
+##############################################################################
+# api-tests.yml — REST Assured API Testing Pipeline
+#
+# Spins up the backend + PostgreSQL via Docker Compose and runs the full
+# REST Assured test suite in qa/api-tests/ against a local stack.
+#
+# This validates API contract, authentication, CRUD operations, and
+# pagination against a real running backend (not mocked).
+#
+# Jobs:
+#   api-tests — Build stack, wait for health, run REST Assured, publish results
+#
+# Triggers: push/PR to main or develop
+##############################################################################
+name: API Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+
+concurrency:
+  group: api-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: write # for test result annotations
+
+jobs:
+  api-tests:
+    name: REST Assured API Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: "17"
+        distribution: temurin
+        cache: maven
+
+    # ── Start backend stack ─────────────────────────────────────────────────
+    - name: Start PostgreSQL + Backend (Docker Compose)
+      run: docker compose up -d postgres backend
+      env:
+        # Use strong CI-specific secrets — not production values
+        JWT_SECRET: ci-jwt-secret-for-api-testing-only-32chars # pragma: allowlist secret
+        POSTGRES_PASSWORD: ci_postgres_pass # pragma: allowlist secret
+
+    - name: Wait for backend to be healthy
+      run: |
+        echo "Waiting for backend /actuator/health..."
+        for i in $(seq 1 40); do
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/actuator/health 2>/dev/null || echo "000")
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ Backend is healthy (attempt $i)"
+            break
+          fi
+          echo "Attempt $i/40 — HTTP $STATUS, retrying in 5s..."
+          sleep 5
+        done
+        # Final assertion — fail clearly if backend never came up
+        curl -sf http://localhost:8080/actuator/health || {
+          echo "❌ Backend failed to become healthy"
+          docker compose logs backend
+          exit 1
+        }
+
+    # ── Run tests ───────────────────────────────────────────────────────────
+    - name: Run REST Assured API tests
+      working-directory: ./qa/api-tests
+      run: |
+        mvn test \
+          -Dbase.url=http://localhost:8080 \
+          -Dsurefire.failIfNoSpecifiedTests=false
+      env:
+        # Keep test output readable in CI logs
+        MAVEN_OPTS: "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
+
+    # ── Publish results ──────────────────────────────────────────────────────
+    - name: Publish test results
+      if: always()
+      uses: dorny/test-reporter@v1
+      with:
+        name: API Test Results
+        path: qa/api-tests/target/surefire-reports/*.xml
+        reporter: java-junit
+        fail-on-error: false
+
+    - name: Upload Allure results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: allure-results-api-${{ github.run_number }}
+        path: qa/api-tests/target/allure-results/
+        retention-days: 7
+
+    # ── Teardown ─────────────────────────────────────────────────────────────
+    - name: Stop and clean up stack
+      if: always()
+      run: docker compose down -v --remove-orphans
