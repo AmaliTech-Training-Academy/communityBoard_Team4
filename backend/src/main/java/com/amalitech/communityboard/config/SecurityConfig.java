@@ -43,6 +43,8 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // Public: health check (ALB uses this)
+                .requestMatchers("/actuator/health").permitAll()
                 // Public: auth endpoints
                 .requestMatchers("/api/auth/**").permitAll()
                 // Public: read posts and categories (no auth needed to browse)
