@@ -21,13 +21,14 @@ on:
     branches: [ main, develop ]
   workflow_dispatch:
 
+
 concurrency:
   group: api-tests-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
-  checks: write  # for test result annotations
+  checks: write # for test result annotations
 
 jobs:
   api-tests:
@@ -49,8 +50,8 @@ jobs:
       run: docker compose up -d postgres backend
       env:
         # Use strong CI-specific secrets — not production values
-        JWT_SECRET: ci-jwt-secret-for-api-testing-only-32chars  # pragma: allowlist secret
-        POSTGRES_PASSWORD: ci_postgres_pass  # pragma: allowlist secret
+        JWT_SECRET: ci-jwt-secret-for-api-testing-only-32chars # pragma: allowlist secret
+        POSTGRES_PASSWORD: ci_postgres_pass # pragma: allowlist secret
 
     - name: Wait for backend to be healthy
       run: |

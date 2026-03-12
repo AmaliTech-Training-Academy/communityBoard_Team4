@@ -209,22 +209,32 @@ jobs:
         echo "**Registry:** \`${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}\`" >> "$GITHUB_STEP_SUMMARY"
 
     # ── Container vulnerability scan ─────────────────────────────────────
-    # Scan the just-pushed image from ECR. Non-blocking (exit-code: 0) so
-    # a found vulnerability surfaces in the Security tab but does not stop
-    # the deploy. Promote to exit-code: 1 when you want hard enforcement.
+    # Install Trivy via apt (more reliable than aquasecurity/trivy-action
+    # which uses setup-trivy and consistently fails to download the binary
+    # from GitHub releases). Non-blocking — findings go to the Security tab
+    # but do not stop the deploy.
+    - name: Install Trivy
+      run: |
+        sudo apt-get install -y wget apt-transport-https gnupg
+        wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+        echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee /etc/apt/sources.list.d/trivy.list
+        sudo apt-get update -qq
+        sudo apt-get install -y trivy
+
     - name: Scan container image (Trivy)
-      uses: aquasecurity/trivy-action@0.29.0
-      with:
-        image-ref: ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ matrix.service }}-${{ steps.vars.outputs.tag }}
-        format: sarif
-        output: trivy-${{ matrix.service }}.sarif
-        severity: CRITICAL,HIGH
-        exit-code: 0
+      continue-on-error: true # non-blocking — findings surface in Security tab, don't stop deploy
+      run: |
+        trivy image \
+          --format sarif \
+          --output trivy-${{ matrix.service }}.sarif \
+          --severity CRITICAL,HIGH \
+          --exit-code 0 \
+          ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ matrix.service }}-${{ steps.vars.outputs.tag }}
 
     - name: Upload container scan results to Security tab
       uses: github/codeql-action/upload-sarif@v4
       if: always()
-      continue-on-error: true  # don't fail the build if sarif upload fails (e.g. scan step errored)
+      continue-on-error: true
       with:
         sarif_file: trivy-${{ matrix.service }}.sarif
         category: container-${{ matrix.service }}
