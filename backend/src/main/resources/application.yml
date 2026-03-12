@@ -46,18 +46,22 @@ springdoc:
     tags-sorter: alpha
     operations-sorter: alpha
 
-# CB-214: Performance Monitoring — Spring Boot Actuator
+# CB-214 + DevOps Logging: Spring Boot Actuator monitoring endpoints
 management:
   endpoints:
     web:
       exposure:
-        # Expose health, info (public) and prometheus (metrics scraping, secured to ADMIN)
-        include: health,info,prometheus,metrics
+        # health, info (public) + prometheus (metrics scraping) + DevOps log/env/flyway endpoints
+        # heapdump intentionally excluded — heap files can expose secrets in memory
+        include: health,info,prometheus,metrics,loggers,env,flyway,threaddump
       base-path: /actuator
   endpoint:
     health:
       show-details: when-authorized
     prometheus:
+      enabled: true
+  info:
+    env:
       enabled: true
   metrics:
     tags:
@@ -67,3 +71,11 @@ management:
         http.server.requests: true
       percentiles:
         http.server.requests: 0.5,0.95,0.99
+
+# Logging levels
+logging:
+  level:
+    com.amalitech.communityboard: INFO
+    org.springframework.security: WARN
+    org.hibernate: WARN
+    org.flywaydb: INFO

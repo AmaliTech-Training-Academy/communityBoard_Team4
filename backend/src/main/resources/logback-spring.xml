@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+
+    <!-- =========================================================
+         PROPERTIES
+         ========================================================= -->
+    <property name="LOG_DIR"     value="${LOG_PATH:-logs}" />
+    <property name="APP_NAME"    value="communityboard" />
+    <property name="MAX_SIZE"    value="20MB" />
+    <property name="MAX_HISTORY" value="30" />  <!-- days -->
+
+    <!-- =========================================================
+         CONSOLE APPENDER
+         Readable coloured output during local development.
+         ========================================================= -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) [%thread] %cyan(%logger{36}) - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- =========================================================
+         APPLICATION LOG (all levels INFO and above)
+         Rolls daily and when the file exceeds 20 MB.
+         Kept for 30 days.
+         ========================================================= -->
+    <appender name="APP_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/${APP_NAME}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/archived/${APP_NAME}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>${MAX_SIZE}</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>500MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- =========================================================
+         ERROR LOG (ERROR level only)
+         Separate file so ops can tail a single file for alerts.
+         ========================================================= -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/${APP_NAME}-error.log</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/archived/${APP_NAME}-error-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>${MAX_SIZE}</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>200MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- =========================================================
+         PERFORMANCE LOG
+         Written by RequestLoggingFilter — one line per HTTP request
+         showing: method, URI, status, duration, user.
+         Lets DevOps identify slow endpoints and traffic spikes.
+         ========================================================= -->
+    <appender name="PERF_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/${APP_NAME}-performance.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/archived/${APP_NAME}-performance-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>${MAX_SIZE}</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>200MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- =========================================================
+         SECURITY / AUDIT LOG
+         Captures auth events (login, register, 401, 403).
+         ========================================================= -->
+    <appender name="SECURITY_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/${APP_NAME}-security.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/archived/${APP_NAME}-security-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>${MAX_SIZE}</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>200MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- =========================================================
+         ASYNC WRAPPERS
+         Decouples disk I/O from request threads so logging never
+         slows down API responses.
+         ========================================================= -->
+    <appender name="ASYNC_APP"      class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="APP_FILE" />
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+    <appender name="ASYNC_ERROR"    class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="ERROR_FILE" />
+        <queueSize>256</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+    <appender name="ASYNC_PERF"     class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="PERF_FILE" />
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+    <appender name="ASYNC_SECURITY" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="SECURITY_FILE" />
+        <queueSize>256</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+    <!-- =========================================================
+         LOGGER ASSIGNMENTS
+         ========================================================= -->
+
+    <!-- Performance logger — only writes to performance log file -->
+    <logger name="com.amalitech.communityboard.config.RequestLoggingFilter"
+            level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="ASYNC_PERF" />
+    </logger>
+
+    <!-- Security/auth logger — writes to security log + main app log -->
+    <logger name="com.amalitech.communityboard.config.SecurityConfig"   level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="ASYNC_SECURITY" />
+        <appender-ref ref="ASYNC_APP" />
+    </logger>
+    <logger name="com.amalitech.communityboard.config.JwtAuthFilter"    level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="ASYNC_SECURITY" />
+        <appender-ref ref="ASYNC_APP" />
+    </logger>
+    <logger name="com.amalitech.communityboard.service.AuthService"     level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="ASYNC_SECURITY" />
+        <appender-ref ref="ASYNC_APP" />
+    </logger>
+
+    <!-- Application code — INFO and above to main log -->
+    <logger name="com.amalitech.communityboard" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="ASYNC_APP" />
+        <appender-ref ref="ASYNC_ERROR" />
+    </logger>
+
+    <!-- Flyway migrations — useful to see which migrations ran at startup -->
+    <logger name="org.flywaydb" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="ASYNC_APP" />
+    </logger>
+
+    <!-- Hibernate — WARN only (avoid SQL spam; show-sql is off) -->
+    <logger name="org.hibernate" level="WARN" additivity="false">
+        <appender-ref ref="ASYNC_APP" />
+        <appender-ref ref="ASYNC_ERROR" />
+    </logger>
+
+    <!-- Spring Security internals — WARN only -->
+    <logger name="org.springframework.security" level="WARN" additivity="false">
+        <appender-ref ref="ASYNC_APP" />
+        <appender-ref ref="ASYNC_ERROR" />
+    </logger>
+
+    <!-- =========================================================
+         ROOT LOGGER
+         Catch-all for everything not matched above.
+         ========================================================= -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="ASYNC_APP" />
+        <appender-ref ref="ASYNC_ERROR" />
+    </root>
+
+</configuration>

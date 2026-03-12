@@ -104,6 +104,11 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Actuator: health, metrics, info, loggers, env endpoints for DevOps monitoring -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -172,6 +177,9 @@
                             <excludes>
                                 <exclude>com/amalitech/communityboard/model/**</exclude>
                                 <exclude>com/amalitech/communityboard/config/**</exclude>
+                                <exclude>com/amalitech/communityboard/analytics/entity/**</exclude>
+                                <exclude>com/amalitech/communityboard/analytics/repository/**</exclude>
+                                <exclude>com/amalitech/communityboard/dto/**</exclude>
                                 <exclude>com/amalitech/communityboard/CommunityBoardApplication*</exclude>
                             </excludes>
                             <rules>
