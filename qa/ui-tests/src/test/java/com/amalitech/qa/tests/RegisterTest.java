@@ -1,7 +1,9 @@
 package com.amalitech.qa.tests;
 
 import com.amalitech.qa.base.SetUp;
+import com.amalitech.qa.constants.Routes;
 import com.amalitech.qa.pages.RegisterPage;
+import com.amalitech.qa.testdata.RegisterTestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,7 +30,7 @@ class RegisterTest extends SetUp {
 
     @BeforeEach
     void openRegisterPage() {
-        navigateTo("/register");
+        navigateTo(Routes.REGISTER);
         registerPage = new RegisterPage(driver);
     }
 
@@ -54,14 +56,14 @@ class RegisterTest extends SetUp {
         String uniqueEmail = "autotest_" + UUID.randomUUID().toString().substring(0, 8) + "@example.com";
 
         // Act
-        registerPage.enterName("Auto Test User")
+        registerPage.enterName(RegisterTestData.VALID_NAME)
                     .enterEmail(uniqueEmail)
-                    .enterPassword("Password123!")
-                    .enterConfirmPassword("Password123!")
+                    .enterPassword(RegisterTestData.VALID_PASSWORD)
+                    .enterConfirmPassword(RegisterTestData.VALID_PASSWORD)
                     .submitRegistration();
 
         // Assert
-        assertTrue(driver.getCurrentUrl().contains("/login"),
+        assertTrue(driver.getCurrentUrl().contains(Routes.LOGIN),
                 "Should redirect to /login after successful registration");
     }
 
@@ -71,14 +73,14 @@ class RegisterTest extends SetUp {
     @DisplayName("Mismatched passwords prevent navigation away from /register")
     void mismatchedPasswordsPreventsRegistration() {
         // Arrange & Act
-        registerPage.enterName("Test User")
+        registerPage.enterName(RegisterTestData.TEST_NAME)
                     .enterEmail("mismatch_" + System.currentTimeMillis() + "@example.com")
-                    .enterPassword("Password123!")
-                    .enterConfirmPassword("DifferentPassword!")
+                    .enterPassword(RegisterTestData.VALID_PASSWORD)
+                    .enterConfirmPassword(RegisterTestData.MISMATCHED_PASSWORD)
                     .submitRegistration();
 
         // Assert
-        assertTrue(registerPage.getCurrentUrl().contains("/register"),
+        assertTrue(registerPage.getCurrentUrl().contains(Routes.REGISTER),
                 "User should stay on /register when passwords do not match");
     }
 
@@ -89,7 +91,7 @@ class RegisterTest extends SetUp {
         registerPage.submitRegistration();
 
         // Assert
-        assertTrue(registerPage.getCurrentUrl().contains("/register"),
+        assertTrue(registerPage.getCurrentUrl().contains(Routes.REGISTER),
                 "User should stay on /register when the form is submitted empty");
     }
 }

@@ -2,9 +2,11 @@ package com.amalitech.qa.tests;
 
 import com.amalitech.qa.base.SetUp;
 import com.amalitech.qa.config.ConfigReader;
+import com.amalitech.qa.constants.Routes;
 import com.amalitech.qa.pages.CreatePostPage;
 import com.amalitech.qa.pages.LoginPage;
 import com.amalitech.qa.pages.PostFeedPage;
+import com.amalitech.qa.testdata.PostTestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,7 +34,7 @@ class CreatePostTest extends SetUp {
 
     @BeforeEach
     void loginAndOpenCreateForm() {
-        navigateTo("/login");
+        navigateTo(Routes.LOGIN);
         createPostPage = new LoginPage(driver)
                 .loginAs(ConfigReader.getValidEmail(), ConfigReader.getValidPassword())
                 .clickCreatePost();
@@ -56,13 +58,13 @@ class CreatePostTest extends SetUp {
     @DisplayName("Filling the form and submitting creates a post and returns to the feed")
     void successfulPostCreationReturnsToFeed() {
         // Arrange
-        String uniqueTitle = "Automated Post – " + System.currentTimeMillis();
+        String uniqueTitle = PostTestData.POST_TITLE_PREFIX + System.currentTimeMillis();
 
         // Act
         PostFeedPage feedPage = createPostPage
                 .enterTitle(uniqueTitle)
-                .selectCategory("General")
-                .enterBody("This post was created by an automated UI test.")
+                .selectCategory(PostTestData.POST_CATEGORY)
+                .enterBody(PostTestData.POST_BODY)
                 .submitPost();
 
         // Assert
@@ -76,7 +78,7 @@ class CreatePostTest extends SetUp {
     @DisplayName("Clicking 'Cancel' discards the post and returns to the feed")
     void cancellingPostCreationReturnsToFeed() {
         // Arrange
-        createPostPage.enterTitle("Draft that will be cancelled");
+        createPostPage.enterTitle(PostTestData.CANCELLED_DRAFT_TITLE);
 
         // Act
         PostFeedPage feedPage = createPostPage.cancelPost();
@@ -90,7 +92,7 @@ class CreatePostTest extends SetUp {
     @DisplayName("Clicking the close (×) button discards the post and returns to the feed")
     void closingFormReturnsToFeed() {
         // Arrange
-        createPostPage.enterTitle("Draft that will be closed");
+        createPostPage.enterTitle(PostTestData.CLOSED_DRAFT_TITLE);
 
         // Act
         PostFeedPage feedPage = createPostPage.closeForm();
@@ -109,7 +111,7 @@ class CreatePostTest extends SetUp {
         createPostPage.submitPost();
 
         // Assert
-        assertTrue(driver.getCurrentUrl().contains("/create"),
+        assertTrue(driver.getCurrentUrl().contains(Routes.CREATE),
                 "User should stay on /create when the form is submitted empty");
     }
 }

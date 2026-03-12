@@ -2,8 +2,10 @@ package com.amalitech.qa.tests;
 
 import com.amalitech.qa.base.SetUp;
 import com.amalitech.qa.config.ConfigReader;
+import com.amalitech.qa.constants.Routes;
 import com.amalitech.qa.pages.LoginPage;
 import com.amalitech.qa.pages.PostFeedPage;
+import com.amalitech.qa.testdata.LoginTestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,7 +30,7 @@ class LoginTest extends SetUp {
 
     @BeforeEach
     void openLoginPage() {
-        navigateTo("/login");
+        navigateTo(Routes.LOGIN);
         loginPage = new LoginPage(driver);
     }
 
@@ -69,11 +71,11 @@ class LoginTest extends SetUp {
     void wrongPasswordStaysOnLoginPage() {
         // Arrange & Act
         loginPage.enterEmail(ConfigReader.getValidEmail())
-                 .enterPassword("WrongPassword999!")
+                 .enterPassword(LoginTestData.WRONG_PASSWORD)
                  .clickSubmit();
 
         // Assert
-        assertTrue(loginPage.getCurrentUrl().contains("/login"),
+        assertTrue(loginPage.getCurrentUrl().contains(Routes.LOGIN),
                 "User should remain on /login with an incorrect password");
     }
 
@@ -81,12 +83,12 @@ class LoginTest extends SetUp {
     @DisplayName("Unknown email keeps the user on the login page")
     void unknownEmailStaysOnLoginPage() {
         // Arrange & Act
-        loginPage.enterEmail("nobody@unknown-domain.com")
-                 .enterPassword("Password123!")
+        loginPage.enterEmail(LoginTestData.UNKNOWN_EMAIL)
+                 .enterPassword(LoginTestData.SAMPLE_PASSWORD)
                  .clickSubmit();
 
         // Assert
-        assertTrue(loginPage.getCurrentUrl().contains("/login"),
+        assertTrue(loginPage.getCurrentUrl().contains(Routes.LOGIN),
                 "User should remain on /login with an unknown email");
     }
 
@@ -97,7 +99,7 @@ class LoginTest extends SetUp {
         loginPage.clickSubmit();
 
         // Assert
-        assertTrue(loginPage.getCurrentUrl().contains("/login"),
+        assertTrue(loginPage.getCurrentUrl().contains(Routes.LOGIN),
                 "User should remain on /login when the form is submitted empty");
     }
 }

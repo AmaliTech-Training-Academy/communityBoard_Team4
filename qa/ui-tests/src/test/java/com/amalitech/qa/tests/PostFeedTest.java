@@ -2,9 +2,11 @@ package com.amalitech.qa.tests;
 
 import com.amalitech.qa.base.SetUp;
 import com.amalitech.qa.config.ConfigReader;
+import com.amalitech.qa.constants.Routes;
 import com.amalitech.qa.pages.CreatePostPage;
 import com.amalitech.qa.pages.LoginPage;
 import com.amalitech.qa.pages.PostFeedPage;
+import com.amalitech.qa.testdata.PostTestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +33,7 @@ class PostFeedTest extends SetUp {
 
     @BeforeEach
     void loginAndLandOnFeed() {
-        navigateTo("/login");
+        navigateTo(Routes.LOGIN);
         postFeedPage = new LoginPage(driver)
                 .loginAs(ConfigReader.getValidEmail(), ConfigReader.getValidPassword());
     }
@@ -56,7 +58,7 @@ class PostFeedTest extends SetUp {
         CreatePostPage createPostPage = postFeedPage.clickCreatePost();
 
         // Assert
-        assertTrue(driver.getCurrentUrl().contains("/create"),
+        assertTrue(driver.getCurrentUrl().contains(Routes.CREATE),
                 "URL should contain /create after clicking the button");
         assertTrue(createPostPage.isPostTitleInputDisplayed(),
                 "Post title input should be visible on the create form");
@@ -68,10 +70,10 @@ class PostFeedTest extends SetUp {
     @DisplayName("Submitting a search query keeps the user on the feed")
     void searchQueryKeepsUserOnFeed() {
         // Act
-        postFeedPage.searchFor("community");
+        postFeedPage.searchFor(PostTestData.SEARCH_QUERY);
 
         // Assert – result is rendered inline; user stays on the same page
-        assertFalse(postFeedPage.getCurrentUrl().contains("/login"),
+        assertFalse(postFeedPage.getCurrentUrl().contains(Routes.LOGIN),
                 "User should not be redirected to login after a search");
     }
 
@@ -84,10 +86,10 @@ class PostFeedTest extends SetUp {
         driver.manage().deleteAllCookies();
 
         // Act
-        navigateTo("/");
+        navigateTo(Routes.FEED);
 
         // Assert
-        assertTrue(driver.getCurrentUrl().contains("/login"),
+        assertTrue(driver.getCurrentUrl().contains(Routes.LOGIN),
                 "Unauthenticated users must be redirected to /login");
     }
 }
