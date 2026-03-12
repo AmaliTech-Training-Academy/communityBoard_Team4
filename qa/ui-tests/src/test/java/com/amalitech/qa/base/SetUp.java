@@ -15,9 +15,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import org.junit.jupiter.api.extension.ExtendWith;
+import java.io.InputStream;
 import java.util.Optional;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 
 /**
@@ -43,6 +45,33 @@ import java.util.logging.Level;
  */
 @ExtendWith(SetUp.TestWatcherExtension.class)
 public abstract class SetUp {
+
+    static {
+        /**
+         * Configures Java Util Logging (JUL) to display only the log message without
+         * additional metadata.
+         * Also suppresses Selenium DevTools CDP version warnings.
+         */
+        try (InputStream configFile = SetUp.class.getClassLoader().getResourceAsStream("logging.properties")) {
+            if (configFile != null) {
+                LogManager.getLogManager().readConfiguration(configFile);
+            }
+        } catch (Exception e) {
+            System.err.println("Could not load logging.properties: " + e.getMessage());
+        }
+
+        // Suppress Selenium / CDP noise
+        Logger.getLogger("org.openqa.selenium").setLevel(Level.OFF);
+        Logger.getLogger("org.openqa.selenium.devtools").setLevel(Level.OFF);
+        Logger.getLogger("org.openqa.selenium.chromium").setLevel(Level.OFF);
+        Logger.getLogger("org.openqa.selenium.remote").setLevel(Level.OFF);
+
+        // Suppress WebDriverManager INFO messages
+        Logger.getLogger("io.github.bonigarcia.wdm").setLevel(Level.OFF);
+
+        // Ensure test watcher INFO logs are always visible regardless of root level
+        Logger.getLogger("com.amalitech.qa").setLevel(Level.INFO);
+    }
 
     protected WebDriver driver;
 
