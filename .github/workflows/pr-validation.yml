@@ -32,10 +32,10 @@ jobs:
     - name: Check branch naming convention
       run: |
         BRANCH_NAME="${{ github.head_ref }}"
-        if [[ ! "$BRANCH_NAME" =~ ^(feature|bugfix|hotfix|release)\/[a-z0-9-]+$ ]]; then
+        if [[ ! "$BRANCH_NAME" =~ ^(feature|bugfix|hotfix|release|qa)\/[a-z0-9-]+$ ]]; then
           echo "❌ Invalid branch name: $BRANCH_NAME"
           echo "✅ Expected format: feature/CB-123-description"
-          echo "   Allowed prefixes: feature/, bugfix/, hotfix/, release/"
+          echo "   Allowed prefixes: feature/, bugfix/, hotfix/, release/, qa/"
           exit 1
         fi
         echo "✅ Branch name is valid: $BRANCH_NAME"
