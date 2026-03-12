@@ -688,32 +688,6 @@ export function PostDetails() {
           </div>
         </div>
       )}
-    - [x] New feature (non-breaking change which adds functionality)
-    - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-    - [ ] Documentation update
-    - [ ] Refactoring (no functional changes)
-    - [ ] Performance improvement
-    - [x] Test coverage improvement
-
-    ## Related Ticket
-    Closes #CB-123
-
-    ## Changes Made
-    - Implement PostFeed page with search, category filtering, and pagination
-    - Implement PostDetails page with full post view and comment CRUD
-    - Implement CreatePost as modal on desktop, full-page layout on mobile
-    - Implement post editing via modal on PostDetails page
-    - Add Navbar, Badge, PostCard, EmptyFeed, and Toast UI components
-    - Add AuthContext with JWT login/register flow
-    - Add API service layer with axios interceptors
-    - Achieve 87%+ frontend test coverage (21 tests passing)
-    - Responsive design matching Figma across all breakpoints
-
-    ## How to Test
-    1. Run `docker compose up --build`
-    2. Open `http://localhost:3000`
-    3. Register/login, create posts, view feed, filter by category, search, paginate
-    4. Click a post to view details, add/edit/delete comments
-    5. Test create post on desktop (modal) and mobile (full-page)    </div>
+    </div>
   );
 }
