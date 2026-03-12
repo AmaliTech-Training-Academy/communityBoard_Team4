@@ -272,7 +272,6 @@ jobs:
     environment: ${{ needs.prepare.outputs.environment }}
 
     strategy:
-      max-parallel: 1 # deploy frontend before backend to avoid mixed-version traffic
       matrix:
         include:
         - service: frontend
@@ -320,7 +319,7 @@ jobs:
         service: community-board-${{ matrix.service }}
         cluster: ${{ env.ECS_CLUSTER }}
         wait-for-service-stability: true
-        wait-for-minutes: 15
+        wait-for-minutes: 25 # FARGATE_SPOT may need extra time to find capacity; circuit breaker rolls back if tasks keep failing
 
     - name: Deployment summary
       run: |
