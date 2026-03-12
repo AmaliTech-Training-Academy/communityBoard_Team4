@@ -21,7 +21,7 @@ import os
 import random
 import select
 import time
-from datetime import datetime, timezone
+from datetime import datetime
 
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
@@ -426,7 +426,7 @@ def refresh_views(
     else:
         log.info(
             "All views refreshed at %s UTC.",
-            datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
+            datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
         )
 
 

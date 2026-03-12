@@ -1,15 +1,12 @@
 import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import "./Navbar.css";
 
 export function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const isAnalyticsActive = location.pathname === "/analytics";
 
   const handleLogout = () => {
     logout();
@@ -45,22 +42,13 @@ export function Navbar() {
         {/* Desktop Navigation */}
         <div className="navbar-desktop-menu">
           {/* Analytics Button */}
-          <button
-            className={`navbar-action-btn${isAnalyticsActive ? " navbar-action-btn-active" : ""}`}
-            onClick={() => navigate("/analytics")}
-          >
+          <button className="navbar-action-btn">
             <img
               src="/assets/Analytics.svg"
               alt="Analytics"
-              className={`svg-icon${isAnalyticsActive ? "" : " icon-dark"}`}
+              className="icon-dark svg-icon"
             />
-            <span
-              className={
-                isAnalyticsActive ? "text-white-medium" : "text-dark-medium"
-              }
-            >
-              Analytics
-            </span>
+            <span className="text-dark-medium">Analytics</span>
           </button>
 
           {/* User Profile */}
@@ -121,25 +109,13 @@ export function Navbar() {
             </div>
           </div>
 
-          <button
-            className={`navbar-action-btn mobile-menu-item${isAnalyticsActive ? " navbar-action-btn-active" : ""}`}
-            onClick={() => {
-              navigate("/analytics");
-              setIsMobileMenuOpen(false);
-            }}
-          >
+          <button className="navbar-action-btn mobile-menu-item">
             <img
               src="/assets/Analytics.svg"
               alt="Analytics"
-              className={`svg-icon${isAnalyticsActive ? "" : " icon-dark"}`}
+              className="icon-dark svg-icon"
             />
-            <span
-              className={
-                isAnalyticsActive ? "text-white-medium" : "text-dark-medium"
-              }
-            >
-              Analytics
-            </span>
+            <span className="text-dark-medium">Analytics</span>
           </button>
 
           <button

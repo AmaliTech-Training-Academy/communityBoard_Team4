@@ -1,10 +1,6 @@
 ## Description
 <!-- Brief description of changes -->
 
-> **Branch lifetime target: 1–3 hours.**
-> Merge or close this PR promptly to keep the repo clean.
-> The head branch will be **automatically deleted** after merge.
-
 ## Type of Change
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)

@@ -55,9 +55,7 @@ export function Register() {
         formData.password,
       );
       showToast("Registration successful!");
-      navigate("/login", {
-        state: { message: "Registration successful! Please log in." },
-      });
+      navigate("/");
     } catch (err: any) {
       const msg = err.response?.data?.message || "Registration failed";
       setErrors({ root: msg });

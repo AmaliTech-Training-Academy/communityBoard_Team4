@@ -200,13 +200,6 @@ resource "aws_ecs_service" "frontend" {
   deployment_minimum_healthy_percent = 100
   deployment_maximum_percent         = 200
 
-  # Roll back automatically if too many task launches fail (e.g. Spot interruptions
-  # during a rolling deploy). Without this, ECS retries indefinitely and CI times out.
-  deployment_circuit_breaker {
-    enable   = true
-    rollback = true
-  }
-
   # Prevent Terraform from reverting manual scaling or CI/CD rolling deploys
   lifecycle {
     ignore_changes = [task_definition, desired_count]
@@ -257,11 +250,6 @@ resource "aws_ecs_service" "backend" {
 
   deployment_minimum_healthy_percent = 100
   deployment_maximum_percent         = 200
-
-  deployment_circuit_breaker {
-    enable   = true
-    rollback = true
-  }
 
   lifecycle {
     ignore_changes = [task_definition, desired_count]

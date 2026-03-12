@@ -51,17 +51,6 @@ export function Login() {
       setIsLoading(false);
     }
   };
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      // To mimic form submit event without extensive mocking, simply dispatch an event
-      // However the simplest way in React is to just construct a synthetic event or extract the logic
-      const syntheticEvent = {
-        preventDefault: () => {},
-      } as React.FormEvent<HTMLFormElement>;
-      handleSubmit(syntheticEvent);
-    }
-  };
 
   return (
     <AuthLayout
@@ -83,7 +72,6 @@ export function Login() {
               setEmail(e.target.value);
               if (errors.email) setErrors((prev) => ({ ...prev, email: "" }));
             }}
-            onKeyDown={handleKeyDown}
             iconSrc="/assets/mail.svg"
             error={errors.email}
             dataTestId="email-input"
@@ -99,7 +87,6 @@ export function Login() {
               if (errors.password)
                 setErrors((prev) => ({ ...prev, password: "" }));
             }}
-            onKeyDown={handleKeyDown}
             iconSrc="/assets/icon-lock.svg"
             error={errors.password}
             dataTestId="password-input"

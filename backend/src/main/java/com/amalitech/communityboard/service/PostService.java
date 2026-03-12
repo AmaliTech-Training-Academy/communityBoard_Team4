@@ -19,7 +19,6 @@ import com.amalitech.communityboard.repository.PostRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -30,7 +29,6 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
-    private final PerformanceMetricsService metricsService;
 
     public Page<PostResponse> getAllPosts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -74,37 +72,30 @@ public class PostService {
     }
 
     public PostResponse createPost(PostRequest request, User author) {
-        return metricsService.timePostOperation(() -> {
-            Category category = parseCategory(request.getCategory());
-            Post post = Post.builder()
-                    .title(request.getTitle())
-                    .body(request.getBody())
-                    .category(category)
-                    .author(author)
-                    .build();
-            Post saved = postRepository.save(post);
-            log.info("Post created: id={}, author={}", saved.getId(), author.getEmail());
-            metricsService.incrementPostsCreated();
-            return toResponse(saved);
-        });
+        Category category = parseCategory(request.getCategory());
+        Post post = Post.builder()
+                .title(request.getTitle())
+                .body(request.getBody())
+                .category(category)
+                .author(author)
+                .build();
+        Post saved = postRepository.save(post);
+        log.info("Post created: id={}, author={}", saved.getId(), author.getEmail());
+        return toResponse(saved);
     }
 
     public PostResponse updatePost(Long id, PostRequest request, User author) {
-        return metricsService.timePostOperation(() -> {
-            Post post = postRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));
-            boolean isAdmin = author.getRole().name().equals("ADMIN");
-            if (!post.getAuthor().getId().equals(author.getId()) && !isAdmin) {
-                throw new UnauthorizedException("Not authorized to update this post");
-            }
-            post.setTitle(request.getTitle());
-            post.setBody(request.getBody());
-            post.setCategory(parseCategory(request.getCategory()));
-            log.info("Post updated: id={}, updatedBy={}", id, author.getEmail());
-            PostResponse result = toResponse(postRepository.save(post));
-            metricsService.incrementPostsUpdated();
-            return result;
-        });
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));
+        boolean isAdmin = author.getRole().name().equals("ADMIN");
+        if (!post.getAuthor().getId().equals(author.getId()) && !isAdmin) {
+            throw new UnauthorizedException("Not authorized to update this post");
+        }
+        post.setTitle(request.getTitle());
+        post.setBody(request.getBody());
+        post.setCategory(parseCategory(request.getCategory()));
+        log.info("Post updated: id={}, updatedBy={}", id, author.getEmail());
+        return toResponse(postRepository.save(post));
     }
 
     public void deletePost(Long id, User author) {
@@ -117,7 +108,6 @@ public class PostService {
         // Comments are automatically deleted via CascadeType.ALL on Post.comments
         postRepository.delete(post);
         log.info("Post deleted: id={}, deletedBy={}", id, author.getEmail());
-        metricsService.incrementPostsDeleted();
     }
 
     /**
