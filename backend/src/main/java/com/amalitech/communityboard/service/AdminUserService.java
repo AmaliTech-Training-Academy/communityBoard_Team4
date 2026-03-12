@@ -2,7 +2,6 @@ package com.amalitech.communityboard.service;
 
 import java.util.List;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.amalitech.communityboard.dto.AdminUpdateUserRequest;
@@ -20,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 public class AdminUserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
@@ -45,10 +43,6 @@ public class AdminUserService {
                 throw new BadRequestException("Email is already in use");
             }
             user.setEmail(newEmail);
-        }
-
-        if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
 
         if (request.getRole() != null) {
