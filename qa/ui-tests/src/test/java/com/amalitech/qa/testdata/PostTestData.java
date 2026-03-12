@@ -20,8 +20,8 @@ public final class PostTestData {
     /** Prefix for dynamically generated post titles (append a timestamp at runtime). */
     public static final String POST_TITLE_PREFIX  = "Automated Post – ";
 
-    /** Category selected when creating or editing a post. */
-    public static final String POST_CATEGORY      = "General";
+    /** Category selected when creating or editing a post. Must match a visible option in the UI. */
+    public static final String POST_CATEGORY      = "Discussion";
 
     /** Body text used for automated post creation. */
     public static final String POST_BODY          = "This post was created by an automated UI test.";
