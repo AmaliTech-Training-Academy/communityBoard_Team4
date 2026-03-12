@@ -1,7 +1,7 @@
 package com.amalitech.qa.builders;
 
-import com.amalitech.qa.dto.CommentRequest;
 import com.amalitech.qa.testdata.CommentTestData;
+import com.amalitech.qa.tests.comments.CommentRequest;
 
 public class CommentRequestBuilder {
     private String content;
