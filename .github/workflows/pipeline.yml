@@ -222,7 +222,7 @@ jobs:
         sudo apt-get install -y trivy
 
     - name: Scan container image (Trivy)
-      continue-on-error: true  # non-blocking — findings surface in Security tab, don't stop deploy
+      continue-on-error: true # non-blocking — findings surface in Security tab, don't stop deploy
       run: |
         trivy image \
           --format sarif \
