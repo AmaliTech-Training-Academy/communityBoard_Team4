@@ -1,5 +1,7 @@
 package com.amalitech.qa.dto;
 
+import com.amalitech.qa.tests.search.SortObject;
+
 public class PageableObject {
     private Boolean unpaged;
     private Boolean paged;
