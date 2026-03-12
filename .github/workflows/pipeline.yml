@@ -272,7 +272,6 @@ jobs:
     environment: ${{ needs.prepare.outputs.environment }}
 
     strategy:
-      max-parallel: 1 # deploy frontend before backend to avoid mixed-version traffic
       matrix:
         include:
         - service: frontend
