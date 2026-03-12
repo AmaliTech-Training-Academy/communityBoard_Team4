@@ -8,7 +8,6 @@ import { Register } from "./pages/Register/Register";
 import { PostFeed } from "./pages/PostFeed/PostFeed";
 import { PostDetails } from "./pages/PostDetails/PostDetails";
 import { CreatePost } from "./pages/CreatePost/CreatePost";
-import { Analytics } from "./pages/Analytics/Analytics";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
@@ -38,14 +37,6 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <PostDetails />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/analytics"
-              element={
-                <ProtectedRoute>
-                  <Analytics />
                 </ProtectedRoute>
               }
             />

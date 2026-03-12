@@ -7,100 +7,41 @@
     <artifactId>communityboard-api-tests</artifactId>
     <version>1.0.0</version>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <junit.jupiter.version>5.11.4</junit.jupiter.version>
-        <rest.assured.version>6.0.0</rest.assured.version>
-  </properties>
-
     <dependencies>
-        <!-- Source: https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.11.4</version>
-            <scope>test</scope>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>5.4.0</version>
         </dependency>
-
-        <!-- Source: https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine -->
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.11.4</version>
-            <scope>test</scope>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>7.9.0</version>
         </dependency>
-
-        <!-- Source: https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-params -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-params</artifactId>
-            <version>5.11.4</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Source: https://mvnrepository.com/artifact/io.rest-assured/rest-assured -->
-      <dependency>
-          <groupId>io.rest-assured</groupId>
-          <artifactId>rest-assured</artifactId>
-          <version>6.0.0</version>
-          <scope>test</scope>
-      </dependency>
-
-      <!-- Source: https://mvnrepository.com/artifact/io.rest-assured/json-schema-validator -->
-      <dependency>
-          <groupId>io.rest-assured</groupId>
-          <artifactId>json-schema-validator</artifactId>
-          <version>6.0.0</version>
-          <scope>compile</scope>
-      </dependency>
-
-        <!-- Source: https://mvnrepository.com/artifact/io.qameta.allure/allure-junit5 -->
-        <dependency>
-            <groupId>io.qameta.allure</groupId>
-            <artifactId>allure-junit5</artifactId>
-            <version>2.33.0</version>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.16.0</version>
-        </dependency>
-
-        <!-- Source: https://mvnrepository.com/artifact/io.github.cdimascio/dotenv-java -->
-        <dependency>
-            <groupId>io.github.cdimascio</groupId>
-            <artifactId>dotenv-java</artifactId>
-            <version>3.2.0</version>
-            <scope>compile</scope>
+            <version>2.18.6</version>
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.5</version>
-                <configuration>
-                    <systemPropertyVariables>
-                        <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
-                    </systemPropertyVariables>
-                </configuration>
-            </plugin>
-            <!-- Source: https://mvnrepository.com/artifact/io.qameta.allure/allure-maven -->
-            <plugin>
-                <groupId>io.qameta.allure</groupId>
-                <artifactId>allure-maven</artifactId>
-                <version>2.17.0</version>
-                <configuration>
-                    <reportVersion>2.36.0</reportVersion>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <!--
+        Dependency management: pin vulnerable transitive dependencies to patched versions.
+    -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- GHSA-72hv-8253-57qq (jackson-core async parser) -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>2.18.6</version>
+            </dependency>
+            <!-- CVE-2025-48924 -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.18.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>

@@ -30,10 +30,6 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
@@ -78,15 +74,6 @@
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.3.0</version>
         </dependency>
-        <!-- CB-214: Performance Monitoring — Spring Boot Actuator + Micrometer Prometheus -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -111,10 +98,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <!-- @{argLine} late-binds JaCoCo's agent arg set by prepare-agent;
-                     using ${argLine} would resolve before JaCoCo runs and lose it. -->
+                <!-- ByteBuddy experimental mode: required for @MockBean on Java 25 -->
                 <configuration>
-                    <argLine>@{argLine} -Dnet.bytebuddy.experimental=true</argLine>
+                    <argLine>-Dnet.bytebuddy.experimental=true</argLine>
                 </configuration>
             </plugin>
             <plugin>
@@ -166,24 +152,14 @@
                             <goal>check</goal>
                         </goals>
                         <configuration>
-                            <!-- Exclude Lombok-generated model/config/security boilerplate from
-                                 coverage enforcement — these classes are either auto-generated or
-                                 thin Spring wiring with no meaningful business logic to cover. -->
-                            <excludes>
-                                <exclude>com/amalitech/communityboard/model/**</exclude>
-                                <exclude>com/amalitech/communityboard/config/**</exclude>
-                                <exclude>com/amalitech/communityboard/CommunityBoardApplication*</exclude>
-                            </excludes>
                             <rules>
-                                <!-- Bundle-level (whole project) minimum — keeps the gate
-                                     meaningful without penalising hard-to-test wiring code. -->
                                 <rule>
-                                    <element>BUNDLE</element>
+                                    <element>PACKAGE</element>
                                     <limits>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.50</minimum>
+                                            <minimum>0.80</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

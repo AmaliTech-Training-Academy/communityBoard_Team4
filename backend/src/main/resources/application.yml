@@ -2,7 +2,7 @@ spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/communityboard}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:postgres} # pragma: allowlist secret
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}  # pragma: allowlist secret
   jpa:
     hibernate:
       # 'validate' — Hibernate checks entity mappings against the real schema but makes no changes.
@@ -27,8 +27,8 @@ spring:
       mode: never
 
 jwt:
-  secret: ${JWT_SECRET:communityboard-secret-key-amalitech-2024} # pragma: allowlist secret
-  expiration: 86400000 # 24 hours in milliseconds
+  secret: ${JWT_SECRET:communityboard-secret-key-amalitech-2024}  # pragma: allowlist secret
+  expiration: 86400000  # 24 hours in milliseconds
 
 # CORS: comma-separated list of allowed origins
 # Override via CORS_ALLOWED_ORIGINS env variable in production
@@ -45,25 +45,3 @@ springdoc:
     path: /swagger-ui.html
     tags-sorter: alpha
     operations-sorter: alpha
-
-# CB-214: Performance Monitoring — Spring Boot Actuator
-management:
-  endpoints:
-    web:
-      exposure:
-        # Expose health, info (public) and prometheus (metrics scraping, secured to ADMIN)
-        include: health,info,prometheus,metrics
-      base-path: /actuator
-  endpoint:
-    health:
-      show-details: when-authorized
-    prometheus:
-      enabled: true
-  metrics:
-    tags:
-      application: communityboard
-    distribution:
-      percentiles-histogram:
-        http.server.requests: true
-      percentiles:
-        http.server.requests: 0.5,0.95,0.99

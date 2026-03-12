@@ -45,7 +45,6 @@ concurrency:
 permissions:
   id-token: write # OIDC credential exchange (deploy jobs)
   contents: read
-  security-events: write # Trivy container scan SARIF upload
 
 env:
   AWS_REGION: eu-west-1
@@ -208,37 +207,6 @@ jobs:
         echo "**Tag:** \`${{ matrix.service }}-${{ steps.vars.outputs.tag }}\`" >> "$GITHUB_STEP_SUMMARY"
         echo "**Registry:** \`${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}\`" >> "$GITHUB_STEP_SUMMARY"
 
-    # ── Container vulnerability scan ─────────────────────────────────────
-    # Install Trivy via apt (more reliable than aquasecurity/trivy-action
-    # which uses setup-trivy and consistently fails to download the binary
-    # from GitHub releases). Non-blocking — findings go to the Security tab
-    # but do not stop the deploy.
-    - name: Install Trivy
-      run: |
-        sudo apt-get install -y wget apt-transport-https gnupg
-        wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
-        echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee /etc/apt/sources.list.d/trivy.list
-        sudo apt-get update -qq
-        sudo apt-get install -y trivy
-
-    - name: Scan container image (Trivy)
-      continue-on-error: true # non-blocking — findings surface in Security tab, don't stop deploy
-      run: |
-        trivy image \
-          --format sarif \
-          --output trivy-${{ matrix.service }}.sarif \
-          --severity CRITICAL,HIGH \
-          --exit-code 0 \
-          ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ matrix.service }}-${{ steps.vars.outputs.tag }}
-
-    - name: Upload container scan results to Security tab
-      uses: github/codeql-action/upload-sarif@v4
-      if: always()
-      continue-on-error: true
-      with:
-        sarif_file: trivy-${{ matrix.service }}.sarif
-        category: container-${{ matrix.service }}
-
   # ─────────────────────────────────────────────────────────────────────────
   # Deploy — skipped on pull requests; runs after build-push succeeds
   # ─────────────────────────────────────────────────────────────────────────
@@ -269,9 +237,12 @@ jobs:
     needs: [ prepare ]
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    environment: ${{ needs.prepare.outputs.environment }}
+    # environment: ${{ needs.prepare.outputs.environment }}
+    # Uncomment above once 'production' and 'staging' GitHub Environments are
+    # created under Settings → Environments. Without them the job fails to start.
 
     strategy:
+      max-parallel: 1 # deploy frontend before backend to avoid mixed-version traffic
       matrix:
         include:
         - service: frontend
@@ -318,12 +289,8 @@ jobs:
         task-definition: ${{ steps.render.outputs.task-definition }}
         service: community-board-${{ matrix.service }}
         cluster: ${{ env.ECS_CLUSTER }}
-        # FARGATE_SPOT with deployment_minimum_healthy_percent=100 means old tasks
-        # can't drain until new Spot tasks are fully registered — this routinely
-        # outlasts any waiter timeout even though health checks pass throughout.
-        # The ECS deployment circuit breaker handles actual failures and rolls back.
-        # CI should not block on Spot provisioning speed.
-        wait-for-service-stability: false
+        wait-for-service-stability: true
+        wait-for-minutes: 15
 
     - name: Deployment summary
       run: |

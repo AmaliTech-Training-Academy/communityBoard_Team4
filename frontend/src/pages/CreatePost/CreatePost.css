@@ -269,7 +269,7 @@
   color: var(--body-text-primary, #08283b);
 }
 
-/* Mobile: full-page layout for CreatePost */
+/* Mobile adjustments — full-page layout */
 @media (max-width: 767px) {
   .create-post-page {
     position: fixed;
@@ -283,8 +283,8 @@
     justify-content: flex-start;
     flex-direction: column;
     gap: 16px;
-    z-index: 1100;
     overflow-y: auto;
+    z-index: 1100;
   }
 
   .create-post-page .create-post-breadcrumb {
@@ -296,7 +296,6 @@
     border-radius: 8px;
     padding: 12px 20px;
     width: 100%;
-    max-width: 100%;
     box-sizing: border-box;
   }
 
