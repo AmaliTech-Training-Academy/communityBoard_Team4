@@ -1,8 +1,9 @@
-package com.amalitech.qa.tests;
+package com.amalitech.qa.tests.post;
 
 import com.amalitech.qa.base.SetUp;
 import com.amalitech.qa.builders.PostRequestBuilder;
-import com.amalitech.qa.dto.PostRequest;
+import com.amalitech.qa.constants.ApiPaths;
+import com.amalitech.qa.constants.TestConstants;
 import com.amalitech.qa.utils.ConfigManager;
 import com.amalitech.qa.utils.TokenManager;
 import io.qameta.allure.Feature;
@@ -63,7 +64,7 @@ public class PostApiTest extends SetUp {
                                         .header("Accept", "application/json")
                                         .body(requestBody)
                                         .when()
-                                        .post("/api/auth/register");
+                                        .post(ApiPaths.AUTH_REGISTER);
 
                         if (response.getStatusCode() == 201) {
                                 return response.jsonPath().getString("token");
@@ -94,8 +95,8 @@ public class PostApiTest extends SetUp {
 
                 String authorEmail = "post-author-" + UUID.randomUUID() + "@test.com";
                 String otherEmail = "post-other-" + UUID.randomUUID() + "@test.com";
-                authorToken = registerAndGetTokenWithRetry("Post Author", authorEmail, "password123");
-                otherUserToken = registerAndGetTokenWithRetry("Post Other User", otherEmail, "password123");
+                authorToken = registerAndGetTokenWithRetry(TestConstants.POST_AUTHOR_NAME, authorEmail, TestConstants.DEFAULT_PASSWORD);
+                otherUserToken = registerAndGetTokenWithRetry(TestConstants.POST_OTHER_USER_NAME, otherEmail, TestConstants.DEFAULT_PASSWORD);
                 adminToken = tryGetAdminToken();
 
         PostRequest request = new PostRequestBuilder().build();
@@ -105,7 +106,7 @@ public class PostApiTest extends SetUp {
                                 .header("Authorization", "Bearer " + authorToken)
                 .body(request)
                 .when()
-                .post("/api/posts")
+                .post(ApiPaths.POSTS)
                 .then()
                 .statusCode(201)
                 .extract()
@@ -123,7 +124,7 @@ public class PostApiTest extends SetUp {
                     .header("Accept", "application/json")
                                         .header("Authorization", "Bearer " + cleanupToken)
                     .when()
-                    .delete("/api/posts/" + id);
+                    .delete(ApiPaths.postById(id));
         }
         // postId itself is deleted by deletePost_asAuthor_returns204 (order 17);
         // @AfterAll does not need to re-delete it.
@@ -142,7 +143,7 @@ public class PostApiTest extends SetUp {
         RestAssured.given()
                 .spec(requestSpec)
                 .when()
-                .get("/api/posts")
+                .get(ApiPaths.POSTS)
                 .then()
                 .statusCode(200)
                 .body("content", notNullValue())
@@ -160,7 +161,7 @@ public class PostApiTest extends SetUp {
                 .queryParam("page", 0)
                 .queryParam("size", 5)
                 .when()
-                .get("/api/posts")
+                .get(ApiPaths.POSTS)
                 .then()
                 .statusCode(200)
                 .body("size", equalTo(5));
@@ -175,7 +176,7 @@ public class PostApiTest extends SetUp {
         RestAssured.given()
                 .spec(requestSpec)
                 .when()
-                .get("/api/posts/" + postId)
+                .get(ApiPaths.postById(postId))
                 .then()
                 .statusCode(200)
                 .body("id", notNullValue())
@@ -193,7 +194,7 @@ public class PostApiTest extends SetUp {
         RestAssured.given()
                 .spec(requestSpec)
                 .when()
-                .get("/api/posts/999999999")
+                .get(ApiPaths.postById(TestConstants.NON_EXISTENT_ID))
                 .then()
                 .statusCode(404);
     }
@@ -214,7 +215,7 @@ public class PostApiTest extends SetUp {
                                 .header("Authorization", "Bearer " + authorToken)
                 .body(request)
                 .when()
-                .post("/api/posts")
+                .post(ApiPaths.POSTS)
                 .then()
                 .statusCode(201)
                 .body("id", notNullValue())
@@ -238,7 +239,7 @@ public class PostApiTest extends SetUp {
                                 .header("Authorization", "Bearer " + authorToken)
                 .body(request)
                 .when()
-                .post("/api/posts")
+                .post(ApiPaths.POSTS)
                 .then()
                 .statusCode(400);
     }
@@ -255,7 +256,7 @@ public class PostApiTest extends SetUp {
                                 .header("Authorization", "Bearer " + authorToken)
                 .body(request)
                 .when()
-                .post("/api/posts")
+                .post(ApiPaths.POSTS)
                 .then()
                 .statusCode(400);
     }
@@ -272,7 +273,7 @@ public class PostApiTest extends SetUp {
                                 .header("Authorization", "Bearer " + authorToken)
                 .body(request)
                 .when()
-                .post("/api/posts")
+                .post(ApiPaths.POSTS)
                 .then()
                 .statusCode(400);
     }
@@ -289,7 +290,7 @@ public class PostApiTest extends SetUp {
                                 .header("Authorization", "Bearer " + authorToken)
                 .body(request)
                 .when()
-                .post("/api/posts")
+                .post(ApiPaths.POSTS)
                 .then()
                 .statusCode(400);
     }
@@ -305,7 +306,7 @@ public class PostApiTest extends SetUp {
                 .spec(requestSpec)
                 .body(request)
                 .when()
-                .post("/api/posts")
+                .post(ApiPaths.POSTS)
                 .then()
                 .statusCode(401);
     }
@@ -321,17 +322,17 @@ public class PostApiTest extends SetUp {
     @DisplayName("Update post as author returns 200")
     void updatePost_asAuthor_returns200() {
         PostRequest update = new PostRequestBuilder()
-                .withTitle("Updated by Author")
+                .withTitle(TestConstants.POST_UPDATED_BY_AUTHOR_TITLE)
                 .build();
         RestAssured.given()
                 .spec(requestSpec)
                 .header("Authorization", "Bearer " + authorToken)
                 .body(update)
                 .when()
-                .put("/api/posts/" + postId)
+                .put(ApiPaths.postById(postId))
                 .then()
                 .statusCode(200)
-                .body("title", equalTo("Updated by Author"));
+                .body("title", equalTo(TestConstants.POST_UPDATED_BY_AUTHOR_TITLE));
     }
 
     @Test
@@ -342,17 +343,17 @@ public class PostApiTest extends SetUp {
     void updatePost_asAdmin_returns200() {
         Assumptions.assumeTrue(adminToken != null, "Admin credentials unavailable in this environment");
         PostRequest update = new PostRequestBuilder()
-                .withTitle("Updated by Admin")
+                .withTitle(TestConstants.POST_UPDATED_BY_ADMIN_TITLE)
                 .build();
         RestAssured.given()
                 .spec(requestSpec)
                 .header("Authorization", "Bearer " + adminToken)
                 .body(update)
                 .when()
-                .put("/api/posts/" + postId)
+                .put(ApiPaths.postById(postId))
                 .then()
                 .statusCode(200)
-                .body("title", equalTo("Updated by Admin"));
+                .body("title", equalTo(TestConstants.POST_UPDATED_BY_ADMIN_TITLE));
     }
 
     @Test
@@ -362,14 +363,14 @@ public class PostApiTest extends SetUp {
     @DisplayName("Update post as a different user returns 403")
     void updatePost_asOtherUser_returns403() {
         PostRequest update = new PostRequestBuilder()
-                .withTitle("Unauthorized update attempt")
+                .withTitle(TestConstants.POST_UNAUTHORIZED_TITLE)
                 .build();
         RestAssured.given()
                 .spec(requestSpec)
                 .header("Authorization", "Bearer " + otherUserToken)
                 .body(update)
                 .when()
-                .put("/api/posts/" + postId)
+                .put(ApiPaths.postById(postId))
                 .then()
                 .statusCode(403);
     }
@@ -381,14 +382,14 @@ public class PostApiTest extends SetUp {
     @DisplayName("Update post with invalid data returns 400")
     void updatePost_invalidData_returns400() {
         PostRequest invalidUpdate = new PostRequestBuilder()
-                .withTitle("")
+                .withTitle(TestConstants.BLANK)
                 .build();
         RestAssured.given()
                 .spec(requestSpec)
                 .header("Authorization", "Bearer " + authorToken)
                 .body(invalidUpdate)
                 .when()
-                .put("/api/posts/" + postId)
+                .put(ApiPaths.postById(postId))
                 .then()
                 .statusCode(400);
     }
@@ -404,7 +405,7 @@ public class PostApiTest extends SetUp {
                 .spec(requestSpec)
                 .body(update)
                 .when()
-                .put("/api/posts/" + postId)
+                .put(ApiPaths.postById(postId))
                 .then()
                 .statusCode(401);
     }
@@ -423,7 +424,7 @@ public class PostApiTest extends SetUp {
                 .spec(requestSpec)
                                 .header("Authorization", "Bearer " + otherUserToken)
                 .when()
-                .delete("/api/posts/" + postId)
+                .delete(ApiPaths.postById(postId))
                 .then()
                 .statusCode(403);
     }
@@ -438,7 +439,7 @@ public class PostApiTest extends SetUp {
                 .spec(requestSpec)
                                 .header("Authorization", "Bearer " + authorToken)
                 .when()
-                .delete("/api/posts/" + postId)
+                .delete(ApiPaths.postById(postId))
                 .then()
                 .statusCode(204);
     }
@@ -454,7 +455,7 @@ public class PostApiTest extends SetUp {
                 .spec(requestSpec)
                 .header("Authorization", "Bearer " + tokenForDelete)
                 .when()
-                .delete("/api/posts/" + postId)
+                .delete(ApiPaths.postById(postId))
                 .then()
                 .statusCode(404);
     }

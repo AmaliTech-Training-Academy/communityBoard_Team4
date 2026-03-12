@@ -1,10 +1,11 @@
-package com.amalitech.qa.tests;
+package com.amalitech.qa.tests.comments;
 
 import com.amalitech.qa.base.SetUp;
 import com.amalitech.qa.builders.CommentRequestBuilder;
 import com.amalitech.qa.builders.PostRequestBuilder;
-import com.amalitech.qa.dto.CommentRequest;
-import com.amalitech.qa.dto.PostRequest;
+import com.amalitech.qa.constants.ApiPaths;
+import com.amalitech.qa.constants.TestConstants;
+import com.amalitech.qa.tests.post.PostRequest;
 import com.amalitech.qa.utils.ConfigManager;
 import com.amalitech.qa.utils.TokenManager;
 import io.qameta.allure.Feature;
@@ -57,7 +58,7 @@ public class CommentApiTest extends SetUp {
                                         .header("Accept", "application/json")
                                         .body(requestBody)
                                         .when()
-                                        .post("/api/auth/register");
+                                        .post(ApiPaths.AUTH_REGISTER);
 
                         if (response.getStatusCode() == 201) {
                                 return response.jsonPath().getString("token");
@@ -90,47 +91,93 @@ public class CommentApiTest extends SetUp {
                 }
         }
 
+        private static Long createPostWithRetry(PostRequest post, String token) {
+                int maxAttempts = 3;
+                RuntimeException lastException = null;
+                for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+                        Response response = RestAssured.given()
+                                        .contentType("application/json")
+                                        .header("Accept", "application/json")
+                                        .header("Authorization", "Bearer " + token)
+                                        .body(post)
+                                        .when()
+                                        .post(ApiPaths.POSTS);
+
+                        if (response.getStatusCode() == 201) {
+                                return response.jsonPath().getLong("id");
+                        }
+
+                        if (response.getStatusCode() != 502 || attempt == maxAttempts) {
+                                lastException = new RuntimeException(
+                                                "Failed to create post after " + attempt + " attempt(s). Status: "
+                                                                + response.getStatusCode() + ", Response: " + response.getBody().asString()
+                                );
+                                break;
+                        }
+
+                        try {
+                                Thread.sleep(1000L * attempt);
+                        } catch (InterruptedException ex) {
+                                Thread.currentThread().interrupt();
+                                throw new RuntimeException("Interrupted while retrying post creation", ex);
+                        }
+                }
+                throw lastException;
+        }
+
+        private static Long createCommentWithRetry(CommentRequest comment, long targetPostId, String token) {
+                int maxAttempts = 3;
+                RuntimeException lastException = null;
+                for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+                        Response response = RestAssured.given()
+                                        .contentType("application/json")
+                                        .header("Accept", "application/json")
+                                        .header("Authorization", "Bearer " + token)
+                                        .body(comment)
+                                        .when()
+                                        .post(ApiPaths.postComments(targetPostId));
+
+                        if (response.getStatusCode() == 201) {
+                                return response.jsonPath().getLong("id");
+                        }
+
+                        if (response.getStatusCode() != 502 || attempt == maxAttempts) {
+                                lastException = new RuntimeException(
+                                                "Failed to create comment after " + attempt + " attempt(s). Status: "
+                                                                + response.getStatusCode() + ", Response: " + response.getBody().asString()
+                                );
+                                break;
+                        }
+
+                        try {
+                                Thread.sleep(1000L * attempt);
+                        } catch (InterruptedException ex) {
+                                Thread.currentThread().interrupt();
+                                throw new RuntimeException("Interrupted while retrying comment creation", ex);
+                        }
+                }
+                throw lastException;
+        }
+
     @BeforeAll
     static void createTestFixtures() {
         RestAssured.baseURI = ConfigManager.getBaseUrl();
 
         String authorEmail = "comment-author-" + UUID.randomUUID() + "@test.com";
         String otherEmail = "comment-other-" + UUID.randomUUID() + "@test.com";
-        authorToken = registerAndGetTokenWithRetry("Comment Author", authorEmail, "password123");
-        otherUserToken = registerAndGetTokenWithRetry("Comment Other User", otherEmail, "password123");
+        authorToken = registerAndGetTokenWithRetry(TestConstants.COMMENT_AUTHOR_NAME, authorEmail, TestConstants.DEFAULT_PASSWORD);
+        otherUserToken = registerAndGetTokenWithRetry(TestConstants.COMMENT_OTHER_USER_NAME, otherEmail, TestConstants.DEFAULT_PASSWORD);
         adminToken = tryGetAdminToken();
 
         // Create a post using the author token (self-seeded test user)
         PostRequest post = new PostRequestBuilder()
-                .withTitle("Comment Test Post")
+                .withTitle(TestConstants.COMMENT_TEST_POST_TITLE)
                 .build();
-        postId = RestAssured.given()
-                .contentType("application/json")
-                .header("Accept", "application/json")
-                .header("Authorization", "Bearer " + authorToken)
-                .body(post)
-                .when()
-                .post("/api/posts")
-                .then()
-                .statusCode(201)
-                .extract()
-                .jsonPath()
-                .getLong("id");
+        postId = createPostWithRetry(post, authorToken);
 
         // Create an initial comment using the same author token
         CommentRequest comment = new CommentRequestBuilder().build();
-        commentId = RestAssured.given()
-                .contentType("application/json")
-                .header("Accept", "application/json")
-                .header("Authorization", "Bearer " + authorToken)
-                .body(comment)
-                .when()
-                .post("/api/posts/" + postId + "/comments")
-                .then()
-                .statusCode(201)
-                .extract()
-                .jsonPath()
-                .getLong("id");
+        commentId = createCommentWithRetry(comment, postId, authorToken);
     }
 
     @AfterAll
@@ -145,7 +192,7 @@ public class CommentApiTest extends SetUp {
                     .header("Accept", "application/json")
                                         .header("Authorization", "Bearer " + cleanupToken)
                     .when()
-                    .delete("/api/comments/" + id);
+                    .delete(ApiPaths.commentById(id));
         }
 
         // Delete the test post (cascades to any remaining comments, including commentId)
@@ -155,7 +202,7 @@ public class CommentApiTest extends SetUp {
                     .header("Accept", "application/json")
                                         .header("Authorization", "Bearer " + cleanupToken)
                     .when()
-                    .delete("/api/posts/" + postId);
+                    .delete(ApiPaths.postById(postId));
         }
     }
 
@@ -172,7 +219,7 @@ public class CommentApiTest extends SetUp {
         RestAssured.given()
                 .spec(requestSpec)
                 .when()
-                .get("/api/posts/" + postId + "/comments")
+                .get(ApiPaths.postComments(postId))
                 .then()
                 .statusCode(200)
                 .body("content", notNullValue())
@@ -188,7 +235,7 @@ public class CommentApiTest extends SetUp {
         RestAssured.given()
                 .spec(requestSpec)
                 .when()
-                .get("/api/posts/999999999/comments")
+                .get(ApiPaths.postComments(TestConstants.NON_EXISTENT_ID))
                 .then()
                                 .statusCode(200)
                                 .body("empty", equalTo(true));
@@ -210,7 +257,7 @@ public class CommentApiTest extends SetUp {
                                 .header("Authorization", "Bearer " + authorToken)
                 .body(request)
                 .when()
-                .post("/api/posts/" + postId + "/comments")
+                .post(ApiPaths.postComments(postId))
                 .then()
                 .statusCode(201)
                 .body("id", notNullValue())
@@ -233,7 +280,7 @@ public class CommentApiTest extends SetUp {
                                 .header("Authorization", "Bearer " + authorToken)
                 .body(request)
                 .when()
-                .post("/api/posts/" + postId + "/comments")
+                .post(ApiPaths.postComments(postId))
                 .then()
                 .statusCode(400);
     }
@@ -250,7 +297,7 @@ public class CommentApiTest extends SetUp {
                                 .header("Authorization", "Bearer " + authorToken)
                 .body(request)
                 .when()
-                .post("/api/posts/" + postId + "/comments")
+                .post(ApiPaths.postComments(postId))
                 .then()
                 .statusCode(400);
     }
@@ -266,7 +313,7 @@ public class CommentApiTest extends SetUp {
                 .spec(requestSpec)
                 .body(request)
                 .when()
-                .post("/api/posts/" + postId + "/comments")
+                .post(ApiPaths.postComments(postId))
                 .then()
                 .statusCode(401);
     }
@@ -283,7 +330,7 @@ public class CommentApiTest extends SetUp {
                                 .header("Authorization", "Bearer " + authorToken)
                 .body(request)
                 .when()
-                .post("/api/posts/999999999/comments")
+                .post(ApiPaths.postComments(TestConstants.NON_EXISTENT_ID))
                 .then()
                 .statusCode(404);
     }
@@ -299,17 +346,17 @@ public class CommentApiTest extends SetUp {
     @DisplayName("Update comment as author returns 200")
     void updateComment_asAuthor_returns200() {
         CommentRequest update = new CommentRequestBuilder()
-                .withContent("Updated by the author.")
+                .withContent(TestConstants.COMMENT_UPDATED_BY_AUTHOR)
                 .build();
         RestAssured.given()
                 .spec(requestSpec)
                 .header("Authorization", "Bearer " + authorToken)
                 .body(update)
                 .when()
-                .put("/api/comments/" + commentId)
+                .put(ApiPaths.commentById(commentId))
                 .then()
                 .statusCode(200)
-                .body("content", equalTo("Updated by the author."));
+                .body("content", equalTo(TestConstants.COMMENT_UPDATED_BY_AUTHOR));
     }
 
     @Test
@@ -320,17 +367,17 @@ public class CommentApiTest extends SetUp {
     void updateComment_asAdmin_returns200() {
         Assumptions.assumeTrue(adminToken != null, "Admin credentials unavailable in this environment");
         CommentRequest update = new CommentRequestBuilder()
-                .withContent("Updated by admin.")
+                .withContent(TestConstants.COMMENT_UPDATED_BY_ADMIN)
                 .build();
         RestAssured.given()
                 .spec(requestSpec)
                 .header("Authorization", "Bearer " + adminToken)
                 .body(update)
                 .when()
-                .put("/api/comments/" + commentId)
+                .put(ApiPaths.commentById(commentId))
                 .then()
                 .statusCode(200)
-                .body("content", equalTo("Updated by admin."));
+                .body("content", equalTo(TestConstants.COMMENT_UPDATED_BY_ADMIN));
     }
 
     @Test
@@ -340,14 +387,14 @@ public class CommentApiTest extends SetUp {
     @DisplayName("Update comment as a different user returns 403")
     void updateComment_asOtherUser_returns403() {
         CommentRequest update = new CommentRequestBuilder()
-                .withContent("Unauthorized update attempt.")
+                .withContent(TestConstants.COMMENT_UNAUTHORIZED_UPDATE)
                 .build();
         RestAssured.given()
                 .spec(requestSpec)
                 .header("Authorization", "Bearer " + otherUserToken)
                 .body(update)
                 .when()
-                .put("/api/comments/" + commentId)
+                .put(ApiPaths.commentById(commentId))
                 .then()
                 .statusCode(403);
     }
@@ -359,14 +406,14 @@ public class CommentApiTest extends SetUp {
     @DisplayName("Update comment with blank content returns 400")
     void updateComment_blankContent_returns400() {
         CommentRequest blank = new CommentRequestBuilder()
-                .withContent("")
+                .withContent(TestConstants.BLANK)
                 .build();
         RestAssured.given()
                 .spec(requestSpec)
                 .header("Authorization", "Bearer " + authorToken)
                 .body(blank)
                 .when()
-                .put("/api/comments/" + commentId)
+                .put(ApiPaths.commentById(commentId))
                 .then()
                 .statusCode(400);
     }
@@ -382,7 +429,7 @@ public class CommentApiTest extends SetUp {
                 .spec(requestSpec)
                 .body(update)
                 .when()
-                .put("/api/comments/" + commentId)
+                .put(ApiPaths.commentById(commentId))
                 .then()
                 .statusCode(401);
     }
@@ -401,7 +448,7 @@ public class CommentApiTest extends SetUp {
                 .spec(requestSpec)
                                 .header("Authorization", "Bearer " + otherUserToken)
                 .when()
-                .delete("/api/comments/" + commentId)
+                .delete(ApiPaths.commentById(commentId))
                 .then()
                 .statusCode(403);
     }
@@ -416,7 +463,7 @@ public class CommentApiTest extends SetUp {
                 .spec(requestSpec)
                                 .header("Authorization", "Bearer " + authorToken)
                 .when()
-                .delete("/api/comments/" + commentId)
+                .delete(ApiPaths.commentById(commentId))
                 .then()
                 .statusCode(204);
     }
@@ -432,7 +479,7 @@ public class CommentApiTest extends SetUp {
                 .spec(requestSpec)
                 .header("Authorization", "Bearer " + tokenForDelete)
                 .when()
-                .delete("/api/comments/" + commentId)
+                .delete(ApiPaths.commentById(commentId))
                 .then()
                 .statusCode(404);
     }

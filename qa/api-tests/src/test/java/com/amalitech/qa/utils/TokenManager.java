@@ -1,5 +1,6 @@
 package com.amalitech.qa.utils;
 
+import com.amalitech.qa.constants.ApiPaths;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
@@ -71,7 +72,7 @@ public class TokenManager {
                 .contentType(ContentType.JSON)
                 .body(requestBody)
                 .when()
-                .post("/api/auth/register");
+                .post(ApiPaths.AUTH_REGISTER);
 
         if (response.getStatusCode() != 201) {
             throw new RuntimeException(
@@ -111,7 +112,7 @@ public class TokenManager {
                 .contentType(ContentType.JSON)
                 .body(requestBody)
                 .when()
-                .post("/api/auth/login");
+                .post(ApiPaths.AUTH_LOGIN);
 
         if (response.getStatusCode() != 200) {
             throw new RuntimeException(

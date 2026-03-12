@@ -1,6 +1,8 @@
-package com.amalitech.qa.tests;
+package com.amalitech.qa.tests.category;
 
 import com.amalitech.qa.base.SetUp;
+import com.amalitech.qa.constants.ApiPaths;
+import com.amalitech.qa.constants.TestConstants;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
@@ -30,10 +32,10 @@ public class CategoryApiTest extends SetUp {
         RestAssured.given()
                 .spec(requestSpec)
                 .when()
-                .get("/api/categories")
+                .get(ApiPaths.CATEGORIES)
                 .then()
                 .statusCode(200)
-                .body("$", hasSize(equalTo(4)));
+                .body("$", hasSize(equalTo(TestConstants.TOTAL_CATEGORIES)));
     }
 
     @Test
@@ -45,10 +47,15 @@ public class CategoryApiTest extends SetUp {
         RestAssured.given()
                 .spec(requestSpec)
                 .when()
-                .get("/api/categories")
+                .get(ApiPaths.CATEGORIES)
                 .then()
                 .statusCode(200)
-                .body("$", hasItems("NEWS", "EVENT", "DISCUSSION", "ALERT"));
+                .body("$", hasItems(
+                        TestConstants.CATEGORY_NEWS,
+                        TestConstants.CATEGORY_EVENT,
+                        TestConstants.CATEGORY_DISCUSSION,
+                        TestConstants.CATEGORY_ALERT
+                ));
     }
 
     @Test
@@ -60,7 +67,7 @@ public class CategoryApiTest extends SetUp {
         int count = RestAssured.given()
                 .spec(requestSpec)
                 .when()
-                .get("/api/categories")
+                .get(ApiPaths.CATEGORIES)
                 .then()
                 .statusCode(200)
                 .extract()

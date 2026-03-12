@@ -1,7 +1,8 @@
 package com.amalitech.qa.testdata;
 
-import com.amalitech.qa.dto.PostRequest;
 import org.junit.jupiter.params.provider.Arguments;
+
+import com.amalitech.qa.tests.post.PostRequest;
 
 import java.util.stream.Stream;
 

@@ -1,7 +1,8 @@
 package com.amalitech.qa.testdata;
 
-import com.amalitech.qa.dto.CommentRequest;
 import org.junit.jupiter.params.provider.Arguments;
+
+import com.amalitech.qa.tests.comments.CommentRequest;
 
 import java.util.stream.Stream;
 

@@ -1,9 +1,10 @@
-package com.amalitech.qa.tests;
+package com.amalitech.qa.tests.auth;
 
 import com.amalitech.qa.base.SetUp;
 import com.amalitech.qa.builders.RegisterRequestBuilder;
-import com.amalitech.qa.dto.AuthRequest;
-import com.amalitech.qa.dto.RegisterRequest;
+import com.amalitech.qa.constants.ApiPaths;
+import com.amalitech.qa.constants.TestConstants;
+
 import io.qameta.allure.Feature;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
@@ -38,7 +39,7 @@ public class AuthApiTest extends SetUp {
                 .spec(requestSpec)
                 .body(request)
                 .when()
-                .post("/api/auth/register")
+                .post(ApiPaths.AUTH_REGISTER)
                 .then()
                 .statusCode(201)
                 .body("token", notNullValue())
@@ -56,7 +57,7 @@ public class AuthApiTest extends SetUp {
                 .spec(requestSpec)
                 .body(request)
                 .when()
-                .post("/api/auth/register")
+                .post(ApiPaths.AUTH_REGISTER)
                 .then()
                 .statusCode(400);
     }
@@ -72,7 +73,7 @@ public class AuthApiTest extends SetUp {
                 .spec(requestSpec)
                 .body(request)
                 .when()
-                .post("/api/auth/register")
+                .post(ApiPaths.AUTH_REGISTER)
                 .then()
                 .statusCode(400);
     }
@@ -93,7 +94,7 @@ public class AuthApiTest extends SetUp {
                 .spec(requestSpec)
                 .body(request)
                 .when()
-                .post("/api/auth/register")
+                .post(ApiPaths.AUTH_REGISTER)
                 .then()
                 .statusCode(201);
 
@@ -102,7 +103,7 @@ public class AuthApiTest extends SetUp {
                 .spec(requestSpec)
                 .body(request)
                 .when()
-                .post("/api/auth/register")
+                .post(ApiPaths.AUTH_REGISTER)
                 .then()
                 .statusCode(409);
     }
@@ -118,7 +119,7 @@ public class AuthApiTest extends SetUp {
                 .spec(requestSpec)
                 .body(registerRequest)
                 .when()
-                .post("/api/auth/register")
+                .post(ApiPaths.AUTH_REGISTER)
                 .then()
                 .statusCode(201)
                 .body("token", notNullValue());
@@ -129,7 +130,7 @@ public class AuthApiTest extends SetUp {
                 .spec(requestSpec)
                 .body(loginRequest)
                 .when()
-                .post("/api/auth/login")
+                .post(ApiPaths.AUTH_LOGIN)
                 .then()
                 .statusCode(200)
                 .body("token", notNullValue())
@@ -147,7 +148,7 @@ public class AuthApiTest extends SetUp {
                 .spec(requestSpec)
                 .body(request)
                 .when()
-                .post("/api/auth/login")
+                .post(ApiPaths.AUTH_LOGIN)
                 .then()
                 .statusCode(expectedStatus);
     }
@@ -160,9 +161,9 @@ public class AuthApiTest extends SetUp {
     void login_blankFields_returns400() {
         RestAssured.given()
                 .spec(requestSpec)
-                .body(new AuthRequest("", ""))
+                .body(new AuthRequest(TestConstants.BLANK, TestConstants.BLANK))
                 .when()
-                .post("/api/auth/login")
+                .post(ApiPaths.AUTH_LOGIN)
                 .then()
                 .statusCode(400);
     }

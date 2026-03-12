@@ -1,7 +1,7 @@
 package com.amalitech.qa.testdata;
 
-import com.amalitech.qa.dto.AuthRequest;
-import com.amalitech.qa.dto.RegisterRequest;
+import com.amalitech.qa.tests.auth.AuthRequest;
+import com.amalitech.qa.tests.auth.RegisterRequest;
 import com.amalitech.qa.utils.ConfigManager;
 import org.junit.jupiter.params.provider.Arguments;
 

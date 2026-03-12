@@ -1,9 +1,10 @@
 package com.amalitech.qa.testdata;
 
-import com.amalitech.qa.dto.AuthRequest;
-import com.amalitech.qa.dto.CommentRequest;
-import com.amalitech.qa.dto.PostRequest;
-import com.amalitech.qa.dto.RegisterRequest;
+import com.amalitech.qa.tests.auth.AuthRequest;
+import com.amalitech.qa.tests.auth.RegisterRequest;
+import com.amalitech.qa.tests.comments.CommentRequest;
+import com.amalitech.qa.tests.post.PostRequest;
+
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.stream.Stream;
