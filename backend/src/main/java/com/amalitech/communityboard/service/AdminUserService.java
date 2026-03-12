@@ -30,7 +30,10 @@ public class AdminUserService {
         return UserResponse.from(findOrThrow(id));
     }
 
-    public UserResponse updateUser(Long id, AdminUpdateUserRequest request) {
+    public UserResponse updateUser(Long id, AdminUpdateUserRequest request, Long currentUserId) {
+        if (id.equals(currentUserId)) {
+            throw new BadRequestException("Admins cannot modify their own account via the admin API");
+        }
         User user = findOrThrow(id);
 
         if (request.getName() != null && !request.getName().isBlank()) {
@@ -52,7 +55,10 @@ public class AdminUserService {
         return UserResponse.from(userRepository.save(user));
     }
 
-    public void deleteUser(Long id) {
+    public void deleteUser(Long id, Long currentUserId) {
+        if (id.equals(currentUserId)) {
+            throw new BadRequestException("Admins cannot delete their own account");
+        }
         if (!userRepository.existsById(id)) {
             throw new ResourceNotFoundException("User not found with id: " + id);
         }

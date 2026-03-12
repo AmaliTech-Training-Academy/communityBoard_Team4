@@ -3,6 +3,7 @@ package com.amalitech.communityboard.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.amalitech.communityboard.dto.AdminUpdateUserRequest;
 import com.amalitech.communityboard.dto.UserResponse;
+import com.amalitech.communityboard.model.User;
 import com.amalitech.communityboard.service.AdminUserService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,8 +60,9 @@ public class AdminUserController {
     @PutMapping("/{id}")
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable Long id,
-            @Valid @RequestBody AdminUpdateUserRequest request) {
-        return ResponseEntity.ok(adminUserService.updateUser(id, request));
+            @Valid @RequestBody AdminUpdateUserRequest request,
+            @AuthenticationPrincipal User currentUser) {
+        return ResponseEntity.ok(adminUserService.updateUser(id, request, currentUser.getId()));
     }
 
     @Operation(summary = "Delete a user by ID")
@@ -68,8 +71,10 @@ public class AdminUserController {
         @ApiResponse(responseCode = "404", description = "User not found")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        adminUserService.deleteUser(id);
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User currentUser) {
+        adminUserService.deleteUser(id, currentUser.getId());
         return ResponseEntity.noContent().build();
     }
 }
