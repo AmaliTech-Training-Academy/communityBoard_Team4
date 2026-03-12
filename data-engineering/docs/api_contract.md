@@ -92,10 +92,10 @@ labelled "Posts by Category" on the analytics dashboard.
 
 ```json
 [
-  { "category": "NEWS",       "count": 18 },
-  { "category": "EVENT",      "count": 18 },
-  { "category": "DISCUSSION", "count": 15 },
-  { "category": "ALERT",      "count": 9  }
+  { "categoryName": "NEWS",       "postCount": 18 },
+  { "categoryName": "EVENT",      "postCount": 18 },
+  { "categoryName": "DISCUSSION", "postCount": 15 },
+  { "categoryName": "ALERT",      "postCount": 9  }
 ]
 ```
 
@@ -103,8 +103,8 @@ labelled "Posts by Category" on the analytics dashboard.
 
 | Field      | Type    | Source view column | Description                                     |
 |------------|---------|--------------------|--------------------------------------------------|
-| `category` | string  | `category_name`    | One of: `NEWS`, `EVENT`, `DISCUSSION`, `ALERT`  |
-| `count`    | integer | `post_count`       | Number of posts in this category                 |
+| `categoryName` | string  | `category_name`    | One of: `NEWS`, `EVENT`, `DISCUSSION`, `ALERT`  |
+| `postCount`    | integer | `post_count`       | Number of posts in this category                 |
 
 **Backing view:** `analytics_posts_by_category`
 
@@ -137,13 +137,13 @@ labelled "Posts by Day of Week" on the analytics dashboard.
 
 ```json
 [
-  { "day": "Sun", "dayOrder": 0, "count": 8  },
-  { "day": "Mon", "dayOrder": 1, "count": 12 },
-  { "day": "Tue", "dayOrder": 2, "count": 9  },
-  { "day": "Wed", "dayOrder": 3, "count": 11 },
-  { "day": "Thu", "dayOrder": 4, "count": 7  },
-  { "day": "Fri", "dayOrder": 5, "count": 6  },
-  { "day": "Sat", "dayOrder": 6, "count": 7  }
+  { "dayName": "Sun", "dayOrder": 0, "postCount": 8  },
+  { "dayName": "Mon", "dayOrder": 1, "postCount": 12 },
+  { "dayName": "Tue", "dayOrder": 2, "postCount": 9  },
+  { "dayName": "Wed", "dayOrder": 3, "postCount": 11 },
+  { "dayName": "Thu", "dayOrder": 4, "postCount": 7  },
+  { "dayName": "Fri", "dayOrder": 5, "postCount": 6  },
+  { "dayName": "Sat", "dayOrder": 6, "postCount": 7  }
 ]
 ```
 
@@ -151,9 +151,9 @@ labelled "Posts by Day of Week" on the analytics dashboard.
 
 | Field      | Type    | Source view column | Description                                      |
 |------------|---------|--------------------|--------------------------------------------------|
-| `day`      | string  | `day_name`         | Three-letter day abbreviation (Sun through Sat)  |
+| `dayName`      | string  | `day_name`         | Three-letter day abbreviation (Sun through Sat)  |
 | `dayOrder` | integer | `day_order`        | Numeric sort key: 0=Sun, 1=Mon, ..., 6=Sat      |
-| `count`    | integer | `post_count`       | Number of posts created on this day of the week  |
+| `postCount`    | integer | `post_count`       | Number of posts created on this day of the week  |
 
 **Backing view:** `analytics_posts_by_day`
 
@@ -189,11 +189,11 @@ Returns the top ten users ranked by number of posts authored. Powers the
 
 ```json
 [
-  { "rank": 1, "name": "John Smith",          "email": "john.smith@email.com",          "postCount": 7 },
-  { "rank": 2, "name": "Brooklyn Simmons",    "email": "brooklyn.simmons@email.com",    "postCount": 5 },
-  { "rank": 2, "name": "Kristin Watson",      "email": "kristin.watson@email.com",      "postCount": 5 },
-  { "rank": 4, "name": "Courtney Henry",      "email": "courtney.henry@email.com",      "postCount": 4 },
-  { "rank": 5, "name": "Leslie Alexander",    "email": "leslie.alexander@email.com",    "postCount": 3 }
+  { "trueRank": 1, "etlRank": 1, "contributorName": "John Smith",          "contributorEmail": "john.smith@email.com",          "postCount": 7 },
+  { "trueRank": 2, "etlRank": 2, "contributorName": "Brooklyn Simmons",    "contributorEmail": "brooklyn.simmons@email.com",    "postCount": 5 },
+  { "trueRank": 2, "etlRank": 3, "contributorName": "Kristin Watson",      "contributorEmail": "kristin.watson@email.com",      "postCount": 5 },
+  { "trueRank": 4, "etlRank": 4, "contributorName": "Courtney Henry",      "contributorEmail": "courtney.henry@email.com",      "postCount": 4 },
+  { "trueRank": 5, "etlRank": 5, "contributorName": "Leslie Alexander",    "contributorEmail": "leslie.alexander@email.com",    "postCount": 3 }
 ]
 ```
 
@@ -201,10 +201,11 @@ Returns the top ten users ranked by number of posts authored. Powers the
 
 | Field       | Type    | Source view column   | Description                                      |
 |-------------|---------|----------------------|--------------------------------------------------|
-| `rank`      | integer | `true_rank`          | Dense rank; tied users share the same rank value |
+| `trueRank`  | integer | `true_rank`          | Dense rank; tied users share the same rank value |
 | `name`      | string  | `contributor_name`   | User's display name from the `users` table       |
 | `email`     | string  | `contributor_email`  | User's email address                             |
 | `postCount` | integer | `post_count`         | Total number of posts authored                   |
+| `etlRank`   | integer | `etl_rank`           | rank; tied users share the same rank value |
 
 **Backing view:** `analytics_top_contributors`
 
