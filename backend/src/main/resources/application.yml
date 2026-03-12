@@ -45,3 +45,24 @@ springdoc:
     path: /swagger-ui.html
     tags-sorter: alpha
     operations-sorter: alpha
+
+# Actuator: expose monitoring endpoints for DevOps
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers,env,flyway,threaddump,heapdump
+  endpoint:
+    health:
+      show-details: when-authorized
+  info:
+    env:
+      enabled: true
+
+# Logging levels
+logging:
+  level:
+    com.amalitech.communityboard: INFO
+    org.springframework.security: WARN
+    org.hibernate: WARN
+    org.flywaydb: INFO

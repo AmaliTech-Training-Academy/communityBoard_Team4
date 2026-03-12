@@ -46,6 +46,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Public: auth endpoints
                 .requestMatchers("/api/auth/**").permitAll()
+                // Actuator: health is public; all other actuator endpoints require ADMIN
+                .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/actuator/**").hasRole("ADMIN")
                 // Admin-only: user management CRUD
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 // Public: read posts and categories (no auth needed to browse)
