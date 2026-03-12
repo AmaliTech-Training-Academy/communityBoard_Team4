@@ -1,0 +1,133 @@
+##############################################################################
+# e2e-tests.yml — Selenium End-to-End Testing Pipeline
+#
+# Spins up the full stack (PostgreSQL + Backend + Frontend) via Docker Compose
+# and runs the Selenium TestNG test suite in qa/ui-tests/ against the live
+# frontend on localhost:3000.
+#
+# Prerequisites satisfied here:
+#   - Google Chrome installed (by setup-chrome action)
+#   - ChromeDriver managed by WebDriverManager inside the tests
+#   - Full Docker Compose stack available (frontend at localhost:3000)
+#
+# Jobs:
+#   e2e-tests — Build full stack, install Chrome, run Selenium, publish results
+#
+# Triggers: push/PR to main or develop
+##############################################################################
+name: E2E Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: write  # for test result annotations
+
+jobs:
+  e2e-tests:
+    name: Selenium E2E Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: "17"
+        distribution: temurin
+        cache: maven
+
+    - name: Set up Google Chrome
+      uses: browser-actions/setup-chrome@v1
+      with:
+        chrome-version: stable
+
+    - name: Verify Chrome installation
+      run: google-chrome --version
+
+    # ── Start full stack ────────────────────────────────────────────────────
+    - name: Start full stack (PostgreSQL + Backend + Frontend)
+      run: docker compose up -d postgres backend frontend
+      env:
+        JWT_SECRET: ci-jwt-secret-for-e2e-testing-only-32chars  # pragma: allowlist secret
+        POSTGRES_PASSWORD: ci_postgres_pass  # pragma: allowlist secret
+
+    - name: Wait for backend to be healthy
+      run: |
+        echo "Waiting for backend /actuator/health..."
+        for i in $(seq 1 40); do
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/actuator/health 2>/dev/null || echo "000")
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ Backend is healthy (attempt $i)"
+            break
+          fi
+          echo "Attempt $i/40 — HTTP $STATUS, retrying in 5s..."
+          sleep 5
+        done
+        curl -sf http://localhost:8080/actuator/health || {
+          echo "❌ Backend failed to become healthy"
+          docker compose logs backend
+          exit 1
+        }
+
+    - name: Wait for frontend to be ready
+      run: |
+        echo "Waiting for frontend on localhost:3000..."
+        for i in $(seq 1 30); do
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 2>/dev/null || echo "000")
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ Frontend is ready (attempt $i)"
+            break
+          fi
+          echo "Attempt $i/30 — HTTP $STATUS, retrying in 3s..."
+          sleep 3
+        done
+        curl -sf http://localhost:3000 || {
+          echo "❌ Frontend failed to become ready"
+          docker compose logs frontend
+          exit 1
+        }
+
+    # ── Run tests ───────────────────────────────────────────────────────────
+    - name: Run Selenium E2E tests
+      working-directory: ./qa/ui-tests
+      run: |
+        mvn test \
+          -Dwebdriver.chrome.driver=/usr/bin/chromedriver \
+          -Dsurefire.failIfNoSpecifiedTests=false
+      env:
+        DISPLAY: ""
+        MAVEN_OPTS: "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
+
+    # ── Publish results ──────────────────────────────────────────────────────
+    - name: Publish test results
+      if: always()
+      uses: dorny/test-reporter@v1
+      with:
+        name: E2E Test Results
+        path: qa/ui-tests/target/surefire-reports/*.xml
+        reporter: java-junit
+        fail-on-error: false
+
+    - name: Upload test reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: e2e-test-reports-${{ github.run_number }}
+        path: qa/ui-tests/target/surefire-reports/
+        retention-days: 7
+
+    # ── Teardown ─────────────────────────────────────────────────────────────
+    - name: Stop and clean up stack
+      if: always()
+      run: docker compose down -v --remove-orphans
