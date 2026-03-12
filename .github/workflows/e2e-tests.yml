@@ -24,13 +24,14 @@ on:
     branches: [ main, develop ]
   workflow_dispatch:
 
+
 concurrency:
   group: e2e-tests-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
-  checks: write  # for test result annotations
+  checks: write # for test result annotations
 
 jobs:
   e2e-tests:
@@ -59,8 +60,8 @@ jobs:
     - name: Start full stack (PostgreSQL + Backend + Frontend)
       run: docker compose up -d postgres backend frontend
       env:
-        JWT_SECRET: ci-jwt-secret-for-e2e-testing-only-32chars  # pragma: allowlist secret
-        POSTGRES_PASSWORD: ci_postgres_pass  # pragma: allowlist secret
+        JWT_SECRET: ci-jwt-secret-for-e2e-testing-only-32chars # pragma: allowlist secret
+        POSTGRES_PASSWORD: ci_postgres_pass # pragma: allowlist secret
 
     - name: Wait for backend to be healthy
       run: |
@@ -110,14 +111,16 @@ jobs:
         MAVEN_OPTS: "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
 
     # ── Publish results ──────────────────────────────────────────────────────
+    # dorny/test-reporter java-junit parser doesn't support the TestNG surefire
+    # XML format (crashes with "Cannot read properties of undefined").
+    # mikepenz/action-junit-report@v4 handles both JUnit and TestNG XML.
     - name: Publish test results
       if: always()
-      uses: dorny/test-reporter@v1
+      uses: mikepenz/action-junit-report@v4
       with:
-        name: E2E Test Results
-        path: qa/ui-tests/target/surefire-reports/*.xml
-        reporter: java-junit
-        fail-on-error: false
+        check_name: E2E Test Results
+        report_paths: qa/ui-tests/target/surefire-reports/*.xml
+        fail_on_failure: false
 
     - name: Upload test reports
       if: always()
