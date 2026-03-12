@@ -53,6 +53,12 @@ public class CreatePostPage {
         PageFactory.initElements(driver, this);
     }
 
+    /** Waits until the title input is visible – confirms the create-post page has fully loaded. */
+    public CreatePostPage waitForTitleInput() {
+        wait.waitForVisibility(postTitleInput);
+        return this;
+    }
+
     // ------------------------------------------------------------------ actions
 
     public CreatePostPage enterTitle(String title) {

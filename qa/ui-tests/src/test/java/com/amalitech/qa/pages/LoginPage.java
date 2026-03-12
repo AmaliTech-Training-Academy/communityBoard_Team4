@@ -38,6 +38,12 @@ public class LoginPage {
         PageFactory.initElements(driver, this);
     }
 
+    /** Waits until the email input is visible – confirms the login page has fully loaded. */
+    public LoginPage waitForEmailInput() {
+        wait.waitForVisibility(emailInput);
+        return this;
+    }
+
     // ------------------------------------------------------------------ actions
 
     public LoginPage enterEmail(String email) {

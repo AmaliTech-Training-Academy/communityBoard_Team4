@@ -52,10 +52,13 @@ public class PostFeedPage {
 
     /**
      * Clicks the "Create post" button and returns the Create Post page.
+     * Waits for the title input to be visible so the page is fully loaded.
      */
     public CreatePostPage clickCreatePost() {
         wait.waitForClickability(createPostButton).click();
-        return new CreatePostPage(driver);
+        CreatePostPage createPostPage = new CreatePostPage(driver);
+        createPostPage.waitForTitleInput();
+        return createPostPage;
     }
 
     // ------------------------------------------------------------------ state queries
