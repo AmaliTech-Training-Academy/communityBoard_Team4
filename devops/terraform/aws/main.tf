@@ -144,6 +144,8 @@ module "compute" {
   frontend_tg_arn = module.alb.frontend_target_group_arn
   backend_tg_arn  = module.alb.backend_target_group_arn
 
+  alb_dns_name = module.alb.alb_dns_name
+
   spring_datasource_url_ssm_arn = module.secrets.spring_datasource_url_ssm_arn
   db_credentials_secret_arn     = module.secrets.db_credentials_secret_arn
   jwt_secret_arn                = module.secrets.jwt_secret_arn

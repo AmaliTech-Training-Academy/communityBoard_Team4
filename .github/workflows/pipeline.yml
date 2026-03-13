@@ -151,7 +151,7 @@ jobs:
 
   build-push:
     name: Build & Push — ${{ matrix.service }}
-    needs: [ backend-test, frontend-test ]
+    needs: [ backend-test, frontend-test, terraform-validate ]
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
 
@@ -237,9 +237,7 @@ jobs:
     needs: [ prepare ]
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    # environment: ${{ needs.prepare.outputs.environment }}
-    # Uncomment above once 'production' and 'staging' GitHub Environments are
-    # created under Settings → Environments. Without them the job fails to start.
+    environment: ${{ needs.prepare.outputs.environment }}
 
     strategy:
       max-parallel: 1 # deploy frontend before backend to avoid mixed-version traffic
