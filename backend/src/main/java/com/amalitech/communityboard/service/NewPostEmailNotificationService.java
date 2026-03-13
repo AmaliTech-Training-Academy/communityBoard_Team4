@@ -5,10 +5,7 @@ import com.amalitech.communityboard.model.UserCategorySubscription;
 import com.amalitech.communityboard.repository.UserCategorySubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +17,7 @@ import java.util.List;
 public class NewPostEmailNotificationService {
 
     private final UserCategorySubscriptionRepository subscriptionRepository;
-    private final ObjectProvider<JavaMailSender> mailSenderProvider;
+    private final EmailDeliveryService emailDeliveryService;
 
     @Value("${app.notifications.email.enabled:false}")
     private boolean emailNotificationsEnabled;
@@ -37,28 +34,22 @@ public class NewPostEmailNotificationService {
             return;
         }
 
-        JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
-        if (mailSender == null) {
-            log.warn("Email notifications enabled, but JavaMailSender is not configured.");
-            return;
-        }
-
         List<UserCategorySubscription> subscriptions = subscriptionRepository.findByCategory(post.getCategory());
 
         subscriptions.stream()
                 .map(UserCategorySubscription::getUser)
                 .filter(user -> !user.getId().equals(post.getAuthor().getId()))
-                .forEach(user -> sendEmail(mailSender, user.getEmail(), post));
+                .forEach(user -> sendEmail(user.getEmail(), post));
     }
 
-    private void sendEmail(JavaMailSender mailSender, String recipientEmail, Post post) {
+    private void sendEmail(String recipientEmail, Post post) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromAddress);
-            message.setTo(recipientEmail);
-            message.setSubject("New " + post.getCategory().name() + " post on Community Board");
-            message.setText(buildBody(post));
-            mailSender.send(message);
+            emailDeliveryService.send(
+                    fromAddress,
+                    recipientEmail,
+                    "New " + post.getCategory().name() + " post on Community Board",
+                    buildBody(post)
+            );
         } catch (Exception ex) {
             log.warn("Failed to send new-post email notification to {}: {}", recipientEmail, ex.getMessage());
         }

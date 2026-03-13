@@ -3,10 +3,7 @@ package com.amalitech.communityboard.service;
 import com.amalitech.communityboard.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class EmailVerificationService {
 
-    private final ObjectProvider<JavaMailSender> mailSenderProvider;
+    private final EmailDeliveryService emailDeliveryService;
 
     @Value("${app.auth.verification.enabled:false}")
     private boolean verificationEnabled;
@@ -30,19 +27,13 @@ public class EmailVerificationService {
             return;
         }
 
-        JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
-        if (mailSender == null) {
-            log.warn("Email verification enabled but JavaMailSender is not configured.");
-            return;
-        }
-
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromAddress);
-            message.setTo(user.getEmail());
-            message.setSubject("Verify your Community Board email");
-            message.setText(buildBody(user));
-            mailSender.send(message);
+            emailDeliveryService.send(
+                    fromAddress,
+                    user.getEmail(),
+                    "Verify your Community Board email",
+                    buildBody(user)
+            );
         } catch (Exception ex) {
             log.warn("Failed to send verification email to {}: {}", user.getEmail(), ex.getMessage());
         }
