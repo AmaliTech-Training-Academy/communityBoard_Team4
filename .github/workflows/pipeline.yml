@@ -273,7 +273,22 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
+    - name: Check if image tag already exists in ECR
+      id: tag_check
+      run: |
+        IMAGE_TAG="${{ matrix.service }}-${{ steps.vars.outputs.tag }}"
+        if aws ecr describe-images \
+          --repository-name "${{ env.ECR_REPO }}" \
+          --image-ids imageTag="$IMAGE_TAG" \
+          --region "${{ env.AWS_REGION }}" \
+          >/dev/null 2>&1; then
+          echo "exists=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "exists=false" >> "$GITHUB_OUTPUT"
+        fi
+
     - name: Build and push ${{ matrix.service }}
+      if: steps.tag_check.outputs.exists != 'true'
       uses: docker/build-push-action@v5
       with:
         context: ${{ matrix.context }}
@@ -285,10 +300,18 @@ jobs:
         cache-to: type=gha,scope=${{ matrix.service }},mode=max
 
     - name: Image digest summary
+      if: steps.tag_check.outputs.exists != 'true'
       run: |
         echo "### ${{ matrix.service }} image pushed" >> "$GITHUB_STEP_SUMMARY"
         echo "**Tag:** \`${{ matrix.service }}-${{ steps.vars.outputs.tag }}\`" >> "$GITHUB_STEP_SUMMARY"
         echo "**Registry:** \`${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}\`" >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Image reuse summary
+      if: steps.tag_check.outputs.exists == 'true'
+      run: |
+        echo "### ${{ matrix.service }} image reused" >> "$GITHUB_STEP_SUMMARY"
+        echo "**Tag already exists (immutable ECR):** \`${{ matrix.service }}-${{ steps.vars.outputs.tag }}\`" >> "$GITHUB_STEP_SUMMARY"
+        echo "**Action:** skipped build/push and continued deploy with existing image" >> "$GITHUB_STEP_SUMMARY"
 
   # ─────────────────────────────────────────────────────────────────────────
   # Deploy — skipped on pull requests; runs after build-push succeeds
