@@ -207,7 +207,7 @@ export function Analytics() {
                   <h3 className="analytics-stat-title">Total Posts</h3>
                   <div className="analytics-stat-icon analytics-stat-icon-chart">
                     <img
-                      src="/assets/trending-up.svg"
+                      src="/assets/Group.svg"
                       alt="Trending up"
                       width="20"
                       height="20"
@@ -221,7 +221,7 @@ export function Analytics() {
                   <h3 className="analytics-stat-title">Total Comments</h3>
                   <div className="analytics-stat-icon analytics-stat-icon-comment">
                     <img
-                      src="/assets/total-comments.svg"
+                      src="/assets/Messages 03.svg"
                       alt="Comments"
                       width="20"
                       height="20"
