@@ -9,6 +9,7 @@ import { PostFeed } from "./pages/PostFeed/PostFeed";
 import { PostDetails } from "./pages/PostDetails/PostDetails";
 import { CreatePost } from "./pages/CreatePost/CreatePost";
 import { Analytics } from "./pages/Analytics/Analytics";
+import { Profile } from "./pages/Profile/Profile";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
@@ -51,6 +52,14 @@ export default function App() {
             />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </BrowserRouter>
       </ToastProvider>

@@ -14,6 +14,7 @@ interface AuthContextType {
   login: (email?: string, password?: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  updateUserName: (name: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -71,8 +72,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem("user"); // Clear legacy user objects if present
   };
 
+  const updateUserName = (name: string) => {
+    localStorage.setItem("name", name);
+    setUser((prev) => (prev ? { ...prev, name } : prev));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, login, register, logout, updateUserName }}>
       {children}
     </AuthContext.Provider>
   );
