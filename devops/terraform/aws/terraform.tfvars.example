@@ -41,5 +41,9 @@ db_backup_retention_days = 7
 # GitHub repository for OIDC trust scope: org/repo (no https://, no .git)
 github_repo = "<your-github-org>/communityBoard_Team4"
 
+# ── SES Email Sender ───────────────────────────────────────────────────────────
+# Must be a real, active mailbox or alias you control and have verified in SES.
+ses_sender_email = "noreply@your-active-domain.com"
+
 # ── ECR ───────────────────────────────────────────────────────────────────────
 ecr_repository_name = "community-board"

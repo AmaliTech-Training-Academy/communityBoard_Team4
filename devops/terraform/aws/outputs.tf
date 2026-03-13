@@ -94,6 +94,11 @@ output "guardduty_detector_id" {
   value       = module.security_services.guardduty_detector_id
 }
 
+output "ses_sender_identity_arn" {
+  description = "SES email identity ARN used by the backend when sending emails through SES"
+  value       = module.security_services.ses_sender_identity_arn
+}
+
 # ── Networking ────────────────────────────────────────────────────────────────
 output "vpc_id" {
   description = "ID of the application VPC"

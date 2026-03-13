@@ -1,0 +1,131 @@
+.notif-bell-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.notif-bell-btn {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  color: var(--body-text-primary);
+  display: flex;
+  align-items: center;
+  transition: background 0.15s;
+}
+
+.notif-bell-btn:hover {
+  background: var(--input-bg);
+}
+
+.bell-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.notif-badge {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  background: #c81e1e;
+  color: #fff;
+  font-size: 0.625rem;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  line-height: 1;
+}
+
+.notif-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 320px;
+  background: #fff;
+  border: 1px solid var(--input-border-light);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  z-index: 200;
+  overflow: hidden;
+}
+
+.notif-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.875rem 1rem 0.625rem;
+  border-bottom: 1px solid var(--input-border-light);
+}
+
+.notif-title {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--header-text-primary);
+}
+
+.notif-mark-all-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  color: var(--body-text-secondary);
+  text-decoration: underline;
+  padding: 0;
+}
+
+.notif-list {
+  list-style: none;
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.notif-empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--body-text-tertiary);
+  font-size: 0.875rem;
+}
+
+.notif-item {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--input-border-light);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.notif-item:last-child {
+  border-bottom: none;
+}
+
+.notif-unread {
+  background: #f0f6ff;
+}
+
+.notif-unread:hover {
+  background: #e3eeff;
+}
+
+.notif-read {
+  opacity: 0.65;
+  cursor: default;
+}
+
+.notif-message {
+  font-size: 0.875rem;
+  color: var(--body-text-primary);
+  margin-bottom: 0.25rem;
+  line-height: 1.4;
+}
+
+.notif-time {
+  font-size: 0.75rem;
+  color: var(--body-text-tertiary);
+}

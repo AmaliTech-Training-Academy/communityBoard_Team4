@@ -56,6 +56,16 @@ nano data-engineering/.env
 | `SERVER_PORT` | Server port | `8080` | No |
 | `SPRING_PROFILES_ACTIVE` | Active profile | `dev`, `prod` | Yes |
 | `CORS_ALLOWED_ORIGINS` | CORS origins | `http://localhost:3000` | Yes |
+| `SPRING_MAIL_HOST` | SMTP host | `localhost` or `mailpit` | Yes for email features |
+| `SPRING_MAIL_PORT` | SMTP port | `1025` | Yes for email features |
+| `SPRING_MAIL_USERNAME` | SMTP username | `mailer@example.com` | No |
+| `SPRING_MAIL_PASSWORD` | SMTP password | `app-password` | No |
+| `EMAIL_VERIFICATION_ENABLED` | Require email verification after signup | `true`, `false` | No |
+| `EMAIL_VERIFICATION_FROM` | Sender for verification emails | `no-reply@communityboard.local` | No |
+| `EMAIL_VERIFICATION_URL` | Frontend verification page URL | `http://localhost:3000/verify-email` | No |
+| `EMAIL_NOTIFICATIONS_ENABLED` | Enable category/new-post emails | `true`, `false` | No |
+| `EMAIL_NOTIFICATIONS_FROM` | Sender for notification emails | `no-reply@communityboard.local` | No |
+| `FRONTEND_BASE_URL` | Base frontend URL for email links | `http://localhost:3000` | No |
 
 ### Frontend (.env)
 
@@ -78,6 +88,13 @@ nano data-engineering/.env
 | `ETL_BATCH_SIZE` | Batch size | `1000` | No |
 
 ## Docker Compose Integration
+
+Mail catcher for local development:
+
+```bash
+# Mailpit web UI
+http://localhost:8025
+```
 
 Update `docker-compose.yml` to use environment files:
 
