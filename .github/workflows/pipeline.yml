@@ -175,7 +175,7 @@ jobs:
         distribution: temurin
         cache: maven
 
-    - name: Validate and apply Flyway migrations
+    - name: Apply and validate Flyway migrations
       working-directory: ./backend
       env:
         FLYWAY_PASSWORD: postgres # pragma: allowlist secret
@@ -184,8 +184,8 @@ jobs:
           -Dflyway.url=jdbc:postgresql://localhost:5432/communityboard_ci \
           -Dflyway.user=postgres \
           -Dflyway.password=${FLYWAY_PASSWORD} \
-          org.flywaydb:flyway-maven-plugin:9.22.3:validate \
           org.flywaydb:flyway-maven-plugin:9.22.3:migrate \
+          org.flywaydb:flyway-maven-plugin:9.22.3:validate \
           org.flywaydb:flyway-maven-plugin:9.22.3:info
 
   etl-pipeline:
