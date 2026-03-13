@@ -12,6 +12,11 @@ variable "github_repo" {
   type        = string
 }
 
+variable "ses_sender_identity_arn" {
+  description = "ARN of the SES sender identity the ECS app task is allowed to send from"
+  type        = string
+}
+
 variable "tags" {
   type = map(string)
 }

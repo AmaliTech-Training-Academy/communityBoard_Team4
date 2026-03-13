@@ -228,6 +228,24 @@ resource "aws_iam_role_policy" "app_secrets" {
   policy = data.aws_iam_policy_document.app_secrets.json
 }
 
+data "aws_iam_policy_document" "app_ses" {
+  statement {
+    sid    = "SesSendEmail"
+    effect = "Allow"
+    actions = [
+      "ses:SendEmail",
+      "ses:SendRawEmail",
+    ]
+    resources = [var.ses_sender_identity_arn]
+  }
+}
+
+resource "aws_iam_role_policy" "app_ses" {
+  name   = "${var.project_name}-app-ses-send"
+  role   = aws_iam_role.app.id
+  policy = data.aws_iam_policy_document.app_ses.json
+}
+
 ##############################################################################
 # GitHub Actions OIDC Role
 # Allows GitHub Actions workflows to authenticate to AWS without long-lived
@@ -238,6 +256,14 @@ resource "aws_iam_role_policy" "app_secrets" {
 #   Set AWS_ROLE_ARN secret in GitHub to aws_iam_role.github_actions.arn
 #   Set AWS_ACCOUNT_ID secret in GitHub to data.aws_caller_identity.current.account_id
 ##############################################################################
+
+resource "aws_iam_openid_connect_provider" "github_actions" {
+  url             = "https://token.actions.githubusercontent.com"
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"] # pragma: allowlist secret
+
+  tags = merge(var.tags, { Purpose = "github-actions-oidc" })
+}
 
 data "aws_iam_policy_document" "github_actions_assume" {
   statement {
@@ -257,10 +283,14 @@ data "aws_iam_policy_document" "github_actions_assume" {
 
     # Restrict to the specific repo; allow both main and develop branches
     # plus workflow_dispatch (which uses repo:<org>/<repo>:ref:refs/heads/*)
+    # environment:* covers GitHub Actions environments (prod protection rules)
     condition {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_repo}:ref:refs/heads/*"]
+      values = [
+        "repo:${var.github_repo}:ref:refs/heads/*",
+        "repo:${var.github_repo}:environment:*",
+      ]
     }
   }
 }

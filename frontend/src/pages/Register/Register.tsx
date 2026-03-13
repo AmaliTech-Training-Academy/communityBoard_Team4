@@ -49,13 +49,18 @@ export function Register() {
     if (!validate()) return;
     setIsLoading(true);
     try {
-      await register(
+      const response = await register(
         formData.name.trim(),
         formData.email.trim(),
         formData.password,
       );
-      showToast("Registration successful!");
-      navigate("/");
+      if (response.token) {
+        showToast("Registration successful");
+        navigate("/");
+      } else {
+        showToast("Registration successful. Please verify your email before logging in.");
+        navigate("/login");
+      }
     } catch (err: any) {
       const msg = err.response?.data?.message || "Registration failed";
       setErrors({ root: msg });

@@ -7,6 +7,7 @@ import com.amalitech.communityboard.model.*;
 import com.amalitech.communityboard.model.enums.Role;
 import com.amalitech.communityboard.repository.*;
 import lombok.RequiredArgsConstructor;
+import com.amalitech.communityboard.service.NotificationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,7 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final NotificationService notificationService;
 
     /**
      * Returns a paginated list of comments for the given post, oldest-first.
@@ -41,7 +43,9 @@ public class CommentService {
                 .post(post)
                 .author(author)
                 .build();
-        return toResponse(commentRepository.save(comment));
+        CommentResponse response = toResponse(commentRepository.save(comment));
+        notificationService.notifyPostAuthorOfComment(post, author);
+        return response;
     }
 
     /**
