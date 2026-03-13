@@ -133,3 +133,52 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.subscription-section {
+  width: 100%;
+  border-top: 1px solid var(--input-border-light);
+  padding-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.subscription-title {
+  font-size: 1rem;
+  color: var(--header-text-primary);
+  font-weight: 600;
+}
+
+.subscription-description {
+  color: var(--body-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.subscription-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.subscription-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--body-text-primary);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border-light);
+  border-radius: 8px;
+  padding: 0.5rem 0.625rem;
+}
+
+.subscription-option input {
+  accent-color: var(--btn-primary-bg);
+}
+
+@media (max-width: 520px) {
+  .subscription-grid {
+    grid-template-columns: 1fr;
+  }
+}

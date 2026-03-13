@@ -44,6 +44,7 @@ class PostServiceTest {
 
     @Mock PostRepository postRepository;
     @Mock CommentRepository commentRepository;
+    @Mock NewPostEmailNotificationService newPostEmailNotificationService;
     @InjectMocks PostService postService;
 
     // ── helpers ──────────────────────────────────────────────────────────────

@@ -8,11 +8,18 @@ export interface User {
   token?: string;
 }
 
+interface AuthResponse {
+  token?: string | null;
+  role: string;
+  name: string;
+  email: string;
+}
+
 interface AuthContextType {
   user: User | null;
   token: string | null;
   login: (email?: string, password?: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<AuthResponse>;
   logout: () => void;
   updateUserName: (name: string) => void;
 }
@@ -53,6 +60,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const { token: apiToken, role, name: apiName, email: apiEmail } = data;
 
+    if (!apiToken) {
+      return data as AuthResponse;
+    }
+
     setToken(apiToken);
     localStorage.setItem("token", apiToken);
     localStorage.setItem("role", role);
@@ -60,6 +71,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem("email", apiEmail);
 
     setUser({ token: apiToken, role, name: apiName, email: apiEmail });
+
+    return data as AuthResponse;
   };
 
   const logout = () => {

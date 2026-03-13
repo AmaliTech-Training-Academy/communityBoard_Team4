@@ -33,6 +33,7 @@ class CommentServiceTest {
 
     @Mock CommentRepository commentRepository;
     @Mock PostRepository postRepository;
+    @Mock NotificationService notificationService;
     @InjectMocks CommentService commentService;
 
     // ── helpers ──────────────────────────────────────────────────────────────

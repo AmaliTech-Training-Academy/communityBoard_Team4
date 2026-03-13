@@ -5,6 +5,7 @@ import { ToastProvider } from "./context/ToastContext";
 import { ToastContainer } from "./components/ui/Toast";
 import { Login } from "./pages/Login/Login";
 import { Register } from "./pages/Register/Register";
+import { VerifyEmail } from "./pages/VerifyEmail/VerifyEmail";
 import { PostFeed } from "./pages/PostFeed/PostFeed";
 import { PostDetails } from "./pages/PostDetails/PostDetails";
 import { CreatePost } from "./pages/CreatePost/CreatePost";
@@ -52,6 +53,7 @@ export default function App() {
             />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
             <Route
               path="/profile"
               element={
