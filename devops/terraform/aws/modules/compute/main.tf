@@ -122,7 +122,8 @@ resource "aws_ecs_task_definition" "backend" {
 
       environment = [
         { name = "SPRING_PROFILES_ACTIVE", value = var.environment },
-        { name = "SERVER_PORT", value = "8080" }
+        { name = "SERVER_PORT", value = "8080" },
+        { name = "CORS_ALLOWED_ORIGINS", value = "http://${var.alb_dns_name}" }
       ]
 
       # Secrets injected at container start by the ECS agent — never in plaintext

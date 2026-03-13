@@ -143,6 +143,11 @@ variable "monitoring_instance_type" {
   default     = "t3.medium"
 }
 
+variable "alb_dns_name" {
+  description = "DNS name of the Application Load Balancer — used to set CORS_ALLOWED_ORIGINS on the backend container"
+  type        = string
+}
+
 variable "tags" {
   description = "Common tags to apply to all resources"
   type        = map(string)
