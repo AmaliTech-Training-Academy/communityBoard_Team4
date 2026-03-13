@@ -15,7 +15,7 @@ variable "ses_sender_email" {
   type        = string
 
   validation {
-    condition = can(regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$", var.ses_sender_email)) && !endswith(lower(var.ses_sender_email), "@example.com") && !startswith(lower(var.ses_sender_email), "no-reply@example")
+    condition     = can(regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$", var.ses_sender_email)) && !endswith(lower(var.ses_sender_email), "@example.com") && !startswith(lower(var.ses_sender_email), "no-reply@example")
     error_message = "ses_sender_email must be a real, active sender address verified in SES."
   }
 }
