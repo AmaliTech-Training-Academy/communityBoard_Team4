@@ -13,7 +13,6 @@ name: CI
 on:
   workflow_dispatch:
 
-
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true # cancel stale CI runs on force-push
