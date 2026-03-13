@@ -26,18 +26,26 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+const readStoredToken = () => {
+  const storedToken = localStorage.getItem("token");
+  if (!storedToken || storedToken === "null" || storedToken === "undefined") {
+    return null;
+  }
+  return storedToken;
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(() => {
-    const token = localStorage.getItem("token");
+    const token = readStoredToken();
     const role = localStorage.getItem("role");
     const name = localStorage.getItem("name");
     const email = localStorage.getItem("email");
     return token && role && name && email ? { token, role, name, email } : null;
   });
-  const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
+  const [token, setToken] = useState<string | null>(readStoredToken());
 
   useEffect(() => {
-    setToken(localStorage.getItem("token"));
+    setToken(readStoredToken());
   }, []);
 
   const login = async (email?: string, password?: string) => {
@@ -45,6 +53,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Validate returned shape manually or inherently trust the API definition
     const { token: apiToken, role, name, email: apiEmail } = data;
+
+    if (!apiToken) {
+      throw new Error("Login succeeded without a token. Please try again.");
+    }
 
     setToken(apiToken);
     localStorage.setItem("token", apiToken);
