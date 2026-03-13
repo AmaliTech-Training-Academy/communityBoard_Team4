@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { NotificationBell } from "../features/notifications/NotificationBell";
 import "./Navbar.css";
 
 export function Navbar() {
@@ -42,7 +43,10 @@ export function Navbar() {
         {/* Desktop Navigation */}
         <div className="navbar-desktop-menu">
           {/* Analytics Button */}
-          <button className="navbar-action-btn">
+          <button
+            className="navbar-action-btn"
+            onClick={() => navigate("/analytics")}
+          >
             <img
               src="/assets/Analytics.svg"
               alt="Analytics"
@@ -52,7 +56,15 @@ export function Navbar() {
           </button>
 
           {/* User Profile */}
-          <div className="navbar-profile">
+          <NotificationBell />
+
+          {/* User Profile */}
+          <div
+            className="navbar-profile"
+            style={{ cursor: "pointer" }}
+            onClick={() => navigate("/profile")}
+            title="View profile"
+          >
             <div className="avatar">
               <span>{initials}</span>
             </div>
@@ -109,13 +121,29 @@ export function Navbar() {
             </div>
           </div>
 
-          <button className="navbar-action-btn mobile-menu-item">
+          <button
+            className="navbar-action-btn mobile-menu-item"
+            onClick={() => {
+              navigate("/analytics");
+              setIsMobileMenuOpen(false);
+            }}
+          >
             <img
               src="/assets/Analytics.svg"
               alt="Analytics"
               className="icon-dark svg-icon"
             />
             <span className="text-dark-medium">Analytics</span>
+          </button>
+
+          <button
+            className="navbar-action-btn mobile-menu-item"
+            onClick={() => {
+              navigate("/profile");
+              setIsMobileMenuOpen(false);
+            }}
+          >
+            <span className="text-dark-medium">My Profile</span>
           </button>
 
           <button

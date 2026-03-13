@@ -8,6 +8,16 @@ variable "environment" {
   type        = string
 }
 
+variable "aws_region" {
+  description = "AWS region used by the running application for AWS SDK clients such as SES"
+  type        = string
+}
+
+variable "ses_sender_email" {
+  description = "SES-verified sender email address injected into the backend task"
+  type        = string
+}
+
 # ── Networking ────────────────────────────────────────────────────────────────
 variable "app_subnet_ids" {
   description = "Subnet IDs for ECS Fargate task ENIs (public subnets + assign_public_ip=true avoids NAT charges)"
@@ -141,6 +151,11 @@ variable "monitoring_instance_type" {
   description = "EC2 instance type for Monitoring host (Prometheus + Grafana + Alertmanager)"
   type        = string
   default     = "t3.medium"
+}
+
+variable "alb_dns_name" {
+  description = "DNS name of the Application Load Balancer — used to set CORS_ALLOWED_ORIGINS on the backend container"
+  type        = string
 }
 
 variable "tags" {

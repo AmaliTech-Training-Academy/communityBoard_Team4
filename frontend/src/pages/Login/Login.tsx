@@ -12,6 +12,7 @@ export function Login() {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
 
   const { login } = useAuth();
   const { showToast } = useToast();
@@ -52,6 +53,27 @@ export function Login() {
     }
   };
 
+  const handleResendVerification = async () => {
+    if (!email.trim()) {
+      setErrors((prev) => ({ ...prev, root: "Enter your email to resend verification" }));
+      return;
+    }
+
+    setIsResending(true);
+    try {
+      await fetch("/api/auth/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      showToast("If your account is unverified, a new verification email has been sent");
+    } catch {
+      showToast("Unable to resend verification email", "error");
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   return (
     <AuthLayout
       heading="Welcome back"
@@ -60,7 +82,19 @@ export function Login() {
       <form onSubmit={handleSubmit} className="auth-form-container" noValidate>
         <div className="auth-inputs-group">
           {errors.root && (
-            <p className="auth-helper-text error-text">{errors.root}</p>
+            <>
+              <p className="auth-helper-text error-text">{errors.root}</p>
+              {errors.root.toLowerCase().includes("not verified") && (
+                <button
+                  type="button"
+                  className="auth-link"
+                  onClick={handleResendVerification}
+                  disabled={isResending}
+                >
+                  {isResending ? "Sending..." : "Resend verification email"}
+                </button>
+              )}
+            </>
           )}
           <AuthInput
             id="email"

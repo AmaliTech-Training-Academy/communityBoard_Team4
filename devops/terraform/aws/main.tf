@@ -100,11 +100,12 @@ module "security" {
 # IAM Roles / Instance Profiles
 ##############################################################################
 module "iam" {
-  source       = "./modules/iam"
-  project_name = local.project
-  environment  = local.environment
-  github_repo  = var.github_repo
-  tags         = local.common_tags
+  source                  = "./modules/iam"
+  project_name            = local.project
+  environment             = local.environment
+  github_repo             = var.github_repo
+  ses_sender_identity_arn = module.security_services.ses_sender_identity_arn
+  tags                    = local.common_tags
 }
 
 ##############################################################################
@@ -125,6 +126,7 @@ module "compute" {
 
   project_name     = local.project
   environment      = local.environment
+  aws_region       = var.aws_region
   ami_id           = data.aws_ami.amazon_linux_2.id
   public_subnet_id = module.network.public_subnet_ids[0]
   app_subnet_ids   = module.network.public_subnet_ids
@@ -143,6 +145,9 @@ module "compute" {
 
   frontend_tg_arn = module.alb.frontend_target_group_arn
   backend_tg_arn  = module.alb.backend_target_group_arn
+
+  alb_dns_name     = module.alb.alb_dns_name
+  ses_sender_email = var.ses_sender_email
 
   spring_datasource_url_ssm_arn = module.secrets.spring_datasource_url_ssm_arn
   db_credentials_secret_arn     = module.secrets.db_credentials_secret_arn
@@ -213,11 +218,12 @@ module "ecr" {
 # Security Services — CloudTrail + GuardDuty
 ##############################################################################
 module "security_services" {
-  source       = "./modules/security_services"
-  project_name = local.project
-  aws_region   = var.aws_region
-  environment  = local.environment
-  tags         = local.common_tags
+  source           = "./modules/security_services"
+  project_name     = local.project
+  aws_region       = var.aws_region
+  environment      = local.environment
+  ses_sender_email = var.ses_sender_email
+  tags             = local.common_tags
 }
 
 ##############################################################################

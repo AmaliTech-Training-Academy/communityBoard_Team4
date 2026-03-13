@@ -15,6 +15,7 @@ Backoff & Rate Limiting Strategy:
   - Connection recovery: listener reconnects with backoff on drop
 """
 
+import argparse
 import json
 import logging
 import os
@@ -22,9 +23,17 @@ import random
 import select
 import time
 from datetime import datetime
+from typing import Any
 
-import psycopg2
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+try:
+    import psycopg2
+    from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+except ModuleNotFoundError:
+    psycopg2 = None
+    ISOLATION_LEVEL_AUTOCOMMIT = None
+
+
+ConnectionType = Any
 
 # ------------------------------------------------------------------ #
 # Logging
@@ -84,6 +93,42 @@ DEBOUNCE_WINDOW_SECS = 1.0  # seconds to wait after last notification
 LISTENER_MAX_RECONNECTS = 10  # reconnect attempts after a connection drop
 
 
+def validate_pipeline_assets() -> None:
+    """
+    Validate ETL configuration and SQL assets without opening DB connections.
+
+    This provides a CI-safe preflight check for the ETL pipeline.
+    """
+    missing_files = [
+        os.path.join(SQL_DIR, filename)
+        for filename in SQL_FILES
+        if not os.path.exists(os.path.join(SQL_DIR, filename))
+    ]
+
+    if missing_files:
+        raise FileNotFoundError("Missing ETL SQL file(s): " + ", ".join(missing_files))
+
+    for key, value in DB_CONFIG.items():
+        if value in (None, ""):
+            raise ValueError(f"Missing ETL DB config value for: {key}")
+
+    if not REQUIRED_TABLES:
+        raise ValueError("REQUIRED_TABLES cannot be empty")
+
+    log.info("ETL preflight passed. SQL files: %s", ", ".join(SQL_FILES))
+    log.info("Required tables: %s", ", ".join(REQUIRED_TABLES))
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="CommunityBoard ETL pipeline")
+    parser.add_argument(
+        "--validate-only",
+        action="store_true",
+        help="Validate ETL configuration and SQL assets, then exit.",
+    )
+    return parser.parse_args()
+
+
 # ------------------------------------------------------------------ #
 # Backoff helper
 # ------------------------------------------------------------------ #
@@ -119,13 +164,19 @@ def backoff_delay(
 def get_connection(
     autocommit: bool = False,
     retries: int = 3,
-) -> psycopg2.extensions.connection:
+) -> ConnectionType:
     """
     Open a PostgreSQL connection with retry + exponential backoff.
 
     Retries on transient OperationalError (e.g. brief network blip).
     Raises immediately on non-retryable errors (e.g. auth failure).
     """
+    if psycopg2 is None:
+        raise RuntimeError(
+            "psycopg2 is required to open database connections. "
+            "Install data-engineering/requirements.txt first."
+        )
+
     last_exc: Exception = RuntimeError("No connection attempts made.")
     for attempt in range(retries):
         try:
@@ -161,6 +212,12 @@ def wait_for_postgres(max_retries: int = POSTGRES_MAX_RETRIES) -> None:
     Approximate backoff sequence (with jitter):
         2s, 4s, 8s, 16s, 32s, 60s, 60s, 60s, 60s, 60s
     """
+    if psycopg2 is None:
+        raise RuntimeError(
+            "psycopg2 is required to run the ETL pipeline. "
+            "Install data-engineering/requirements.txt first."
+        )
+
     log.info("Waiting for PostgreSQL to be reachable...")
     last_exc: Exception = RuntimeError("No attempts made.")
 
@@ -334,7 +391,7 @@ _last_refresh_time: float = 0.0
 
 
 def refresh_views(
-    conn: psycopg2.extensions.connection,
+    conn: ConnectionType,
     max_retries: int = REFRESH_MAX_RETRIES,
 ) -> None:
     """
@@ -433,7 +490,7 @@ def refresh_views(
 # ------------------------------------------------------------------ #
 # Step 5: Inner LISTEN/NOTIFY loop
 # ------------------------------------------------------------------ #
-def _run_listener(conn: psycopg2.extensions.connection) -> None:
+def _run_listener(conn: ConnectionType) -> None:
     """
     Inner listener loop. Blocks until the connection drops.
 
@@ -571,10 +628,14 @@ def start_listener(max_reconnects: int = LISTENER_MAX_RECONNECTS) -> None:
 if __name__ == "__main__":
     log.info("=== CommunityBoard ETL Pipeline Starting ===")
     try:
-        wait_for_postgres()
-        wait_for_tables()
-        run_sql_files()
-        start_listener()
+        args = parse_args()
+        if args.validate_only:
+            validate_pipeline_assets()
+        else:
+            wait_for_postgres()
+            wait_for_tables()
+            run_sql_files()
+            start_listener()
     except KeyboardInterrupt:
         log.info("ETL pipeline stopped by user.")
     except Exception as exc:

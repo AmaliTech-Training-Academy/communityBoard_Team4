@@ -42,6 +42,55 @@ const CATEGORY_LABELS: Record<string, string> = {
   ALERT: "Alerts",
 };
 
+function TrendingUpIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d="M22 7L13.5 15.5L8.5 10.5L2 17"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M16 7H22V13"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function MessageCircleIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d="M21 11.5C21 16.1944 16.9706 20 12 20C10.3562 20 8.81537 19.5837 7.5 18.8564L3 20L4.24535 16.5224C3.45581 15.0613 3 13.4054 3 11.5C3 6.80558 7.02944 3 12 3C16.9706 3 21 6.80558 21 11.5Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function BarChart({
   data,
   title,
@@ -206,12 +255,7 @@ export function Analytics() {
                 <div className="analytics-stat-header">
                   <h3 className="analytics-stat-title">Total Posts</h3>
                   <div className="analytics-stat-icon analytics-stat-icon-chart">
-                    <img
-                      src="/assets/trending-up.svg"
-                      alt="Trending up"
-                      width="20"
-                      height="20"
-                    />
+                    <TrendingUpIcon />
                   </div>
                 </div>
                 <p className="analytics-stat-value">{summary.totalPosts}</p>
@@ -220,12 +264,7 @@ export function Analytics() {
                 <div className="analytics-stat-header">
                   <h3 className="analytics-stat-title">Total Comments</h3>
                   <div className="analytics-stat-icon analytics-stat-icon-comment">
-                    <img
-                      src="/assets/total-comments.svg"
-                      alt="Comments"
-                      width="20"
-                      height="20"
-                    />
+                    <MessageCircleIcon />
                   </div>
                 </div>
                 <p className="analytics-stat-value">

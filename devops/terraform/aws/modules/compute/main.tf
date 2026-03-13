@@ -122,7 +122,16 @@ resource "aws_ecs_task_definition" "backend" {
 
       environment = [
         { name = "SPRING_PROFILES_ACTIVE", value = var.environment },
-        { name = "SERVER_PORT", value = "8080" }
+        { name = "SERVER_PORT", value = "8080" },
+        { name = "CORS_ALLOWED_ORIGINS", value = "http://${var.alb_dns_name}" },
+        { name = "APP_MAIL_PROVIDER", value = "ses" },
+        { name = "AWS_REGION", value = var.aws_region },
+        { name = "EMAIL_VERIFICATION_ENABLED", value = "true" },
+        { name = "EMAIL_NOTIFICATIONS_ENABLED", value = "true" },
+        { name = "EMAIL_VERIFICATION_FROM", value = var.ses_sender_email },
+        { name = "EMAIL_NOTIFICATIONS_FROM", value = var.ses_sender_email },
+        { name = "EMAIL_VERIFICATION_URL", value = "http://${var.alb_dns_name}/verify-email" },
+        { name = "FRONTEND_BASE_URL", value = "http://${var.alb_dns_name}" }
       ]
 
       # Secrets injected at container start by the ECS agent — never in plaintext

@@ -1,9 +1,7 @@
 ##############################################################################
 # docker.yml — Docker Build & Push to Amazon ECR
 #
-# Triggers : workflow_run — runs automatically after CI succeeds on
-#              main or develop (push only; PRs are excluded by branch filter)
-#            workflow_dispatch — manual run with optional git ref override
+# Triggers : workflow_dispatch — manual run with optional git ref override
 #
 # What it does:
 #   1. Builds frontend (Nginx) and backend (Spring Boot) images in parallel
@@ -20,15 +18,11 @@
 #                       sub = repo:<org>/<repo>:ref:refs/heads/*
 #   AWS_ACCOUNT_ID  — 12-digit AWS account ID (used to build the ECR URL)
 #
-# Downstream: deploy.yml triggers on successful completion of this workflow.
+# Legacy workflow retained for manual fallback only.
 ##############################################################################
 name: Docker Build & Push
 
 on:
-  workflow_run:
-    workflows: [ "CI" ]
-    branches: [ main, develop ]
-    types: [ completed ]
   workflow_dispatch:
     inputs:
       ref:
@@ -53,10 +47,6 @@ jobs:
     name: Build & Push — ${{ matrix.service }}
     runs-on: ubuntu-latest
 
-    # Skip if CI failed (only relevant for workflow_run trigger)
-    if: >-
-      github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
-
     strategy:
       fail-fast: false # build both images even if one fails
       matrix:
@@ -73,11 +63,7 @@ jobs:
     - name: Resolve ref and image tag
       id: vars
       run: |
-        if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
-          REF="${{ github.event.workflow_run.head_sha }}"
-        else
-          REF="${{ github.event.inputs.ref || github.sha }}"
-        fi
+        REF="${{ github.event.inputs.ref || github.sha }}"
         echo "ref=$REF" >> "$GITHUB_OUTPUT"
         echo "tag=${REF::7}" >> "$GITHUB_OUTPUT"
 

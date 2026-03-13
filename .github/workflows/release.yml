@@ -22,7 +22,7 @@ name: Release
 
 on:
   workflow_run:
-    workflows: [ "Deploy" ]
+    workflows: [ "Pipeline" ]
     branches: [ main ]
     types: [ completed ]
   workflow_dispatch:
@@ -42,7 +42,7 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
 
-    # Only run when Deploy succeeded (workflow_run) or triggered manually
+    # Only run when Pipeline succeeded on main (workflow_run) or triggered manually
     if: >-
       github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.head_branch == 'main')
@@ -50,6 +50,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
+        ref: ${{ github.event.workflow_run.head_sha || github.sha }}
         fetch-depth: 0 # full history needed for git log and tag operations
         token: ${{ secrets.GITHUB_TOKEN }}
 

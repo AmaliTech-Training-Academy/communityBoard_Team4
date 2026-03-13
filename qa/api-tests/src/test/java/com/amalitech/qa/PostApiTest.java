@@ -38,11 +38,11 @@ public class PostApiTest {
         given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + authToken)
-            .body("{\"title\":\"QA Test Post\",\"content\":\"Automated test content\",\"categoryId\":1}")
+            .body("{\"title\":\"QA Test Post\",\"body\":\"Automated test content\",\"category\":\"DISCUSSION\"}")
         .when()
             .post("/api/posts")
         .then()
-            .statusCode(200)
+            .statusCode(201)
             .body("title", equalTo("QA Test Post"));
     }
 
