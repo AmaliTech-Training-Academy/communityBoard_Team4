@@ -42,7 +42,10 @@ export function Navbar() {
         {/* Desktop Navigation */}
         <div className="navbar-desktop-menu">
           {/* Analytics Button */}
-          <button className="navbar-action-btn">
+          <button
+            className="navbar-action-btn"
+            onClick={() => navigate("/analytics")}
+          >
             <img
               src="/assets/Analytics.svg"
               alt="Analytics"
@@ -109,7 +112,13 @@ export function Navbar() {
             </div>
           </div>
 
-          <button className="navbar-action-btn mobile-menu-item">
+          <button
+            className="navbar-action-btn mobile-menu-item"
+            onClick={() => {
+              navigate("/analytics");
+              setIsMobileMenuOpen(false);
+            }}
+          >
             <img
               src="/assets/Analytics.svg"
               alt="Analytics"
