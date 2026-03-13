@@ -138,3 +138,12 @@ resource "aws_guardduty_detector" "this" {
 
   tags = merge(var.tags, { Name = "${var.project_name}-guardduty" })
 }
+
+# ---------------------------------------------------------------------------
+# SES — sender identity used by backend verification + notification emails
+# ---------------------------------------------------------------------------
+resource "aws_sesv2_email_identity" "app_sender" {
+  email_identity = var.ses_sender_email
+
+  tags = merge(var.tags, { Name = "${var.project_name}-ses-sender" })
+}

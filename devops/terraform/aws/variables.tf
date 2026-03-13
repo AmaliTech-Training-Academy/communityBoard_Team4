@@ -165,3 +165,13 @@ variable "github_repo" {
   description = "GitHub repository in org/repo format (e.g. amalitech/communityBoard_Team4). Scopes the OIDC trust policy for the GitHub Actions deployment role."
   type        = string
 }
+
+variable "ses_sender_email" {
+  description = "SES-verified sender email address used by the backend for verification and notification emails"
+  type        = string
+
+  validation {
+    condition     = can(regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$", var.ses_sender_email)) && !endswith(lower(var.ses_sender_email), "@example.com") && !startswith(lower(var.ses_sender_email), "no-reply@example")
+    error_message = "ses_sender_email must be a real, active sender address (SES-verified), not an example placeholder like no-reply@example.com."
+  }
+}

@@ -1,0 +1,197 @@
+##############################################################################
+# rollback.yml — Manual ECS rollback workflow
+#
+# Trigger  : workflow_dispatch only
+# Purpose  : Quickly roll back frontend, backend, or both services to the
+#            previous ACTIVE ECS task definition revision.
+#
+# How it works:
+#   1. Resolves the currently running task definition for each selected service
+#   2. Finds the previous ACTIVE revision in the same task definition family
+#   3. Updates the ECS service to that revision and forces a new deployment
+#   4. Waits until ECS reports the service as stable
+#
+# Required secrets:
+#   AWS_ROLE_ARN — IAM role with OIDC trust for GitHub Actions
+##############################################################################
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target GitHub environment gate"
+        required: true
+        type: choice
+        options: [ staging, production ]
+      service:
+        description: "Service to roll back"
+        required: true
+        type: choice
+        options: [ all, frontend, backend ]
+        default: all
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: rollback-${{ github.event.inputs.environment }}
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: eu-west-1
+  ECS_CLUSTER: community-board-cluster
+
+jobs:
+  rollback:
+    name: Rollback ${{ github.event.inputs.service }} → ${{ github.event.inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Resolve rollback target(s)
+      id: targets
+      shell: bash
+      env:
+        TARGET_SERVICE: ${{ github.event.inputs.service }}
+      run: |
+        set -euo pipefail
+
+        resolve_previous_task_definition() {
+          local service_name="$1"
+          local family_name="$2"
+
+          local current_task_definition
+          current_task_definition=$(aws ecs describe-services \
+            --cluster "${ECS_CLUSTER}" \
+            --services "${service_name}" \
+            --region "${AWS_REGION}" \
+            --query 'services[0].taskDefinition' \
+            --output text)
+
+          if [[ -z "${current_task_definition}" || "${current_task_definition}" == "None" ]]; then
+            echo "Unable to resolve current task definition for ${service_name}" >&2
+            exit 1
+          fi
+
+          local previous_task_definition
+          previous_task_definition=$(aws ecs list-task-definitions \
+            --family-prefix "${family_name}" \
+            --sort DESC \
+            --status ACTIVE \
+            --region "${AWS_REGION}" \
+            --query 'taskDefinitionArns' \
+            --output text \
+            | tr '\t' '\n' \
+            | grep -Fxv "${current_task_definition}" \
+            | head -n 1)
+
+          if [[ -z "${previous_task_definition}" ]]; then
+            echo "No previous ACTIVE task definition found for ${family_name}" >&2
+            exit 1
+          fi
+
+          printf '%s\n%s\n' "${current_task_definition}" "${previous_task_definition}"
+        }
+
+        if [[ "${TARGET_SERVICE}" == "all" || "${TARGET_SERVICE}" == "frontend" ]]; then
+          mapfile -t frontend_defs < <(resolve_previous_task_definition "community-board-frontend" "community-board-frontend")
+          echo "frontend_current=${frontend_defs[0]}" >> "$GITHUB_OUTPUT"
+          echo "frontend_target=${frontend_defs[1]}" >> "$GITHUB_OUTPUT"
+        fi
+
+        if [[ "${TARGET_SERVICE}" == "all" || "${TARGET_SERVICE}" == "backend" ]]; then
+          mapfile -t backend_defs < <(resolve_previous_task_definition "community-board-backend" "community-board-backend")
+          echo "backend_current=${backend_defs[0]}" >> "$GITHUB_OUTPUT"
+          echo "backend_target=${backend_defs[1]}" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Roll back selected ECS service(s)
+      shell: bash
+      env:
+        TARGET_SERVICE: ${{ github.event.inputs.service }}
+        FRONTEND_TARGET: ${{ steps.targets.outputs.frontend_target }}
+        BACKEND_TARGET: ${{ steps.targets.outputs.backend_target }}
+      run: |
+        set -euo pipefail
+
+        rollback_service() {
+          local service_name="$1"
+          local task_definition="$2"
+
+          aws ecs update-service \
+            --cluster "${ECS_CLUSTER}" \
+            --service "${service_name}" \
+            --task-definition "${task_definition}" \
+            --force-new-deployment \
+            --region "${AWS_REGION}" >/dev/null
+        }
+
+        if [[ "${TARGET_SERVICE}" == "all" || "${TARGET_SERVICE}" == "frontend" ]]; then
+          rollback_service "community-board-frontend" "${FRONTEND_TARGET}"
+        fi
+
+        if [[ "${TARGET_SERVICE}" == "all" || "${TARGET_SERVICE}" == "backend" ]]; then
+          rollback_service "community-board-backend" "${BACKEND_TARGET}"
+        fi
+
+    - name: Wait for ECS service stability
+      shell: bash
+      env:
+        TARGET_SERVICE: ${{ github.event.inputs.service }}
+      run: |
+        set -euo pipefail
+
+        wait_for_service() {
+          local service_name="$1"
+
+          aws ecs wait services-stable \
+            --cluster "${ECS_CLUSTER}" \
+            --services "${service_name}" \
+            --region "${AWS_REGION}"
+        }
+
+        if [[ "${TARGET_SERVICE}" == "all" || "${TARGET_SERVICE}" == "frontend" ]]; then
+          wait_for_service "community-board-frontend"
+        fi
+
+        if [[ "${TARGET_SERVICE}" == "all" || "${TARGET_SERVICE}" == "backend" ]]; then
+          wait_for_service "community-board-backend"
+        fi
+
+    - name: Rollback summary
+      shell: bash
+      env:
+        TARGET_SERVICE: ${{ github.event.inputs.service }}
+        FRONTEND_CURRENT: ${{ steps.targets.outputs.frontend_current }}
+        FRONTEND_TARGET: ${{ steps.targets.outputs.frontend_target }}
+        BACKEND_CURRENT: ${{ steps.targets.outputs.backend_current }}
+        BACKEND_TARGET: ${{ steps.targets.outputs.backend_target }}
+      run: |
+        {
+          echo "## Rollback complete"
+          echo ""
+          echo "**Environment:** ${{ github.event.inputs.environment }}"
+          echo "**Selection:** ${TARGET_SERVICE}"
+          echo ""
+
+          if [[ "${TARGET_SERVICE}" == "all" || "${TARGET_SERVICE}" == "frontend" ]]; then
+            echo "### Frontend"
+            echo "- Current: \`${FRONTEND_CURRENT}\`"
+            echo "- Rolled back to: \`${FRONTEND_TARGET}\`"
+            echo ""
+          fi
+
+          if [[ "${TARGET_SERVICE}" == "all" || "${TARGET_SERVICE}" == "backend" ]]; then
+            echo "### Backend"
+            echo "- Current: \`${BACKEND_CURRENT}\`"
+            echo "- Rolled back to: \`${BACKEND_TARGET}\`"
+          fi
+        } >> "$GITHUB_STEP_SUMMARY"
