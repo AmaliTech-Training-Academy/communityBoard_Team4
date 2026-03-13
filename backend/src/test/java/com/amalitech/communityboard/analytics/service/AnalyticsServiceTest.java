@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,7 @@ import java.util.concurrent.ExecutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,6 +40,7 @@ class AnalyticsServiceTest {
     @Mock PostsByCategoryRepository postsByCategoryRepository;
     @Mock PostsByDayRepository postsByDayRepository;
     @Mock TopContributorsRepository topContributorsRepository;
+    @Mock JdbcTemplate jdbcTemplate;
     @InjectMocks AnalyticsService analyticsService;
 
     // ── getSummary ────────────────────────────────────────────────────────────
@@ -50,6 +53,7 @@ class AnalyticsServiceTest {
         AnalyticsSummary result = analyticsService.getSummary();
 
         assertThat(result).isSameAs(summary);
+        verify(jdbcTemplate).execute(contains("analytics_summary"));
         verify(summaryRepository).getSummary();
     }
 
@@ -60,6 +64,8 @@ class AnalyticsServiceTest {
         assertThatThrownBy(() -> analyticsService.getSummary())
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("ETL pipeline");
+
+        verify(jdbcTemplate).execute(contains("analytics_summary"));
     }
 
     // ── getPostsByCategory ────────────────────────────────────────────────────
@@ -72,6 +78,7 @@ class AnalyticsServiceTest {
         List<PostsByCategory> result = analyticsService.getPostsByCategory().get();
 
         assertThat(result).isSameAs(data);
+        verify(jdbcTemplate).execute(contains("analytics_posts_by_category"));
         verify(postsByCategoryRepository).getPostsByCategory();
     }
 
@@ -85,6 +92,7 @@ class AnalyticsServiceTest {
         List<PostsByDay> result = analyticsService.getPostsByDay().get();
 
         assertThat(result).isSameAs(data);
+        verify(jdbcTemplate).execute(contains("analytics_posts_by_day"));
         verify(postsByDayRepository).getPostsByDay();
     }
 
@@ -98,6 +106,7 @@ class AnalyticsServiceTest {
         List<TopContributor> result = analyticsService.getTopContributors().get();
 
         assertThat(result).isSameAs(data);
+        verify(jdbcTemplate).execute(contains("analytics_top_contributors"));
         verify(topContributorsRepository).getTopContributors();
     }
 }
