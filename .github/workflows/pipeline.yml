@@ -10,10 +10,12 @@
 #   workflow_dispatch       → full pipeline (test → build → deploy)
 #
 # Job graph (push / dispatch):
-#   backend-test  ─┐
-#   frontend-test ─┼─► build-push (frontend) ─┐
-#   tf-validate   ─┘   build-push (backend)  ─┴─► prepare ─► deploy (frontend)
-#                                                             deploy (backend)
+#   backend-test          ─┐
+#   frontend-test         ─┤
+#   terraform-validate    ─┤
+#   database-migrations   ─┼─► build-push (frontend) ─┐
+#   etl-pipeline          ─┤   build-push (backend)  ─┴─► prepare ─► deploy (frontend)
+#   data-quality-checks   ─┘                                            deploy (backend)
 #
 # Branch → environment mapping:
 #   main    → production
@@ -145,13 +147,94 @@ jobs:
     - name: Validate
       run: terraform validate
 
+  database-migrations:
+    name: Database Migration — Flyway
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: communityboard_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres # pragma: allowlist secret
+        ports:
+        - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d communityboard_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: "17"
+        distribution: temurin
+        cache: maven
+
+    - name: Apply and validate Flyway migrations
+      working-directory: ./backend
+      env:
+        FLYWAY_PASSWORD: postgres # pragma: allowlist secret
+      run: |
+        mvn -B \
+          -Dflyway.url=jdbc:postgresql://localhost:5432/communityboard_ci \
+          -Dflyway.user=postgres \
+          -Dflyway.password=${FLYWAY_PASSWORD} \
+          org.flywaydb:flyway-maven-plugin:9.22.3:migrate \
+          org.flywaydb:flyway-maven-plugin:9.22.3:validate \
+          org.flywaydb:flyway-maven-plugin:9.22.3:info
+
+  etl-pipeline:
+    name: ETL Pipeline — Preflight
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+        cache: pip
+        cache-dependency-path: data-engineering/requirements.txt
+
+    - name: Install ETL dependencies
+      run: pip install -r data-engineering/requirements.txt
+
+    - name: ETL pipeline preflight
+      run: python data-engineering/etl_pipeline.py --validate-only
+
+  data-quality-checks:
+    name: Data Quality — Validate Transformations
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+        cache: pip
+        cache-dependency-path: data-engineering/requirements.txt
+
+    - name: Install validation dependencies
+      run: pip install -r data-engineering/requirements.txt
+
+    - name: Validate analytics transformations
+      run: python data-engineering/validate_transformations.py
+
   # ─────────────────────────────────────────────────────────────────────────
   # Build & Push — skipped on pull requests; only runs on push / dispatch
   # ─────────────────────────────────────────────────────────────────────────
 
   build-push:
     name: Build & Push — ${{ matrix.service }}
-    needs: [ backend-test, frontend-test, terraform-validate ]
+    needs: [ backend-test, frontend-test, terraform-validate, database-migrations, etl-pipeline, data-quality-checks ]
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
 
