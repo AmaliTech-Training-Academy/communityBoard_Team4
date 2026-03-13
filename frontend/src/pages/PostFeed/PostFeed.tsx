@@ -20,6 +20,8 @@ export function PostFeed() {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<CategoryType>("All");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [page, setPage] = useState(0);
@@ -32,6 +34,8 @@ export function PostFeed() {
     setSearchQuery("");
     setDebouncedSearch("");
     setActiveCategory("All");
+    setStartDate("");
+    setEndDate("");
     setPage(0);
     setRefreshKey((k) => k + 1);
   }, []);
@@ -44,10 +48,10 @@ export function PostFeed() {
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
-  // Reset page when search or category changes
+  // Reset page when search, category, or date range changes
   useEffect(() => {
     setPage(0);
-  }, [debouncedSearch, activeCategory]);
+  }, [debouncedSearch, activeCategory, startDate, endDate]);
 
   // Fetch posts from API
   useEffect(() => {
@@ -57,10 +61,13 @@ export function PostFeed() {
         const params: any = { page, size: 10 };
         if (activeCategory !== "All") params.category = activeCategory;
         if (debouncedSearch) params.keyword = debouncedSearch;
+        // Convert YYYY-MM-DD (HTML date input) to ISO-8601 datetime for the API
+        if (startDate) params.startDate = `${startDate}T00:00:00`;
+        if (endDate) params.endDate = `${endDate}T23:59:59`;
 
-        // Use the default sorted endpoint if no filters are applied
+        // Use the search endpoint whenever any filter is active
         const endpoint =
-          activeCategory === "All" && !debouncedSearch
+          activeCategory === "All" && !debouncedSearch && !startDate && !endDate
             ? "/posts"
             : "/posts/search";
 
@@ -77,7 +84,7 @@ export function PostFeed() {
       }
     };
     fetchPosts();
-  }, [page, debouncedSearch, activeCategory, refreshKey]);
+  }, [page, debouncedSearch, activeCategory, startDate, endDate, refreshKey]);
 
   const handleSearchSubmit = () => {
     setDebouncedSearch(searchQuery);
@@ -138,6 +145,38 @@ export function PostFeed() {
             <img src="/assets/plus.svg" alt="Plus" className="plus-icon-img" />
             <span>Create post</span>
           </button>
+        </div>
+
+        {/* Date Range Filter Row */}
+        <div className="date-filter-row">
+          <span className="date-filter-label">Date range:</span>
+          <div className="date-filter-inputs">
+            <input
+              type="date"
+              className="date-filter-input"
+              data-testid="start-date-input"
+              value={startDate}
+              max={endDate || undefined}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+            <span className="date-filter-separator">to</span>
+            <input
+              type="date"
+              className="date-filter-input"
+              data-testid="end-date-input"
+              value={endDate}
+              min={startDate || undefined}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+            {(startDate || endDate) && (
+              <button
+                className="date-filter-clear"
+                onClick={() => { setStartDate(""); setEndDate(""); }}
+              >
+                Clear
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Categories Row */}
