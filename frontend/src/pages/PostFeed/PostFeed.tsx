@@ -147,6 +147,22 @@ export function PostFeed() {
           </button>
         </div>
 
+        {/* Categories Row */}
+        <div className="categories-row">
+          <span className="categories-label">Categories:</span>
+          <div className="categories-list">
+            {CATEGORIES.map((category) => (
+              <Badge
+                key={category}
+                category={category}
+                isFilter={true}
+                isActive={activeCategory === category}
+                onClick={() => setActiveCategory(category)}
+              />
+            ))}
+          </div>
+        </div>
+
         {/* Date Range Filter Row */}
         <div className="date-filter-row">
           <span className="date-filter-label">Date range:</span>
@@ -176,22 +192,6 @@ export function PostFeed() {
                 Clear
               </button>
             )}
-          </div>
-        </div>
-
-        {/* Categories Row */}
-        <div className="categories-row">
-          <span className="categories-label">Categories:</span>
-          <div className="categories-list">
-            {CATEGORIES.map((category) => (
-              <Badge
-                key={category}
-                category={category}
-                isFilter={true}
-                isActive={activeCategory === category}
-                onClick={() => setActiveCategory(category)}
-              />
-            ))}
           </div>
         </div>
 
