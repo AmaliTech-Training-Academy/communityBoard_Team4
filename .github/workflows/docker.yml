@@ -1,0 +1,119 @@
+##############################################################################
+# docker.yml — Docker Build & Push to Amazon ECR
+#
+# Triggers : workflow_run — runs automatically after CI succeeds on
+#              main or develop (push only; PRs are excluded by branch filter)
+#            workflow_dispatch — manual run with optional git ref override
+#
+# What it does:
+#   1. Builds frontend (Nginx) and backend (Spring Boot) images in parallel
+#   2. Tags each image as <service>-<7-char-sha>  (e.g. frontend-abc1234)
+#   3. Pushes to the community-board ECR repository
+#   ECR is IMMUTABLE (image_tag_mutability = "IMMUTABLE") so only SHA tags
+#   are pushed — no :latest — to avoid overwrite errors on re-runs.
+#
+# Required secrets:
+#   AWS_ROLE_ARN    — IAM role ARN with OIDC trust for github Actions
+#                     Trust policy must allow:
+#                       sts:AssumeRoleWithWebIdentity
+#                     from token.actions.githubusercontent.com with conditions:
+#                       sub = repo:<org>/<repo>:ref:refs/heads/*
+#   AWS_ACCOUNT_ID  — 12-digit AWS account ID (used to build the ECR URL)
+#
+# Downstream: deploy.yml triggers on successful completion of this workflow.
+##############################################################################
+name: Docker Build & Push
+
+on:
+  workflow_run:
+    workflows: [ "CI" ]
+    branches: [ main, develop ]
+    types: [ completed ]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref to build (branch, tag, or full SHA). Defaults to HEAD."
+        required: false
+        default: ""
+
+permissions:
+  id-token: write # required for OIDC credential exchange
+  contents: read
+
+concurrency:
+  group: docker-${{ github.event.workflow_run.head_branch || github.ref }}
+  cancel-in-progress: false # never cancel an in-progress image push
+
+env:
+  AWS_REGION: eu-west-1
+  ECR_REPO: community-board
+
+jobs:
+  build-push:
+    name: Build & Push — ${{ matrix.service }}
+    runs-on: ubuntu-latest
+
+    # Skip if CI failed (only relevant for workflow_run trigger)
+    if: >-
+      github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+
+    strategy:
+      fail-fast: false # build both images even if one fails
+      matrix:
+        include:
+        - service: frontend
+          context: ./frontend
+          dockerfile: ./frontend/Dockerfile
+        - service: backend
+          context: ./backend
+          dockerfile: ./backend/Dockerfile
+
+    steps:
+    # ── Resolve the exact SHA to build ──────────────────────────────────
+    - name: Resolve ref and image tag
+      id: vars
+      run: |
+        if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+          REF="${{ github.event.workflow_run.head_sha }}"
+        else
+          REF="${{ github.event.inputs.ref || github.sha }}"
+        fi
+        echo "ref=$REF" >> "$GITHUB_OUTPUT"
+        echo "tag=${REF::7}" >> "$GITHUB_OUTPUT"
+
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ steps.vars.outputs.ref }}
+
+    # ── AWS authentication via OIDC (no long-lived keys) ────────────────
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    # ── Build and push ───────────────────────────────────────────────────
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build and push ${{ matrix.service }}
+      uses: docker/build-push-action@v5
+      with:
+        context: ${{ matrix.context }}
+        file: ${{ matrix.dockerfile }}
+        push: true
+        # ECR is IMMUTABLE — push the SHA tag only (no :latest to avoid conflicts)
+        tags: ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ matrix.service }}-${{ steps.vars.outputs.tag }}
+        # GitHub Actions cache (scoped per service) speeds up layer reuse
+        cache-from: type=gha,scope=${{ matrix.service }}
+        cache-to: type=gha,scope=${{ matrix.service }},mode=max
+
+    - name: Image digest summary
+      run: |
+        echo "### ${{ matrix.service }} image pushed" >> "$GITHUB_STEP_SUMMARY"
+        echo "**Tag:** \`${{ matrix.service }}-${{ steps.vars.outputs.tag }}\`" >> "$GITHUB_STEP_SUMMARY"
+        echo "**Registry:** \`${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}\`" >> "$GITHUB_STEP_SUMMARY"

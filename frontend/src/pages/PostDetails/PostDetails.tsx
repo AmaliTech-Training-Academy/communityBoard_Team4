@@ -99,7 +99,7 @@ export function PostDetails() {
       setLoadingComments(true);
       try {
         const { data } = await api.get(
-          `/posts/${id}/comments?page=${pageToLoad}&size=10`,
+          `/posts/${id}/comments?page=${pageToLoad}&size=10&sort=createdAt,desc`,
         );
         setComments(data.content || []);
         setTotalCommentPages(data.totalPages || 0);

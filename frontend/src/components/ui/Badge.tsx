@@ -9,6 +9,7 @@ export const CategoryType = {
   ALERT: "ALERT",
 } as const;
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export type CategoryType = (typeof CategoryType)[keyof typeof CategoryType];
 
 export const CATEGORY_DISPLAY_NAMES: Record<CategoryType, string> = {
