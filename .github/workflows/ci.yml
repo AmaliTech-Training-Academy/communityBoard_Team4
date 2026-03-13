@@ -1,20 +1,17 @@
 ##############################################################################
 # ci.yml — Main CI Pipeline
 #
-# Triggers : push to main/develop; pull requests targeting main/develop
+# Triggers : workflow_dispatch only
 # Jobs     : backend-test  — Maven build + JaCoCo coverage
 #            frontend-test — Vite build + Vitest coverage
 #            terraform-validate — fmt check + init + validate
 #
-# Downstream: docker.yml runs on push to main/develop after this succeeds.
+# Legacy workflow retained for manual fallback only.
 ##############################################################################
 name: CI
 
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}

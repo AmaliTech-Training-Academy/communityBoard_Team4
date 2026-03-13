@@ -1,9 +1,7 @@
 ##############################################################################
 # deploy.yml — Deployment Pipeline
 #
-# Triggers : workflow_run — runs automatically after Docker Build & Push
-#              succeeds on main (→ production) or develop (→ staging)
-#            workflow_dispatch — manual deploy with image tag + environment
+# Triggers : workflow_dispatch — manual deploy with image tag + environment
 #
 # Flow:
 #   prepare  → resolves image tag, target environment, and ECR URL
@@ -30,10 +28,6 @@
 name: Deploy
 
 on:
-  workflow_run:
-    workflows: [ "Docker Build & Push" ]
-    branches: [ main, develop ]
-    types: [ completed ]
   workflow_dispatch:
     inputs:
       image_tag:
@@ -50,7 +44,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: deploy-${{ github.event.workflow_run.head_branch || github.event.inputs.environment }}
+  group: deploy-${{ github.event.inputs.environment }}
   cancel-in-progress: false # never interrupt a running ECS deploy
 
 env:
@@ -65,8 +59,6 @@ jobs:
   prepare:
     name: Resolve deployment context
     runs-on: ubuntu-latest
-    if: >-
-      github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
 
     outputs:
       image_tag: ${{ steps.ctx.outputs.image_tag }}
@@ -77,15 +69,8 @@ jobs:
     - name: Compute context
       id: ctx
       run: |
-        if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
-          SHA="${{ github.event.workflow_run.head_sha }}"
-          IMAGE_TAG="${SHA::7}"
-          BRANCH="${{ github.event.workflow_run.head_branch }}"
-          ENV=$([[ "$BRANCH" == "main" ]] && echo "production" || echo "staging")
-        else
-          IMAGE_TAG="${{ github.event.inputs.image_tag }}"
-          ENV="${{ github.event.inputs.environment }}"
-        fi
+        IMAGE_TAG="${{ github.event.inputs.image_tag }}"
+        ENV="${{ github.event.inputs.environment }}"
         ECR_URL="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}"
         echo "image_tag=$IMAGE_TAG"   >> "$GITHUB_OUTPUT"
         echo "environment=$ENV"       >> "$GITHUB_OUTPUT"
