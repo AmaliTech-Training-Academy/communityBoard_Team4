@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +24,7 @@ public class CommentService {
      * Returns a paginated list of comments for the given post, oldest-first.
      * Page and size default to 0 and 20 respectively if not supplied by the caller.
      */
+    @Transactional(readOnly = true)
     public Page<CommentResponse> getCommentsByPost(Long postId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return commentRepository.findByPostIdOrderByCreatedAtAsc(postId, pageable)
@@ -33,6 +35,7 @@ public class CommentService {
      * Creates a comment on the given post.
      * Throws ResourceNotFoundException (404) if the post does not exist.
      */
+    @Transactional
     public CommentResponse createComment(Long postId, CommentRequest request, User author) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + postId));
@@ -51,6 +54,7 @@ public class CommentService {
      * Throws ResourceNotFoundException (404) if comment does not exist.
      * Throws UnauthorizedException (403) if user is not the author and not ADMIN.
      */
+    @Transactional
     public CommentResponse updateComment(Long commentId, CommentRequest request, User currentUser) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id: " + commentId));
@@ -62,6 +66,7 @@ public class CommentService {
         return toResponse(commentRepository.save(comment));
     }
 
+    @Transactional
     public void deleteComment(Long commentId, User currentUser) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id: " + commentId));

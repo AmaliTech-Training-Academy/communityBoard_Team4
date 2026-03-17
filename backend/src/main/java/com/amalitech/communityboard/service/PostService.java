@@ -19,6 +19,7 @@ import com.amalitech.communityboard.repository.PostRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -30,6 +31,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
 
+    @Transactional(readOnly = true)
     public Page<PostResponse> getAllPosts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return postRepository.findAllByOrderByCreatedAtDesc(pageable).map(this::toResponse);
@@ -39,6 +41,7 @@ public class PostService {
      * Searches and filters posts by any combination of category, date range, and keyword.
      * All parameters are optional — passing null disables that filter.
      */
+    @Transactional(readOnly = true)
     public Page<PostResponse> searchPosts(String categoryStr, LocalDateTime startDate,
                                           LocalDateTime endDate, String keyword,
                                           int page, int size) {
@@ -65,12 +68,14 @@ public class PostService {
         return postRepository.findAll(spec, pageable).map(this::toResponse);
     }
 
+    @Transactional(readOnly = true)
     public PostResponse getPostById(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));
         return toResponse(post);
     }
 
+    @Transactional
     public PostResponse createPost(PostRequest request, User author) {
         Category category = parseCategory(request.getCategory());
         Post post = Post.builder()
@@ -84,6 +89,7 @@ public class PostService {
         return toResponse(saved);
     }
 
+    @Transactional
     public PostResponse updatePost(Long id, PostRequest request, User author) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));
@@ -98,6 +104,7 @@ public class PostService {
         return toResponse(postRepository.save(post));
     }
 
+    @Transactional
     public void deletePost(Long id, User author) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));

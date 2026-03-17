@@ -61,6 +61,16 @@ public class Post {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    /**
+     * CB-213: Optimistic locking version column.
+     * JPA increments this on every UPDATE. If two concurrent transactions read the same
+     * version and both attempt to write, the second write throws
+     * ObjectOptimisticLockingFailureException, preventing a lost update.
+     */
+    @Version
+    @Column(nullable = false)
+    private Long version;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
